@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple, Optional
 from enum import Enum
 import time
+from collections import deque
 
 MM_TO_PX = 3.2
 
@@ -14,7 +15,6 @@ class DefectType(Enum):
     COLOR_WRONG = "culoare_gresita"
     LINE_BROKEN = "linie_intrerupta"
     WIDTH_WRONG = "latime_gresita"
-    SPACING_WRONG = "spatiere_gresita"
     CONTAMINATION = "contaminare"
     EDGE_DEFECT = "defect_margine"
     LINE_SHIFTED = "linie_deplasata"
@@ -24,12 +24,10 @@ class Pattern:
     name: str
     colors: List[str]
     color_ranges: Dict[str, List[Tuple[List[int], List[int]]]]
-    expected_widths: List[int] 
-    expected_spacing: List[int]
+    expected_widths: List[int]
     expected_positions_mm: Dict[str, int]
     expected_positions_px: Dict[str, int]
     tolerance_width: float = 0.15
-    tolerance_spacing: float = 0.20
     min_line_continuity: float = 0.85
 
 @dataclass
@@ -58,6 +56,15 @@ class AdvancedTireQualityChecker:
         self.adaptive_thresholds = True
         self.line_shift_tolerance_ratio = 0.25
         self.debug_visual = True
+        self.last_positions = {}
+        self.shift_persistence = {}
+        self.position_history = {
+                "green": deque(maxlen=12),
+                "white": deque(maxlen=12),
+                "yellow": deque(maxlen=12),
+                "aqua": deque(maxlen=12)
+            }
+        self.fixed_tire_center_x = None
         
         self._load_default_patterns()
         
@@ -72,8 +79,11 @@ class AdvancedTireQualityChecker:
                 "green": [
                     ([65, 25, 130], [90, 255, 255]) 
                 ],
+                # "white": [
+                #     ([0, 0, 230], [180, 12, 255]) 
+                # ],
                 "white": [
-                    ([0, 0, 170], [180, 45, 255]) 
+                    ([0, 0, 170], [180, 20 , 255]) 
                 ],
                 "yellow": [
                     ([18, 20, 140], [42, 255, 255])
@@ -85,32 +95,25 @@ class AdvancedTireQualityChecker:
 
             expected_widths=[30, 30, 30, 30],
 
-            expected_spacing=[
-                int(5 * MM_TO_PX),
-                int(50 * MM_TO_PX),
-                int(10 * MM_TO_PX)
-            ],
-
             expected_positions_mm={
-                "green": 80,
-                "white": 70,
-                "yellow": 20,
-                "aqua": 15
+                "green": 63,
+                "white": 56,
+                "yellow": 32,
+                "aqua": 28
             },
 
             expected_positions_px={
                 c: int(mm * MM_TO_PX)
                 for c, mm in {
-                    "green": 80,
-                    "white": 70,
-                    "yellow": 20,
-                    "aqua": 15
+                    "green": 202,
+                    "white": 178,
+                    "yellow": 104,
+                    "aqua": 90
                 }.items()
             },
 
-            tolerance_width=0.5,       
-            tolerance_spacing=0.5,      
-            min_line_continuity=0.75      
+            tolerance_width=0.5,          
+            min_line_continuity=0.43      
         )
         
         self.patterns["YAWG"] = yawg_pattern
@@ -255,39 +258,38 @@ class AdvancedTireQualityChecker:
         
         return full_mask
     
-    def _analyze_line_continuity(self, mask: np.ndarray, expected_height_ratio: float = 0.8) -> Dict:
+    def _analyze_line_continuity(self, mask: np.ndarray) -> Dict:
         height, width = mask.shape
-        
-        if width == 0:
+
+        if width == 0 or height == 0:
             return {
-                'avg_continuity': 0,
-                'min_continuity': 0,
-                'interruptions': [],
-                'continuity_scores': []
+                "avg_continuity": 0.0,
+                "min_continuity": 0.0,
+                "broken_ratio": 1.0,
+                "continuity_scores": []
             }
-        
+
         continuity_scores = []
-        
+
         for col in range(width):
             column = mask[:, col]
-            non_zero_pixels = np.count_nonzero(column)
-            continuity = non_zero_pixels / height if height > 0 else 0
-            continuity_scores.append(continuity)
-        
-        avg_continuity = np.mean(continuity_scores) if continuity_scores else 0
-        min_continuity = np.min(continuity_scores) if continuity_scores else 0
-        
-        interruptions = []
-        for i, score in enumerate(continuity_scores):
-            if score < 0.5:  
-                interruptions.append(i)
-        
+            continuity_scores.append(np.count_nonzero(column) / height)
+
+        continuity_scores = np.array(continuity_scores)
+
+        avg_continuity = float(np.mean(continuity_scores))
+        min_continuity = float(np.min(continuity_scores))
+
+        broken_cols = continuity_scores < 0.35
+        broken_ratio = float(np.sum(broken_cols) / width)
+
         return {
-            'avg_continuity': avg_continuity,
-            'min_continuity': min_continuity,
-            'interruptions': interruptions,
-            'continuity_scores': continuity_scores
+            "avg_continuity": avg_continuity,
+            "min_continuity": min_continuity,
+            "broken_ratio": broken_ratio,
+            "continuity_scores": continuity_scores.tolist()
         }
+
     
     def _detect_contamination(self, image: np.ndarray, mask: np.ndarray) -> List[DefectReport]:
         defects = []
@@ -353,6 +355,58 @@ class AdvancedTireQualityChecker:
             'sharpness': cv2.Laplacian(gray, cv2.CV_64F).var()
         }
     
+    def _detect_wrong_color(self, hsv: np.ndarray, expected_x: int, height: int, width: int, expected_color: str) -> Optional[Tuple[str, Tuple[int, int]]]:
+        """Detectează dacă la poziția așteptată există o linie cu culoare greșită"""
+        roi_half = 50 
+        
+        x1 = max(0, expected_x - roi_half)
+        x2 = min(width, expected_x + roi_half)
+        
+        roi_hsv = hsv[:, x1:x2]
+        if roi_hsv.size == 0:
+            return None
+        
+        bgr_roi = cv2.cvtColor(roi_hsv, cv2.COLOR_HSV2BGR)
+        gray_roi = cv2.cvtColor(bgr_roi, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(gray_roi, 50, 150)
+        
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 20))
+        vertical_lines = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel)
+        
+        contours, _ = cv2.findContours(vertical_lines, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            if h > height * 0.4 and w < 30:
+                line_roi = roi_hsv[y:y+h, x:x+w]
+                if line_roi.size == 0:
+                    continue
+                
+                mean_hsv = cv2.mean(line_roi)
+                h_val, s_val, v_val = mean_hsv[:3]
+                
+                best_match = None
+                best_confidence = 0
+                
+                for color_name, ranges in self.current_pattern.color_ranges.items():
+                    for lower, upper in ranges:
+                        if (lower[0] <= h_val <= upper[0] and 
+                            lower[1] <= s_val <= upper[1] and 
+                            lower[2] <= v_val <= upper[2]):
+
+                            if color_name != expected_color:
+                                best_match = color_name
+                                best_confidence = 1.0 
+                                break
+                    if best_match:
+                        break
+                
+                if best_match:
+                    position = (x1 + x + w // 2, height // 2)
+                    return best_match, position
+        
+        return None
+    
     def analyze_tire(self, image_path: str) -> QualityResult:
         start_time = time.time()
         image = cv2.imread(image_path)
@@ -372,8 +426,8 @@ class AdvancedTireQualityChecker:
         height, width = image.shape[:2]
 
         detected_lines: Dict[str, Dict] = {}
-        all_defects: List[DefectReport] = {}
-        all_defects = []
+        all_defects: List[DefectReport] = []
+        missing_colors = []
 
         for i, color_name in enumerate(self.current_pattern.colors):
             color_ranges = self.current_pattern.color_ranges[color_name]
@@ -382,15 +436,7 @@ class AdvancedTireQualityChecker:
             line_info = self._detect_advanced_line(mask, color_name, i)
 
             if not line_info:
-                all_defects.append(
-                    DefectReport(
-                        defect_type=DefectType.COLOR_MISSING,
-                        severity=1.0,
-                        position=(width // 2, height // 2),
-                        description=f"Linie lipsă: {color_name}",
-                        confidence=0.95
-                    )
-                )
+                missing_colors.append(color_name)
                 continue
 
             detected_lines[color_name] = line_info
@@ -416,6 +462,47 @@ class AdvancedTireQualityChecker:
             x, y, w, h = line_info["bounding_box"]
             line_mask = mask[y:y + h, x:x + w]
             continuity = self._analyze_line_continuity(line_mask)
+            if (
+                continuity["min_continuity"] < 0.4 or
+                continuity["broken_ratio"] > 0.15
+            ):
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.LINE_BROKEN,
+                        severity=1.0,
+                        position=(line_info["x_position"], height // 2),
+                        description=(
+                            f"Linie {color_name} întreruptă "
+                            f"(min={continuity['min_continuity']:.2f}, "
+                            f"broken={continuity['broken_ratio']*100:.0f}%)"
+                        ),
+                        confidence=0.95
+                    )
+                )
+
+        for color in missing_colors:
+            wrong_color_info = self._detect_wrong_color(hsv, self.current_pattern.expected_positions_px[color], height, width, color)
+            if wrong_color_info:
+                wrong_color_name, position = wrong_color_info
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.COLOR_WRONG,
+                        severity=1.0,
+                        position=position,
+                        description=f"Culoare greșită pentru {color}: detectată {wrong_color_name}",
+                        confidence=0.85
+                    )
+                )
+            else:
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.COLOR_MISSING,
+                        severity=1.0,
+                        position=(width // 2, height // 2),
+                        description=f"Linie lipsă: {color}",
+                        confidence=0.95
+                    )
+                )
 
         order_defect = self._check_exact_order(detected_lines)
         if order_defect:
@@ -443,85 +530,133 @@ class AdvancedTireQualityChecker:
             summary=summary
         )
 
-    def _analyze_frame_absolute(self, image: np.ndarray):
-            defects = []
-            debug_info = {}
+    def _analyze_frame_absolute(self, image: np.ndarray, tire_center_x: int, x_offset: int = 0):
+        defects = []
+        debug_info = {}
 
-            image_stats = self._calculate_image_statistics(image)
-            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            height, width = image.shape[:2]
-            tire_center_x = width // 2
+        image_stats = self._calculate_image_statistics(image)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        height, width = image.shape[:2]
+        if self.fixed_tire_center_x is None:
+            raise RuntimeError("Centru bandă necalibrat")
 
-            for color in self.current_pattern.colors:
-                ranges = self.current_pattern.color_ranges[color]
 
-                expected_px = self.current_pattern.expected_positions_px[color]
-                roi_half_width = int(20 * MM_TO_PX)  
+        if not hasattr(self, "last_positions"):
+            self.last_positions = {}
+        if not hasattr(self, "shift_persistence"):
+            self.shift_persistence = {}
 
-                x_center_expected = tire_center_x - expected_px
-                x1 = max(0, x_center_expected - roi_half_width)
-                x2 = min(width, x_center_expected + roi_half_width)
+        for color in self.current_pattern.colors:
+            ranges = self.current_pattern.color_ranges[color]
+            expected_px = self.current_pattern.expected_positions_px[color]
 
-                roi_hsv = hsv[:, x1:x2]
-                if roi_hsv.size == 0:
-                    continue
+            roi_half_width = int(20 * MM_TO_PX)
+            x_center_expected = tire_center_x - expected_px
+            x1 = max(0, x_center_expected - roi_half_width)
+            x2 = min(width, x_center_expected + roi_half_width)
 
-                mask = self._adaptive_color_detection(roi_hsv, ranges, image_stats)
-                coverage = np.count_nonzero(mask) / mask.size
+            roi_hsv = hsv[:, x1:x2]
+            if roi_hsv.size == 0:
+                continue
 
-                found = False
-                current_center_abs = None
-                bbox = None
+            mask = self._adaptive_color_detection(roi_hsv, ranges, image_stats)
 
-                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                if contours:
-                    largest = max(contours, key=cv2.contourArea)
-                    x, y, w, h = cv2.boundingRect(largest)
+            coverage = np.count_nonzero(mask) / mask.size
+
+            found = False
+            current_center_abs = None
+            bbox = None
+
+            if coverage >= 0.15:
+                contours, _ = cv2.findContours(
+                    mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
+            else:
+                contours = []
+
+            if contours:
+                def score_contour(c):
+                    x, y, w, h = cv2.boundingRect(c)
+                    area = cv2.contourArea(c)
+                    aspect = h / max(w, 1)
+
+                    if area < 200:
+                        return 0
+                    if aspect < 3.0:   
+                        return 0
+
+                    return area * aspect
+
+                best = max(contours, key=score_contour, default=None)
+                if best is not None:
+                    x, y, w, h = cv2.boundingRect(best)
                     current_center_abs = (x1 + x + w // 2, height // 2)
                     bbox = (x, y, w, h)
                     found = True
 
-                debug_info[color] = {
-                    "mask": mask,
-                    "roi": (x1, x2, 0, height),
-                    "coverage": coverage,
-                    "current_center": current_center_abs,
-                    "expected_center": (x_center_expected, height // 2),
-                    "bbox": bbox,
-                    "found": found
-                }
+            debug_info[color] = {
+                "mask": mask,
+                "roi": (x1, x2, 0, height),
+                "coverage": coverage,
+                "current_center": current_center_abs,
+                "expected_center": (x_center_expected, height // 2),
+                "bbox": bbox,
+                "found": found
+            }
 
-                if not found or coverage < 0.4:
-                    defects.append(
-                        DefectReport(
-                            defect_type=DefectType.COLOR_MISSING,
-                            severity=1.0,
-                            position=(x_center_expected, height // 2),
-                            description=f"Culoare {color} lipsă la poziția așteptată",
-                            confidence=0.95
-                        )
+            if not found or current_center_abs is None or coverage < 0.4:
+                continue
+
+            prev = self.last_positions.get(color)
+            if prev is not None:
+                smoothed_center = int(0.7 * prev + 0.3 * current_center_abs[0])
+            else:
+                smoothed_center = current_center_abs[0]
+
+            measured_offset_mm = abs(smoothed_center - tire_center_x) / MM_TO_PX
+            expected_offset_mm = self.current_pattern.expected_positions_mm[color]
+            delta_mm = abs(measured_offset_mm - expected_offset_mm)
+
+            abs_offset_mm = abs(smoothed_center - tire_center_x) / MM_TO_PX
+            abs_error_mm = abs(abs_offset_mm - expected_offset_mm)
+
+            self.last_positions[color] = smoothed_center
+
+
+            self.position_history[color].append(delta_mm)
+
+            FAIL_MM = 7.0
+            PERSISTENCE_FRAMES = 6
+
+            bad = [d for d in self.position_history[color] if d > FAIL_MM]
+
+            if len(bad) >= PERSISTENCE_FRAMES:
+                defects.append(
+                    DefectReport(
+                        defect_type=DefectType.LINE_SHIFTED,
+                        severity=min((delta_mm - FAIL_MM) / FAIL_MM, 1.0),
+                        position=(smoothed_center - x_offset, height // 2),
+                        description=(
+                            f"{color} deviată: {measured_offset_mm:.1f}mm "
+                            f"(așteptat {expected_offset_mm:.1f}±{FAIL_MM}mm)"
+                        ),
+                        confidence=0.95
                     )
-                    continue
+                )
 
-                measured_offset = abs(current_center_abs[0] - tire_center_x)
-                delta_px = abs(measured_offset - expected_px)
-                tolerance_px = int(6 * MM_TO_PX)
+            if color == "white":
+                print(
+                    f"[DEBUG][WHITE] "
+                    f"found={found} "
+                    f"coverage={coverage:.2f} "
+                    f"center={smoothed_center} "
+                    f"expected={expected_px} "
+                    f"dead_zone={int(3 * MM_TO_PX)} "
+                    f"persist={self.shift_persistence.get(color, 0)}"
+                )
 
-                if delta_px > tolerance_px:
-                    defects.append(
-                        DefectReport(
-                            defect_type=DefectType.LINE_SHIFTED,
-                            severity=min(delta_px / expected_px, 1.0),
-                            position=current_center_abs,
-                            description=(
-                                f"{color}: {measured_offset/MM_TO_PX:.1f}mm "
-                                f"(așteptat {expected_px/MM_TO_PX:.1f}±6mm)"
-                            ),
-                            confidence=0.95
-                        )
-                    )
+        return defects, debug_info
 
-            return defects, debug_info
 
 
     def _detect_advanced_line(self, mask: np.ndarray, color_name: str, color_index: int) -> Optional[Dict]:
@@ -610,78 +745,38 @@ class AdvancedTireQualityChecker:
         
         if detected_order != required_order:
             return DefectReport(
-                defect_type=DefectType.SPACING_WRONG, 
+                defect_type=DefectType.LINE_SHIFTED, 
                 severity=1.0,
                 position=(ordered[1][1]["x_position"], ordered[1][1]["y_position"]),
-                description=f"Ordine gresita: {detected_order} != {required_order}",
+                description=f"Ordine incorecta a culorilor: {'->'.join(detected_order)}",
                 confidence=0.95
             )
         
         return None
 
-    
-    def _check_spacing(self, detected_lines: Dict[str, Dict]) -> List[DefectReport]:
-        
-        defects = []
-    
-        ordered = sorted(
-            detected_lines.items(),
-            key=lambda x: x[1]["bounding_box"][0]
-        )
-        
-        edges = []
-        for color, info in ordered:
-            x, y, w, h = info["bounding_box"]
-            edges.append((color, x, x + w))
-        
-        expected = self.current_pattern.expected_spacing
-        
-        for i in range(len(edges) - 1):
-            color_prev, _, right_edge_prev = edges[i]
-            color_next, left_edge_next, _ = edges[i + 1]
-            
-            actual_gap = left_edge_next - right_edge_prev
-            expected_gap = expected[i]
-            tolerance = expected_gap * self.current_pattern.tolerance_spacing
-            
-            print(f"[SPACING] {color_prev}->{color_next}: gap={actual_gap}px, "
-                f"expected={expected_gap}±{tolerance:.1f}px")
-            
-            if abs(actual_gap - expected_gap) > max(tolerance, 8):  
-                severity = min(abs(actual_gap - expected_gap) / expected_gap, 1.0)
-                
-                defect_x = (right_edge_prev + left_edge_next) // 2
-                
-                defects.append(
-                    DefectReport(
-                        defect_type=DefectType.SPACING_WRONG,
-                        severity=severity,
-                        position=(defect_x, 100),
-                        description=(
-                            f"Spatiere {color_prev}->{color_next}: {actual_gap}px "
-                            f"(asteptat {expected_gap}±{tolerance:.1f}px, "
-                            f"diferenta {abs(actual_gap - expected_gap):.1f}px)"
-                        ),
-                        confidence=0.90
-                    )
-                )
-        
-        return defects
-
-    
     def _generate_status_messages(self, found_colors: Dict[str, bool], defects: List[DefectReport]) -> tuple:
         
         missing_colors = [color for color, found in found_colors.items() if not found]
+        position_shifts = [d for d in defects if d.defect_type == DefectType.LINE_SHIFTED]
+        wrong_color_defects = [d for d in defects if d.defect_type == DefectType.COLOR_WRONG]
         
         critical_defects = [d for d in defects if d.severity > 0.7]
         moderate_defects = [d for d in defects if 0.3 < d.severity <= 0.7]
         minor_defects = [d for d in defects if d.severity <= 0.3]
         
-        if missing_colors:
+        if missing_colors or position_shifts or wrong_color_defects:
             is_valid = False
             quality_level = "INACCEPTABIL"
-            status_message = f"RESPINS - Lipsesc culori: {', '.join(missing_colors).upper()}"
-            summary = f"Cauciucul NU poate fi folosit. Lipsesc {len(missing_colors)} culoare/culori."
+            reasons = []
+            if missing_colors:
+                reasons.append(f"lipsesc {', '.join(missing_colors).upper()}")
+            if wrong_color_defects:
+                wrong_desc = [d.description for d in wrong_color_defects]
+                reasons.append(f"culori gresite: {'; '.join(wrong_desc)}")
+            if position_shifts:
+                reasons.append(f"deplasari pozitie ({len(position_shifts)})")
+            status_message = f"RESPINS - {'; '.join(reasons)}"
+            summary = f"Cauciucul NU poate fi folosit. Probleme: {'; '.join(reasons)}."
             
         elif len(critical_defects) > 0:
             is_valid = False
@@ -716,6 +811,131 @@ class AdvancedTireQualityChecker:
         
         return status_message, quality_level, is_valid, summary
     
+    def draw_detected_lines(self, image, detected_lines, offset=(0, 0)):
+        ox, oy = offset
+        color_map = {
+            "green": (0, 255, 0),
+            "white": (255, 255, 255),
+            "yellow": (0, 255, 255),
+            "aqua": (255, 255, 0)
+        }
+
+        for color, info in detected_lines.items():
+            x, y, w, h = info["bounding_box"]
+            cx = info["x_position"]
+            cy = info["y_position"]
+
+            cv2.rectangle(
+                image,
+                (ox + x, oy + y),
+                (ox + x + w, oy + y + h),
+                color_map.get(color, (0, 0, 255)),
+                2
+            )
+
+            cv2.circle(
+                image,
+                (ox + cx, oy + cy),
+                5,
+                (0, 0, 255),
+                -1
+            )
+
+            cv2.putText(
+                image,
+                color,
+                (ox + x, oy + y - 5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color_map.get(color, (0, 0, 255)),
+                1
+            )
+
+
+    def analyze_tire_frame(self, frame: np.ndarray) -> QualityResult:
+        start_time = time.time()
+
+        image_stats = self._calculate_image_statistics(frame)
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        height, width = frame.shape[:2]
+
+        detected_lines = {}
+        all_defects = []
+        missing_colors = []
+
+        for i, color_name in enumerate(self.current_pattern.colors):
+            ranges = self.current_pattern.color_ranges[color_name]
+            mask = self._adaptive_color_detection(hsv, ranges, image_stats)
+
+            if self.debug_mode or color_name == "white":
+                cv2.imwrite(f"debug_mask_frame_{color_name}.png", mask)
+                debug_hsv = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+                cv2.imwrite(f"debug_frame_{color_name}.png", debug_hsv)
+
+            line_info = self._detect_advanced_line(mask, color_name, i)
+
+            if not line_info:
+                missing_colors.append(color_name)
+                continue
+
+            detected_lines[color_name] = line_info
+
+            x, y, w, h = line_info["bounding_box"]
+            line_mask = mask[y:y + h, x:x + w]
+            continuity = self._analyze_line_continuity(line_mask)
+
+            if continuity['avg_continuity'] < self.current_pattern.min_line_continuity:
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.LINE_BROKEN,
+                        severity=1.0 - continuity['avg_continuity'],
+                        position=(line_info["x_position"], line_info["y_position"]),
+                        description=f"Linie întreruptă: {color_name} (continuitate {continuity['avg_continuity']:.2f})",
+                        confidence=0.9
+                    )
+                )
+
+        for color in missing_colors:
+            wrong_color_info = self._detect_wrong_color(hsv, self.current_pattern.expected_positions_px[color], height, width, color)
+            if wrong_color_info:
+                wrong_color_name, position = wrong_color_info
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.COLOR_WRONG,
+                        severity=1.0,
+                        position=position,
+                        description=f"Culoare greșită pentru {color}: detectată {wrong_color_name}",
+                        confidence=0.85
+                    )
+                )
+            else:
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.COLOR_MISSING,
+                        severity=1.0,
+                        position=(width // 2, height // 2),
+                        description=f"Linie lipsă: {color}",
+                        confidence=0.95
+                    )
+                )
+
+        status_message, quality_level, is_valid, summary = \
+            self._generate_status_messages(
+                {c: c in detected_lines for c in self.current_pattern.colors},
+                all_defects
+            )
+
+        return QualityResult(
+            is_valid=is_valid,
+            status_message=status_message,
+            quality_level=quality_level,
+            defects=all_defects,
+            detected_lines=detected_lines,
+            processing_time=time.time() - start_time,
+            summary=summary
+        )
+
+    
     def save_debug_image(self, image_path: str, result: QualityResult, output_path: str):
         image = cv2.imread(image_path)
         if image is None:
@@ -741,14 +961,13 @@ class AdvancedTireQualityChecker:
         cv2.imwrite(output_path, image)
 
     def analyze_video(
-        self,
-        video_path: str,
-        output_video_path: str = None,
-        roi: tuple = None,     
-        frame_skip: int = 1,
-        stop_after: int = None
-    ):
-
+            self,
+            video_path: str,
+            output_video_path: str = None,
+            roi: tuple = None,
+            frame_skip: int = 1,
+            stop_after: int = None
+        ):
             cap = cv2.VideoCapture(video_path)
             if not cap.isOpened():
                 raise ValueError(f"Nu pot deschide videoclipul: {video_path}")
@@ -759,7 +978,12 @@ class AdvancedTireQualityChecker:
 
             if output_video_path:
                 fourcc = cv2.VideoWriter_fourcc(*"XVID")
-                out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+                out = cv2.VideoWriter(
+                    output_video_path,
+                    fourcc,
+                    fps,
+                    (frame_width, frame_height)
+                )
             else:
                 out = None
 
@@ -779,7 +1003,6 @@ class AdvancedTireQualityChecker:
                     break
 
                 analyzed_frames += 1
-                print_debug = (analyzed_frames % 30 == 0)
 
                 if roi:
                     y1, y2, x1, x2 = roi
@@ -787,10 +1010,50 @@ class AdvancedTireQualityChecker:
                 else:
                     frame_roi = frame
                     x1, y1 = 0, 0
+                    
+                result = self.analyze_tire_frame(frame_roi)
 
-                debug_info = {}
+                defects_abs, debug_info = self._analyze_frame_absolute(frame_roi, tire_center_x=self.fixed_tire_center_x-x1, x_offset=x1)
 
-                defects, debug_info = self._analyze_frame_absolute(frame_roi)
+                for color, info in result.detected_lines.items():
+                    abs_x = info["x_position"] + x1
+                    measured_offset_mm = abs(abs_x - self.fixed_tire_center_x) / MM_TO_PX
+                    expected_offset_mm = self.current_pattern.expected_positions_mm[color]
+                    delta_mm = abs(measured_offset_mm - expected_offset_mm)
+
+                    if delta_mm > 10.0: 
+                        result.defects.append(
+                            DefectReport(
+                                defect_type=DefectType.LINE_SHIFTED,
+                                severity=min(delta_mm / 20.0, 1.0),  
+                                position=(info["x_position"], info["y_position"]), 
+                                description=f"{color} POZITIE GRESITA: {measured_offset_mm:.1f}mm (asteptat {expected_offset_mm:.1f}mm, delta {delta_mm:.1f}mm)",
+                                confidence=0.95
+                            )
+                        )
+
+                for d in defects_abs:
+                    result.defects.append(
+                        DefectReport(
+                            defect_type=d.defect_type,
+                            severity=d.severity,
+                            position=d.position,  
+                            description=d.description,
+                            confidence=d.confidence
+                        )
+                    )
+
+                status_message, quality_level, is_valid, summary = \
+                    self._generate_status_messages(
+                        {c: c in result.detected_lines for c in self.current_pattern.colors},
+                        result.defects
+                    )
+
+                result.status_message = status_message
+                result.quality_level = quality_level
+                result.is_valid = is_valid
+                result.summary = summary
+
 
                 if out is not None:
                     overlay = frame.copy()
@@ -803,22 +1066,100 @@ class AdvancedTireQualityChecker:
                             (0, 255, 255),
                             2
                         )
-                    self._draw_debug_overlay(overlay, debug_info, roi_offset=(x1, y1))
 
-                    for defect in defects:
-                        if defect.defect_type != DefectType.LINE_SHIFTED:
-                            continue
+                    for color, info in result.detected_lines.items():
+                        x, y, w, h = info["bounding_box"]
+                        cx = info["x_position"]
+                        cy = info["y_position"]
 
-                        draw_x = x1 + defect.position[0]
-                        draw_y = y1 + defect.position[1]
+                        BOX_COLOR = (255, 0, 0)  
+                        CENTER_COLOR = (0, 0, 255)
+
+                        cv2.rectangle(
+                            overlay,
+                            (x1 + x, y1 + y),
+                            (x1 + x + w, y1 + y + h),
+                            BOX_COLOR,
+                            2
+                        )
 
                         cv2.circle(
                             overlay,
-                            (draw_x, draw_y),
-                            10,
-                            (0, 0, 255),
-                            2
+                            (x1 + cx, y1 + cy),
+                            5,
+                            CENTER_COLOR,
+                            -1
                         )
+
+
+                        cv2.putText(
+                            overlay,
+                            color,
+                            (x1 + x, y1 + y - 5),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5,
+                            BOX_COLOR,
+                            1
+                        )
+
+                    cv2.line(
+                        overlay,
+                        (self.fixed_tire_center_x, 0),
+                        (self.fixed_tire_center_x, frame.shape[0]),
+                        (0, 255, 0),
+                        2
+                    )
+
+
+                    for defect in result.defects:
+                        dx = x1 + defect.position[0]
+                        dy = y1 + defect.position[1]
+
+                        if defect.severity > 0.7:
+                            col = (0, 0, 255)
+                        elif defect.severity > 0.3:
+                            col = (0, 165, 255)
+                        else:
+                            col = (0, 255, 255)
+
+                        cv2.circle(overlay, (dx, dy), 10, col, 2)
+
+                    verdict_color = (0, 255, 0) if result.is_valid else (0, 0, 255)
+
+                    cv2.putText(
+                        overlay,
+                        result.quality_level,
+                        (20, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.9,
+                        verdict_color,
+                        2
+                    )
+
+                    cv2.putText(
+                        overlay,
+                        result.status_message,
+                        (20, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        verdict_color,
+                        1
+                    )
+
+                    y = 90
+                    for defect in result.defects:
+                        txt = f"{defect.defect_type.value} sev={defect.severity:.2f}"
+                        cv2.putText(
+                            overlay,
+                            txt,
+                            (20, y),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.45,
+                            (0, 0, 255),
+                            1
+                        )
+                        y += 18
+
 
                     out.write(overlay)
 

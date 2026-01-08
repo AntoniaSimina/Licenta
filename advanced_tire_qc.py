@@ -93,7 +93,7 @@ class AdvancedTireQualityChecker:
                 ]
             },
 
-            expected_widths=[30, 30, 30, 30],
+            expected_widths=[4, 6, 4, 6],
 
             expected_positions_mm={
                 "green": 63,
@@ -112,12 +112,33 @@ class AdvancedTireQualityChecker:
                 }.items()
             },
 
-            tolerance_width=0.5,          
+            tolerance_width=0.12,          
             min_line_continuity=0.43      
         )
         
         self.patterns["YAWG"] = yawg_pattern
         self.line_shift_tolerance_ratio = 0.4
+
+
+    def _measure_effective_width(self, mask: np.ndarray) -> float:
+        """Estimate the effective band thickness from a binary mask.
+
+        Uses the median span of non-zero pixels per row (robust to jagged edges/outliers).
+        Returns 0.0 if the mask is empty.
+        """
+        h, w = mask.shape[:2]
+        if h == 0 or w == 0:
+            return 0.0
+
+        spans = []
+        for yy in range(h):
+            xs = np.where(mask[yy, :] > 0)[0]
+            if xs.size > 0:
+                spans.append(int(xs[-1] - xs[0] + 1))
+
+        if not spans:
+            return 0.0
+        return float(np.median(spans))
     
         
     def measure_actual_positions(self, image_path: str):
@@ -319,32 +340,106 @@ class AdvancedTireQualityChecker:
     
     def _analyze_line_edges(self, mask: np.ndarray) -> List[DefectReport]:
         defects = []
-        
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        for contour in contours:
-            perimeter = cv2.arcLength(contour, True)
-            area = cv2.contourArea(contour)
-            
-            if area > 100:
-                rect = cv2.minAreaRect(contour)
-                box = cv2.boxPoints(rect)
-                box_area = cv2.contourArea(box)
-                
-                expected_perimeter = 2 * (rect[1][0] + rect[1][1])
-                roughness = perimeter / expected_perimeter if expected_perimeter > 0 else 1
-                
-                if roughness > 1.3:  
-                    center = (int(rect[0][0]), int(rect[0][1]))
-                    defect = DefectReport(
-                        defect_type=DefectType.EDGE_DEFECT,
-                        severity=min((roughness - 1.0) / 0.5, 1.0),
-                        position=center,
-                        description=f"Margini neregulate (rugozitate {roughness:.2f})",
-                        confidence=0.8
-                    )
-                    defects.append(defect)
-        
+
+        h, w = mask.shape[:2]
+        if h == 0 or w == 0:
+            return defects
+
+        # Reduce false positives from threshold noise by smoothing the binary mask a bit.
+        try:
+            proc = cv2.medianBlur(mask, 3)
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+            proc = cv2.morphologyEx(proc, cv2.MORPH_CLOSE, kernel, iterations=1)
+        except Exception:
+            proc = mask
+
+        contours, _ = cv2.findContours(proc, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            return defects
+
+        # Pick dominant band contour
+        contour = max(contours, key=cv2.contourArea)
+        area = cv2.contourArea(contour)
+        if area < 100:
+            return defects
+
+        # Compare perimeter to ideal rectangle perimeter
+        x, y, bw, bh = cv2.boundingRect(contour)
+        perimeter = cv2.arcLength(contour, True)
+        rect_perimeter = 2.0 * (bw + bh)
+        peri_ratio = perimeter / (rect_perimeter + 1e-6)
+
+        # Edge jitter along rows: left/right boundary variation
+        roi = proc[y:y + bh, x:x + bw]
+        left_xs = []
+        right_xs = []
+        rows = []
+        for yy in range(bh):
+            row = roi[yy, :]
+            xs = np.where(row > 0)[0]
+            if xs.size > 0:
+                left_xs.append(x + int(xs[0]))
+                right_xs.append(x + int(xs[-1]))
+                rows.append(y + yy)
+
+        if len(rows) < max(10, int(0.1 * bh)):
+            return defects
+
+        left_xs = np.array(left_xs)
+        right_xs = np.array(right_xs)
+        rows = np.array(rows)
+
+        def jitter_metrics(edge_series: np.ndarray):
+            if edge_series.size < 3:
+                return 0.0, 0.0
+            grad = np.diff(edge_series)
+            mean_abs = float(np.mean(np.abs(grad)))
+            high_frac = float(np.sum(np.abs(grad) > 1.5) / max(1, grad.size))
+            return mean_abs, high_frac
+
+        mean_left, frac_left = jitter_metrics(left_xs)
+        mean_right, frac_right = jitter_metrics(right_xs)
+        rough_score = max(mean_left, mean_right)
+        high_frac = max(frac_left, frac_right)
+
+        # Stricter thresholds to avoid false positives on good tires.
+        PERI_THRESH = 1.10
+        ROUGH_THRESH = 1.5
+        HIGH_FRAC_THRESH = 0.35
+
+        peri_flag = peri_ratio > PERI_THRESH
+        jitter_flag = (rough_score > ROUGH_THRESH and high_frac > HIGH_FRAC_THRESH)
+
+        # Require BOTH perimeter increase and jitter to flag a real edge defect.
+        if peri_flag and jitter_flag:
+            side = 'left' if mean_left >= mean_right else 'right'
+            grads = np.diff(left_xs) if side == 'left' else np.diff(right_xs)
+            if grads.size > 0:
+                idx = int(np.argmax(np.abs(grads)))
+                yy = rows[idx]
+                xx = (left_xs[idx] if side == 'left' else right_xs[idx])
+            else:
+                yy = y + bh // 2
+                xx = x + bw // 2
+
+            # Map to severity with a moderate floor, but only when BOTH signals agree.
+            severity_raw = (
+                max(peri_ratio - PERI_THRESH, 0.0) / 0.15 * 0.5 +
+                max(rough_score - ROUGH_THRESH, 0.0) / 2.0 * 0.5
+            )
+            severity = float(min(max(severity_raw, 0.35), 1.0))
+            confidence = 0.9
+
+            defects.append(
+                DefectReport(
+                    defect_type=DefectType.EDGE_DEFECT,
+                    severity=severity,
+                    position=(int(xx), int(yy)),
+                    description=f"Margine neregulată {side}: peri {peri_ratio:.2f}, jitter {rough_score:.2f}",
+                    confidence=confidence
+                )
+            )
+
         return defects
     
     def _calculate_image_statistics(self, image: np.ndarray) -> Dict:
@@ -444,11 +539,18 @@ class AdvancedTireQualityChecker:
 
             detected_lines[color_name] = line_info
 
+            x, y, w, h = line_info["bounding_box"]
+            line_mask = mask[y:y + h, x:x + w]
+
             expected_width = self.current_pattern.expected_widths[i]
             width_tolerance = expected_width * self.current_pattern.tolerance_width
 
-            if abs(line_info["width"] - expected_width) > width_tolerance:
-                severity = abs(line_info["width"] - expected_width) / expected_width
+            measured_width = self._measure_effective_width(line_mask)
+            if measured_width <= 0:
+                measured_width = float(line_info["width"])
+
+            if abs(measured_width - expected_width) > width_tolerance:
+                severity = abs(measured_width - expected_width) / max(expected_width, 1)
                 all_defects.append(
                     DefectReport(
                         defect_type=DefectType.WIDTH_WRONG,
@@ -456,14 +558,11 @@ class AdvancedTireQualityChecker:
                         position=(line_info["x_position"], height // 2),
                         description=(
                             f"Lățime incorectă la {color_name}: "
-                            f"{line_info['width']}px (așteptat {expected_width}±{width_tolerance:.1f})"
+                            f"{measured_width:.1f}px (așteptat {expected_width}±{width_tolerance:.1f})"
                         ),
                         confidence=0.9
                     )
                 )
-
-            x, y, w, h = line_info["bounding_box"]
-            line_mask = mask[y:y + h, x:x + w]
             continuity = self._analyze_line_continuity(line_mask)
             if (
                 continuity["min_continuity"] < 0.5 or  # Schimbat de la 0.4 la 0.5 (mai strict)
@@ -874,10 +973,11 @@ class AdvancedTireQualityChecker:
             ranges = self.current_pattern.color_ranges[color_name]
             mask = self._adaptive_color_detection(hsv, ranges, image_stats)
 
-            if self.debug_mode or color_name == "white":
-                cv2.imwrite(f"debug_mask_frame_{color_name}.png", mask)
-                debug_hsv = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-                cv2.imwrite(f"debug_frame_{color_name}.png", debug_hsv)
+            if self.debug_mode:
+                try:
+                    cv2.imwrite(f"debug_mask_frame_{color_name}.png", mask)
+                except Exception:
+                    pass
 
             line_info = self._detect_advanced_line(mask, color_name, i)
 
@@ -889,6 +989,27 @@ class AdvancedTireQualityChecker:
 
             x, y, w, h = line_info["bounding_box"]
             line_mask = mask[y:y + h, x:x + w]
+
+            # Width validation (frame mode)
+            expected_width = self.current_pattern.expected_widths[i]
+            width_tolerance = expected_width * self.current_pattern.tolerance_width
+            measured_width = self._measure_effective_width(line_mask)
+            if measured_width <= 0:
+                measured_width = float(line_info["width"])
+
+            if abs(measured_width - expected_width) > width_tolerance:
+                severity = min(abs(measured_width - expected_width) / max(expected_width, 1), 1.0)
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.WIDTH_WRONG,
+                        severity=severity,
+                        position=(line_info["x_position"], line_info["y_position"]),
+                        description=(
+                            f"Lățime incorectă {color_name}: {measured_width:.1f}px (așteptat {expected_width}±{width_tolerance:.1f})"
+                        ),
+                        confidence=0.9
+                    )
+                )
             continuity = self._analyze_line_continuity(line_mask)
 
             if continuity['avg_continuity'] < self.current_pattern.min_line_continuity:

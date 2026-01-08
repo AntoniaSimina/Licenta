@@ -119,6 +119,7 @@ class AdvancedTireQualityChecker:
         self.patterns["YAWG"] = yawg_pattern
         self.line_shift_tolerance_ratio = 0.4
     
+        
     def measure_actual_positions(self, image_path: str):
         image = cv2.imread(image_path)
         height, width = image.shape[:2]
@@ -131,7 +132,7 @@ class AdvancedTireQualityChecker:
         print(f"Centru bandă: {center_x}px ({center_x/MM_TO_PX:.1f}mm)")
         print(f"{'='*60}")
         
-        for color in ["green", "white", "yellow", "aqua"]:
+        for color in self.current_pattern.colors:
             ranges = self.current_pattern.color_ranges[color]
             mask = self._adaptive_color_detection(hsv, ranges, image_stats)
             
@@ -242,9 +243,9 @@ class AdvancedTireQualityChecker:
         brightness_factor = image_stats['mean_brightness'] / 128.0
         
         for lower, upper in color_ranges:
-            adapted_lower = np.array(lower, dtype=np.uint8)
-            adapted_upper = np.array(upper, dtype=np.uint8)
-            
+            adapted_lower = np.array(lower, dtype=np.uint16)
+            adapted_upper = np.array(upper, dtype=np.uint16)
+
             if self.adaptive_thresholds:
                 if brightness_factor < 0.7:  
                     adapted_lower[1] = max(20, adapted_lower[1] - 20)  
@@ -252,6 +253,8 @@ class AdvancedTireQualityChecker:
                 elif brightness_factor > 1.3: 
                     adapted_upper[2] = min(255, adapted_upper[2] + 20)
 
+            adapted_lower = np.clip(adapted_lower, 0, 255).astype(np.uint8)
+            adapted_upper = np.clip(adapted_upper, 0, 255).astype(np.uint8)
             
             mask = cv2.inRange(hsv_image, adapted_lower, adapted_upper)
             full_mask = mask if full_mask is None else cv2.bitwise_or(full_mask, mask)
@@ -280,7 +283,7 @@ class AdvancedTireQualityChecker:
         avg_continuity = float(np.mean(continuity_scores))
         min_continuity = float(np.min(continuity_scores))
 
-        broken_cols = continuity_scores < 0.35
+        broken_cols = continuity_scores < 0.5  # Schimbat de la 0.35 la 0.5 (mai strict)
         broken_ratio = float(np.sum(broken_cols) / width)
 
         return {
@@ -463,8 +466,8 @@ class AdvancedTireQualityChecker:
             line_mask = mask[y:y + h, x:x + w]
             continuity = self._analyze_line_continuity(line_mask)
             if (
-                continuity["min_continuity"] < 0.4 or
-                continuity["broken_ratio"] > 0.15
+                continuity["min_continuity"] < 0.5 or  # Schimbat de la 0.4 la 0.5 (mai strict)
+                continuity["broken_ratio"] > 0.10  # Schimbat de la 0.15 la 0.10 (mai strict)
             ):
                 all_defects.append(
                     DefectReport(
@@ -479,6 +482,10 @@ class AdvancedTireQualityChecker:
                         confidence=0.95
                     )
                 )
+            
+            # Verificare margini neregulate
+            edge_defects = self._analyze_line_edges(line_mask)
+            all_defects.extend(edge_defects)
 
         for color in missing_colors:
             wrong_color_info = self._detect_wrong_color(hsv, self.current_pattern.expected_positions_px[color], height, width, color)
@@ -724,7 +731,7 @@ class AdvancedTireQualityChecker:
     
     def _check_exact_order(self, detected_lines: dict) -> Optional[DefectReport]:
     
-        required_order = ["aqua", "yellow", "white", "green"]
+        required_order = self.current_pattern.colors
     
         for color in required_order:
             if color not in detected_lines:
@@ -892,6 +899,20 @@ class AdvancedTireQualityChecker:
                         position=(line_info["x_position"], line_info["y_position"]),
                         description=f"Linie întreruptă: {color_name} (continuitate {continuity['avg_continuity']:.2f})",
                         confidence=0.9
+                    )
+                )
+
+            # Edge defects: detect irregular margins within the detected line
+            edge_defects = self._analyze_line_edges(line_mask)
+            for d in edge_defects:
+                # Translate defect position from line_mask (local) to frame coordinates
+                all_defects.append(
+                    DefectReport(
+                        defect_type=d.defect_type,
+                        severity=d.severity,
+                        position=(x + d.position[0], y + d.position[1]),
+                        description=d.description,
+                        confidence=d.confidence
                     )
                 )
 

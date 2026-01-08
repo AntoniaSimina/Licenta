@@ -1,21 +1,36 @@
 import cv2
 
 # === CONFIG ===
+# Alege sursa: "local" sau "rtsp"
+SOURCE = "rtsp"
+
 VIDEO_PATH = r"C:\Users\Antonia\Downloads\V20251202_105058_001.avi"
-FRAME_INDEX = 50        # frame bun din video
+FRAME_INDEX = 50  # doar pentru local
+
+RTSP_URL = "rtsp://user:pass@ip:port/stream"  # Inlocuieste cu URL-ul tau
+
 ROI = (299, 779, 666, 1313)  # (y1, y2, x1, x2)
 
 # =================
 
-cap = cv2.VideoCapture(VIDEO_PATH)
-if not cap.isOpened():
-    raise RuntimeError("Nu pot deschide video")
+# Captureaza frame din local sau RTSP
+if SOURCE == "local":
+    cap = cv2.VideoCapture(VIDEO_PATH)
+    if not cap.isOpened():
+        raise RuntimeError("Nu pot deschide video")
+    cap.set(cv2.CAP_PROP_POS_FRAMES, FRAME_INDEX)
+    ret, frame = cap.read()
+    cap.release()
+elif SOURCE == "rtsp":
+    cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
+    if not cap.isOpened():
+        raise RuntimeError("Nu pot deschide stream RTSP. Verifica URL-ul!")
+    ret, frame = cap.read()
+    cap.release()
+else:
+    raise RuntimeError("SOURCE trebuie sa fie 'local' sau 'rtsp'")
 
-cap.set(cv2.CAP_PROP_POS_FRAMES, FRAME_INDEX)
-ret, frame = cap.read()
-cap.release()
-
-if not ret:
+if not ret or frame is None:
     raise RuntimeError("Nu pot citi frame-ul")
 
 # aplicăm ROI

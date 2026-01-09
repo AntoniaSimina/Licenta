@@ -5,7 +5,16 @@ import numpy as np
 from advanced_tire_qc import AdvancedTireQualityChecker
 import colorsys
 
-VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+VIDEO_PATH = "video_linie_galbena_margini_neregulate.avi"
+
+CAMERA_CONFIG = {
+    "IP": "10.10.10.10",
+    "PORT": "554",
+    "PROTOCOL": "rtsp",
+    "STREAM_PATH": "/stream1",
+    "USERNAME": "admin",
+    "PASSWORD": "parola"
+}
 def hsv_to_bgr(h, s, v):
     h_norm = h / 180.0
     s_norm = s / 255.0
@@ -195,13 +204,20 @@ class TireQCViewer:
         )
         self.defects_label.grid(row=8, column=0, sticky="w", pady=(0, 5))
 
-        self.cap = cv2.VideoCapture(VIDEO_PATH)
-        # RTSP_URL = "rtsp://user:pass@ip:port/stream"
-
-        # self.cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
-
-        # if not self.cap.isOpened():
-        #     raise RuntimeError("Nu pot deschide stream-ul RTSP")
+        # Construiește URL-ul RTSP din configurație
+        rtsp_url = f"{CAMERA_CONFIG['PROTOCOL']}://{CAMERA_CONFIG['USERNAME']}:{CAMERA_CONFIG['PASSWORD']}@{CAMERA_CONFIG['IP']}:{CAMERA_CONFIG['PORT']}{CAMERA_CONFIG['STREAM_PATH']}"
+        
+        # Încearcă să se conecteze la camera RTSP
+        self.cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
+        
+        # Fallback la fișierul video local dacă RTSP nu funcționează
+        if not self.cap.isOpened():
+            print(f"⚠ Nu pot deschide stream-ul RTSP: {rtsp_url}")
+            print(f"Folosesc fallback la fișierul video local: {VIDEO_PATH}")
+            self.cap = cv2.VideoCapture(VIDEO_PATH)
+            
+        if not self.cap.isOpened():
+            raise RuntimeError("Nu pot deschide nici stream-ul RTSP, nici fișierul video local")
 
 
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)

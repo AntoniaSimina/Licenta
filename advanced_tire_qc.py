@@ -73,7 +73,7 @@ class AdvancedTireQualityChecker:
     
     def _load_default_patterns(self):
         yawg_pattern = Pattern(
-            name="YAWG",
+            name="wlg",
             colors=["aqua", "yellow", "white", "green"],
             color_ranges={
                 "green": [

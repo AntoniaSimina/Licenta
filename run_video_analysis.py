@@ -5,17 +5,20 @@ def main():
     checker.set_current_pattern("YAWG")
     checker.measure_actual_positions("reference.jpg")
     checker.debug_mode = True
+    checker.dynamic_tire_center = True
     checker.fixed_tire_center_x=991
     rezultat = checker.analyze_video(
         # video_path=r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi",
-        # video_path="video_linie_deviata.avi",
-        # video_path="video_linie_verde_deviata.avi",
+        # video_path="video_linie_galbena_neregulata.avi",
+         video_path="video_linie_verde_deviata.avi",
         # video_path="video_linie_alba_intrerupta.avi",
-        # video_path="video_linie_alba_culoare_gresita.avi",
+        #  ideo_path="video_linie_alba_culoare_gresita.avi",
         # video_path="video_linie_galbena_margini_neregulate.avi",
-        video_path="video_linie_galbena_mai_groasa.avi",
+        # video_path="video_linie_galbena_mai_groasa.avi",
+        # video_path="video_pattern_BGWY_corect.avi",
         output_video_path="output_overlay.avi",
-        roi=(299, 779, 666, 1313),
+        # roi=(299, 779, 666, 1313),
+        roi=(431, 791, 696, 1066),
         frame_skip=2
     )
 

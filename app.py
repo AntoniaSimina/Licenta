@@ -252,7 +252,14 @@ class TireQCViewer:
             MM_TO_PX = 3.2
             for color, info in result.detected_lines.items():
                 abs_x = info["x_position"] + x1
-                measured_offset_mm = abs(abs_x - self.checker.fixed_tire_center_x) / MM_TO_PX
+                # Prefer dynamic detected center if available
+                dyn_c = debug_info.get("_detected_center")
+                if dyn_c is not None:
+                    center_abs = x1 + int(dyn_c)
+                else:
+                    center_abs = self.checker.fixed_tire_center_x
+
+                measured_offset_mm = abs(abs_x - center_abs) / MM_TO_PX
                 expected_offset_mm = self.checker.current_pattern.expected_positions_mm[color]
                 delta_mm = abs(measured_offset_mm - expected_offset_mm)
 
@@ -290,7 +297,16 @@ class TireQCViewer:
                 cv2.rectangle(overlay, (x1 + x, y1 + y), (x1 + x + w, y1 + y + h), (255, 0, 0), 2)
                 cv2.circle(overlay, (x1 + cx, y1 + cy), 5, (0, 0, 255), -1)
 
-            cv2.line(overlay, (self.checker.fixed_tire_center_x, 0), (self.checker.fixed_tire_center_x, frame.shape[0]), (0, 255, 0), 2)
+            # Draw fixed center (fallback)
+            if self.checker.fixed_tire_center_x is not None:
+                cv2.line(overlay, (self.checker.fixed_tire_center_x, 0), (self.checker.fixed_tire_center_x, frame.shape[0]), (0, 255, 0), 2)
+
+            # Draw dynamic detected center (if available)
+            dyn_center = debug_info.get("_detected_center")
+            if dyn_center is not None:
+                cx_abs = x1 + int(dyn_center)
+                cv2.line(overlay, (cx_abs, 0), (cx_abs, frame.shape[0]), (255, 0, 255), 2)
+                cv2.putText(overlay, "DYN_C", (cx_abs + 6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
 
             for defect in result.defects:
                 dx = x1 + defect.position[0]

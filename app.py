@@ -7,12 +7,16 @@ from advanced_tire_qc import AdvancedTireQualityChecker
 import colorsys
 
 # ================= CONFIG =================
+# ROI partajat cu alte scripturi (y1, y2, x1, x2)
+ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
+# ROI = (379, 875, 680, 1294)  # pt video 1 => (379, 875, 680, 1294)
 # SOURCE: "local" sau "rtsp"
 SOURCE = "local"   # "local" | "rtsp"
 
 # Video local
-VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
-
+# VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+# VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\video-scurt.mp4"
+VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\V20260129_153301_001.avi"
 # RTSP stream
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
 FRAME_WAIT = 30  # warmup frames pentru RTSP
@@ -80,8 +84,27 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
     cv2.putText(img, "CENTRU", (center_x_scaled - 30, height - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 255), 1)
 
     # Desenăm fiecare culoare la poziția sa exactă (scalată la fel ca video-ul)
+    # Pentru pattern-uri cu culori duplicate, construim pozițiile pe baza indexului
+    def get_position_by_color_index(pattern, color_name, index_in_colors):
+        """Returnează poziția în mm pentru o culoare la un anumit index în lista de culori."""
+        # Numărăm câte apariții ale acestei culori sunt înaintea indexului curent
+        occurrences_before = pattern.colors[:index_in_colors].count(color_name)
+        
+        # Colectăm toate pozițiile pentru această culoare din pattern-ul original
+        # (de obicei sunt definite în ordine în codul sursă, chiar dacă dicționarul le suprascrie)
+        
+        if pattern.name == "GWGB" and color_name == "green":
+            # Pentru GWGB, prima verde e la 19mm, a doua la 38mm
+            green_positions = [19, 38]
+            return green_positions[occurrences_before] if occurrences_before < len(green_positions) else 19
+        
+        # Pentru alte pattern-uri cu culori duplicate, putem extinde aici
+        # Alternativ, încercăm să extragem din expected_positions_mm existent
+        return pattern.expected_positions_mm.get(color_name, 0)
+    
     for i, color in enumerate(pattern.colors):
-        dist_mm = pattern.expected_positions_mm.get(color, 0)
+        # Folosim funcția pentru a obține poziția corectă pentru această culoare la acest index
+        dist_mm = get_position_by_color_index(pattern, color, i)
         dist_px_original = int(dist_mm * MM_TO_PX)  # distanța în pixeli în frame original
         
         # Poziția în frame original (la stânga centrului)
@@ -120,16 +143,17 @@ class TireQCViewer:
         self.root.configure(bg="#2b2b2b")
 
         self.checker = AdvancedTireQualityChecker()
-        self.checker.set_current_pattern("YAWG")  # Schimbat la BGWY ca în run_video_analysis
-        self.checker.fixed_tire_center_x = 991  # Setat ca în run_video_analysis
+        self.checker.set_current_pattern("GYRP")  # Schimbat la BGWY ca în run_video_analysis
+        self.checker.fixed_tire_center_x = 991 # Setat ca în run_video_analysis
         self.checker.debug_mode = True
         pattern = self.checker.current_pattern
 
         # Dimensiuni fixe pentru video (nu se micșorează)
         self.VIDEO_WIDTH = 1000
         self.VIDEO_HEIGHT = 600
-        self.roi = (299, 779, 666, 1313)  # ROI ca în run_video_analysis
-        
+        # Folosim ROI-ul partajat de nivel modul
+        self.roi = ROI
+
         # Dimensiunea frame-ului original (vom actualiza după prima citire)
         self.frame_size = (1920, 1080)  # default, se va actualiza
 
@@ -193,12 +217,18 @@ class TireQCViewer:
         )
         self.video_label.grid(row=0, column=0, sticky="nw")
 
-        info = tk.Frame(content, bg="#2b2b2b")
-        info.grid(row=0, column=1, sticky="n", padx=(20, 0))
+        info = tk.Frame(content, bg="#2b2b2b", width=300, height=400)
+        info.grid(row=0, column=1, sticky="nw", padx=(20, 0))
+        info.grid_propagate(False)  # Previne redimensionarea automată
 
-        # Pattern selector
+        # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
+        pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=60, width=300)
+        pattern_selector_frame.grid(row=0, column=0, sticky="nw", pady=(0, 10))
+        pattern_selector_frame.grid_propagate(False)  # Nu se redimensionează automat
+        pattern_selector_frame.grid_columnconfigure(0, weight=0)
+
         tk.Label(
-            info,
+            pattern_selector_frame,
             text="Pattern:",
             font=("Segoe UI", 11, "bold"),
             fg="white",
@@ -207,55 +237,75 @@ class TireQCViewer:
 
         self.pattern_var = tk.StringVar(value=pattern.name)
         self.pattern_selector = ttk.Combobox(
-            info,
+            pattern_selector_frame,
             textvariable=self.pattern_var,
             values=list(self.checker.patterns.keys()),
             state="readonly",
             width=15,
             font=("Segoe UI", 10)
         )
-        self.pattern_selector.grid(row=1, column=0, sticky="w", pady=(0, 10))
+        self.pattern_selector.grid(row=1, column=0, sticky="w")
         self.pattern_selector.bind("<<ComboboxSelected>>", self.on_pattern_change)
 
+        # ============ COLORS SECTION (FIXED SIZE) ============
+        colors_container_frame = tk.Frame(info, bg="#2b2b2b", height=200, width=300)
+        colors_container_frame.grid(row=1, column=0, sticky="nw", pady=(0, 10))
+        colors_container_frame.grid_propagate(False)  # Nu se redimensionează automat
+        colors_container_frame.grid_columnconfigure(0, weight=0)
+
         tk.Label(
-            info,
+            colors_container_frame,
             text="Culori:",
             font=("Segoe UI", 11, "bold"),
             fg="white",
             bg="#2b2b2b"
-        ).grid(row=2, column=0, sticky="w")
+        ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
         # Frame pentru culori (va fi actualizat dinamic)
-        self.colors_frame = tk.Frame(info, bg="#2b2b2b")
-        self.colors_frame.grid(row=3, column=0, sticky="w")
+        self.colors_frame = tk.Frame(colors_container_frame, bg="#2b2b2b")
+        self.colors_frame.grid(row=1, column=0, sticky="w")
         self._update_colors_display(pattern, color_map)
 
+        # ============ STATUS SECTION (FLEXIBLE SIZE - doar verdictul) ============
+        status_frame = tk.Frame(info, bg="#2b2b2b")
+        status_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
+        status_frame.grid_columnconfigure(0, weight=1)
+
         self.status_label = tk.Label(
-            info,
+            status_frame,
             text="Status: Necunoscut",
             font=("Segoe UI", 12, "bold"),
             fg="yellow",
-            bg="#2b2b2b"
+            bg="#2b2b2b",
+            wraplength=280,
+            justify="left",
+            anchor="w"
         )
-        self.status_label.grid(row=4, column=0, sticky="w", pady=(10, 5))
+        self.status_label.grid(row=0, column=0, sticky="w", pady=(0, 5))
 
         self.quality_label = tk.Label(
-            info,
+            status_frame,
             text="Calitate: Necunoscută",
             font=("Segoe UI", 10),
             fg="white",
-            bg="#2b2b2b"
+            bg="#2b2b2b",
+            wraplength=280,
+            justify="left",
+            anchor="w"
         )
-        self.quality_label.grid(row=5, column=0, sticky="w", pady=(0, 5))
+        self.quality_label.grid(row=1, column=0, sticky="w", pady=(0, 5))
 
         self.defects_label = tk.Label(
-            info,
+            status_frame,
             text="Defecte: Niciunul",
             font=("Segoe UI", 10),
             fg="white",
-            bg="#2b2b2b"
+            bg="#2b2b2b",
+            wraplength=280,
+            justify="left",
+            anchor="w"
         )
-        self.defects_label.grid(row=6, column=0, sticky="w", pady=(0, 5))
+        self.defects_label.grid(row=2, column=0, sticky="w")
 
         # Deschidem captura în funcție de SOURCE
         if SOURCE == "local":
@@ -404,20 +454,24 @@ class TireQCViewer:
             # VERIFICARE IMEDIATA a pozitiilor (ca in analyze_video)
             from advanced_tire_qc import DefectType, DefectReport
             MM_TO_PX = 3.2
+            
+            # Calculez pozițiile și verific dacă sunt probleme
+            dyn_c = debug_info.get("_detected_center")
+            if dyn_c is not None:
+                center_abs = x1 + int(dyn_c)
+            else:
+                center_abs = self.checker.fixed_tire_center_x
+            
+            # Verific dacă avem probleme mari cu pozițiile
+            has_position_issues = False
             for color, info in result.detected_lines.items():
                 abs_x = info["x_position"] + x1
-                # Prefer dynamic detected center if available
-                dyn_c = debug_info.get("_detected_center")
-                if dyn_c is not None:
-                    center_abs = x1 + int(dyn_c)
-                else:
-                    center_abs = self.checker.fixed_tire_center_x
-
                 measured_offset_mm = abs(abs_x - center_abs) / MM_TO_PX
                 expected_offset_mm = self.checker.current_pattern.expected_positions_mm[color]
                 delta_mm = abs(measured_offset_mm - expected_offset_mm)
-
+                
                 if delta_mm > 10.0:
+                    has_position_issues = True
                     result.defects.append(
                         DefectReport(
                             defect_type=DefectType.LINE_SHIFTED,
@@ -427,6 +481,36 @@ class TireQCViewer:
                             confidence=0.95
                         )
                     )
+                elif delta_mm > 1.0:  # Delta mare dar sub limita critică
+                    has_position_issues = True
+            
+            # PRINTEZ DEBUG DOAR DACĂ SUNT PROBLEME
+            if len(result.defects) > 0 or has_position_issues:
+                print(f"Frame defects BEFORE position check: {len(result.defects)}")
+                for d in result.defects:
+                    print(f"  - {d.defect_type.value}: {d.description} (severity: {d.severity:.2f})")
+                
+                print(f"\n=== DEBUG POZITII FRAME ===")
+                print(f"Center fix: {self.checker.fixed_tire_center_x}px")
+                if dyn_c is not None:
+                    print(f"Center dinamic: {center_abs}px (ROI offset: {x1}px)")
+                else:
+                    print(f"Folosesc centrul fix: {center_abs}px")
+                    
+                for color, info in result.detected_lines.items():
+                    abs_x = info["x_position"] + x1
+                    measured_offset_mm = abs(abs_x - center_abs) / MM_TO_PX
+                    expected_offset_mm = self.checker.current_pattern.expected_positions_mm[color]
+                    delta_mm = abs(measured_offset_mm - expected_offset_mm)
+                    
+                    print(f"{color:12} | pos_abs={abs_x:4}px | dist_măs={measured_offset_mm:5.1f}mm | aștept={expected_offset_mm:3}mm | delta={delta_mm:5.1f}mm", end="")
+                    
+                    if delta_mm > 10.0:
+                        print(f" ❌ DEFECT!")
+                    elif delta_mm > 1.0:
+                        print(f" ⚠️ MARE")
+                    else:
+                        print(f" ✅ OK")
             
             for d in defects_abs:
                 result.defects.append(d)
@@ -528,10 +612,13 @@ class TireQCViewer:
 
             # Draw dynamic detected center (if available)
             dyn_center = debug_info.get("_detected_center")
+            center_method = debug_info.get("_center_method", "unknown")
             if dyn_center is not None:
                 cx_abs = x1 + int(dyn_center)
                 cv2.line(overlay, (cx_abs, 0), (cx_abs, frame.shape[0]), (255, 0, 255), 2)
-                cv2.putText(overlay, "DYN_C", (cx_abs + 6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
+                # Afișăm metoda folosită pentru detectarea centrului
+                method_label = "INTENS" if center_method == "intensity_profile" else "COLOR"
+                cv2.putText(overlay, f"DYN_C ({method_label})", (cx_abs + 6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
 
             for defect in result.defects:
                 dx = x1 + defect.position[0]

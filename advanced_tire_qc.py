@@ -62,7 +62,11 @@ class AdvancedTireQualityChecker:
                 "green": deque(maxlen=12),
                 "white": deque(maxlen=12),
                 "yellow": deque(maxlen=12),
-                "aqua": deque(maxlen=12)
+                "aqua": deque(maxlen=12),
+                "red": deque(maxlen=12),
+                "purple": deque(maxlen=12),
+                "blue": deque(maxlen=12),
+                "green_pale": deque(maxlen=12)
             }
         self.fixed_tire_center_x = None
         
@@ -119,6 +123,94 @@ class AdvancedTireQualityChecker:
         self.patterns["YAWG"] = yawg_pattern
         self.line_shift_tolerance_ratio = 0.4
 
+        gwgb_pattern = Pattern(
+            name="GWGB",
+            colors=["green", "white", "green", "blue"],
+            color_ranges={
+                "green": [
+                    ([65, 25, 130], [90, 255, 255]) 
+                ],
+                "white": [
+                    ([0, 0, 170], [180, 20 , 255]) 
+                ],
+                "green": [
+                    ([65, 25, 130], [90, 255, 255]) 
+                ],
+                "blue": [
+                    ([98, 160, 200], [110, 180, 220])
+                ]
+            },
+
+            expected_widths=[4, 6, 4, 6],
+
+            expected_positions_mm={
+                "green": 19,
+                "white": 22,
+                "green": 38,
+                "blue": 41
+            },
+
+            expected_positions_px={
+                c: int(mm * MM_TO_PX)
+                for c, mm in {
+                    "green": 61,
+                    "white": 74,
+                    "green": 122,
+                    "blue": 131
+                }.items()
+            },
+
+            tolerance_width=0.12,          
+            min_line_continuity=0.43      
+        )
+        
+        self.patterns["GWGB"] = gwgb_pattern
+        self.line_shift_tolerance_ratio = 0.4
+
+        gyrp_pattern = Pattern(
+            name="GYRP",
+            colors=["green_pale", "yellow", "red", "purple"],
+            color_ranges={
+                "green_pale": [
+                    ([29, 26, 75], [95, 175, 255]) 
+                ],
+                "yellow": [
+                    ([18, 20, 140], [42, 255, 255])
+                ],
+                "red": [
+                    ([133, 0, 0], [179, 255, 255])
+                ],
+                "purple": [
+                   ([75, 0, 160], [170, 255, 255])
+                ]
+            },
+
+            expected_widths=[10, 5, 9, 4],  # Ajustez la măsurătorile reale din debug
+
+            expected_positions_mm={
+                "green_pale": 6,
+                "yellow": 50,
+                "red": 53,
+                "purple": 56
+            },
+
+            expected_positions_px={
+                c: int(mm * MM_TO_PX)
+                for c, mm in {
+                    "green_pale": 19,
+                    "yellow": 160,
+                    "red": 170,
+                    "purple": 180
+                }.items()
+            },
+
+            tolerance_width=0.25,          # Măresc toleranța de la 0.12 la 0.25
+            min_line_continuity=0.40      # Relaxez de la 0.43 la 0.40 pentru purple
+        )
+        
+        self.patterns["GYRP"] = gyrp_pattern
+        self.line_shift_tolerance_ratio = 0.4
+
 
     def _measure_effective_width(self, mask: np.ndarray) -> float:
         """Estimate the effective band thickness from a binary mask.
@@ -141,6 +233,75 @@ class AdvancedTireQualityChecker:
         return float(np.median(spans))
     
         
+    def debug_color_detection(self, image_path: str):
+        """Ajută la debugging-ul detectării culorilor - arată ce detectează fiecare range HSV"""
+        image = cv2.imread(image_path)
+        if image is None:
+            print("EROARE: Nu pot încărca imaginea!")
+            return
+        
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        image_stats = self._calculate_image_statistics(image)
+        
+        print(f"\\n{'='*80}")
+        print(f"DEBUG COLOR DETECTION - {self.current_pattern.name if self.current_pattern else 'Niciun pattern selectat'}")
+        print(f"{'='*80}")
+        
+        if not self.current_pattern:
+            print("EROARE: Niciun pattern selectat! Folosește set_current_pattern() mai întâi.")
+            return
+        
+        for color_name in self.current_pattern.colors:
+            print(f"\\n--- CULOAREA: {color_name.upper()} ---")
+            ranges = self.current_pattern.color_ranges[color_name]
+            
+            combined_mask = None
+            for i, (lower, upper) in enumerate(ranges):
+                print(f"  Range {i+1}: H={lower[0]}-{upper[0]}, S={lower[1]}-{upper[1]}, V={lower[2]}-{upper[2]}")
+                
+                mask = cv2.inRange(hsv, np.array(lower), np.array(upper))
+                pixel_count = np.count_nonzero(mask)
+                coverage = pixel_count / (mask.shape[0] * mask.shape[1]) * 100
+                
+                print(f"    → Pixels detectați: {pixel_count} ({coverage:.2f}% din imagine)")
+                
+                if combined_mask is None:
+                    combined_mask = mask
+                else:
+                    combined_mask = cv2.bitwise_or(combined_mask, mask)
+                
+                # Salvează masca pentru fiecare range
+                cv2.imwrite(f"debug_{color_name}_range_{i+1}.png", mask)
+            
+            # Maskă finală după adaptive detection
+            final_mask = self._adaptive_color_detection(hsv, ranges, image_stats)
+            final_count = np.count_nonzero(final_mask)
+            final_coverage = final_count / (final_mask.shape[0] * final_mask.shape[1]) * 100
+            
+            print(f"  TOTAL după adaptive: {final_count} pixels ({final_coverage:.2f}%)")
+            
+            # Verifică dacă face threshold-ul pentru detectare
+            if final_coverage >= 15:  # Same threshold as in detection
+                print(f"  ✓ DETECTABIL (>15% coverage)")
+            else:
+                print(f"  ✗ SUB THRESHOLD (<15% coverage)")
+            
+            # Salvează masca finală
+            cv2.imwrite(f"debug_{color_name}_final.png", final_mask)
+            
+            # Găsește contururi
+            contours, _ = cv2.findContours(final_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if contours:
+                areas = [cv2.contourArea(c) for c in contours]
+                areas.sort(reverse=True)
+                print(f"  Contururi găsite: {len(contours)}, arii: {areas[:5]}...")
+            else:
+                print(f"  Niciun contur detectat!")
+        
+        print(f"\\n{'='*80}")
+        print("Imaginile debug au fost salvate cu prefixul 'debug_[culoare]_*'")
+        print("{'='*80}\\n")
+
     def measure_actual_positions(self, image_path: str):
         image = cv2.imread(image_path)
         height, width = image.shape[:2]
@@ -197,7 +358,10 @@ class AdvancedTireQualityChecker:
             "green": (0, 255, 0),
             "white": (255, 255, 255),
             "yellow": (0, 255, 255),
-            "aqua": (255, 255, 0)  
+            "aqua": (255, 255, 0),
+            "red": (0, 0, 255),
+            "purple": (255, 0, 255),
+            "blue": (255, 0, 0)
         }
 
         for color, info in debug_info.items():
@@ -636,6 +800,71 @@ class AdvancedTireQualityChecker:
             summary=summary
         )
 
+    def _find_center_by_intensity_profile(self, image: np.ndarray) -> Optional[int]:
+        """
+        Găsește centrul benzii folosind profilul de intensitate.
+        Caută "valea întunecată" (punctul de minim) în loc de edge detection.
+        Mult mai robust pentru marginile "moi" cu blur.
+        
+        Args:
+            image: Imaginea BGR (ROI-ul decupat)
+            
+        Returns:
+            Poziția X a centrului găsit, sau None dacă nu se poate detecta
+        """
+        # Convertim la grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        height, width = gray.shape
+        
+        if height == 0 or width == 0:
+            return None
+        
+        # Definim un ROI orizontal la mijlocul imaginii (banda centrală)
+        # Luăm 40% din înălțime, centrat vertical
+        y_margin = int(height * 0.3)
+        roi_gray = gray[y_margin:height - y_margin, :]
+        
+        if roi_gray.size == 0:
+            return None
+        
+        # Facem media pe verticală pentru fiecare coloană
+        # Asta elimină zgomotul și dă un profil 1D curat
+        intensity_profile = np.mean(roi_gray, axis=0)
+        
+        # Aplicăm un smoothing ușor pentru a reduce zgomotul rezidual
+        kernel_size = max(5, width // 50)
+        if kernel_size % 2 == 0:
+            kernel_size += 1
+        smoothed_profile = cv2.GaussianBlur(
+            intensity_profile.reshape(1, -1).astype(np.float32), 
+            (kernel_size, 1), 
+            0
+        ).flatten()
+        
+        # Căutăm punctul de MINIM (valea întunecată = centrul benzii)
+        # Excludem marginile pentru a evita false pozitive
+        margin = width // 10
+        search_region = smoothed_profile[margin:width - margin]
+        
+        if search_region.size == 0:
+            return None
+        
+        # Găsim minimul local
+        min_idx = np.argmin(search_region) + margin
+        
+        # Verificăm că e într-adevăr o "vale" semnificativă
+        # (minimul trebuie să fie clar mai mic decât vecinii)
+        local_min = smoothed_profile[min_idx]
+        left_val = np.mean(smoothed_profile[max(0, min_idx - 20):min_idx]) if min_idx > 20 else smoothed_profile[0]
+        right_val = np.mean(smoothed_profile[min_idx + 1:min(width, min_idx + 21)]) if min_idx < width - 20 else smoothed_profile[-1]
+        
+        # Valea trebuie să fie mai întunecată decât vecinii cu cel puțin 5%
+        avg_neighbor = (left_val + right_val) / 2
+        if local_min < avg_neighbor * 0.98:  # Pragul poate fi ajustat
+            return min_idx
+        
+        return None
+
     def _analyze_frame_absolute(self, image: np.ndarray, tire_center_x: int, x_offset: int = 0):
         defects = []
         debug_info = {}
@@ -646,12 +875,61 @@ class AdvancedTireQualityChecker:
         if self.fixed_tire_center_x is None:
             raise RuntimeError("Centru bandă necalibrat")
 
-
         if not hasattr(self, "last_positions"):
             self.last_positions = {}
         if not hasattr(self, "shift_persistence"):
             self.shift_persistence = {}
 
+        # ========== CALCUL CENTRU DINAMIC (Metoda Profilului de Intensitate) ==========
+        # În loc de Edge Detection, căutăm "valea întunecată" - mult mai robust pentru blur
+        
+        # Metoda 1: Profilul de intensitate (căutăm valea de întuneric)
+        intensity_center = self._find_center_by_intensity_profile(image)
+        
+        # Metoda 2: Backup - folosim pozițiile liniilor colorate detectate
+        estimated_centers = []
+        for color in self.current_pattern.colors:
+            ranges = self.current_pattern.color_ranges[color]
+            mask_full = self._adaptive_color_detection(hsv, ranges, image_stats)
+            
+            contours, _ = cv2.findContours(mask_full, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            if contours:
+                def score_contour(c):
+                    x, y, w, h = cv2.boundingRect(c)
+                    area = cv2.contourArea(c)
+                    aspect = h / max(w, 1)
+                    if area < 200 or aspect < 3.0:
+                        return 0
+                    return area * aspect
+                
+                best = max(contours, key=score_contour, default=None)
+                if best is not None and score_contour(best) > 0:
+                    x, y, w, h = cv2.boundingRect(best)
+                    line_center_x = x + w // 2
+                    
+                    expected_px = self.current_pattern.expected_positions_px[color]
+                    estimated_center = line_center_x + expected_px
+                    estimated_centers.append(estimated_center)
+        
+        # Alegem centrul final: preferăm profilul de intensitate, fallback pe linii detectate
+        if intensity_center is not None:
+            dynamic_center = intensity_center
+            debug_info["_center_method"] = "intensity_profile"
+        elif estimated_centers:
+            dynamic_center = int(np.median(estimated_centers))
+            debug_info["_center_method"] = "color_lines"
+        else:
+            dynamic_center = None
+            debug_info["_center_method"] = "none"
+        
+        if dynamic_center is not None:
+            debug_info["_detected_center"] = dynamic_center
+            tire_center_x = dynamic_center
+        else:
+            debug_info["_detected_center"] = None
+
+        # ========== RESTUL ANALIZEI CU CENTRUL ACTUALIZAT ==========
         for color in self.current_pattern.colors:
             ranges = self.current_pattern.color_ranges[color]
             expected_px = self.current_pattern.expected_positions_px[color]
@@ -923,7 +1201,10 @@ class AdvancedTireQualityChecker:
             "green": (0, 255, 0),
             "white": (255, 255, 255),
             "yellow": (0, 255, 255),
-            "aqua": (255, 255, 0)
+            "aqua": (255, 255, 0),
+            "red": (0, 0, 255),
+            "purple": (255, 0, 255),
+            "blue": (255, 0, 0)
         }
 
         for color, info in detected_lines.items():

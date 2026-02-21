@@ -8,7 +8,33 @@ from enum import Enum
 import time
 from collections import deque
 
-MM_TO_PX = 3.2
+MM_TO_PX = 1.67
+
+# Mapare cod litere din JSON -> nume culori interne
+COLOR_CODE_MAP = {
+    "A": "aqua",
+    "B": "blue",
+    "G": "green",
+    "L": "lime",
+    "O": "orange",
+    "P": "purple",
+    "R": "red",
+    "W": "white",
+    "Y": "yellow",
+}
+
+# Range-uri HSV implicite pentru fiecare culoare
+DEFAULT_COLOR_RANGES = {
+    "aqua":   [([85, 100, 150], [105, 255, 255])],
+    "blue":   [([100, 150, 100], [130, 255, 255])],
+    "green":  [([65, 25, 130], [90, 255, 255])],
+    "lime":   [([35, 80, 130], [65, 255, 255])],
+    "orange": [([5, 100, 150], [18, 255, 255])],
+    "purple": [([120, 50, 100], [160, 255, 255])],
+    "red":    [([0, 100, 100], [10, 255, 255]), ([160, 100, 100], [180, 255, 255])],
+    "white":  [([0, 0, 170], [180, 20, 255])],
+    "yellow": [([18, 20, 140], [42, 255, 255])],
+}
 
 class DefectType(Enum):
     COLOR_MISSING = "culoare_lipsa"
@@ -29,6 +55,9 @@ class Pattern:
     expected_positions_px: Dict[str, int]
     tolerance_width: float = 0.15
     min_line_continuity: float = 0.85
+    recipe_id: str = ""
+    product_code: str = ""
+    pattern_name_official: str = ""
 
 @dataclass
 class DefectReport:
@@ -49,7 +78,7 @@ class QualityResult:
     summary: str
 
 class AdvancedTireQualityChecker:
-    def __init__(self, config_file: str = None):
+    def __init__(self, config_file: str = None, patterns_json_file: str = None):
         self.patterns = {}
         self.current_pattern = None
         self.debug_mode = False
@@ -66,11 +95,18 @@ class AdvancedTireQualityChecker:
                 "red": deque(maxlen=12),
                 "purple": deque(maxlen=12),
                 "blue": deque(maxlen=12),
-                "green_pale": deque(maxlen=12)
+                "green_pale": deque(maxlen=12),
+                "lime": deque(maxlen=12),
+                "orange": deque(maxlen=12)
             }
         self.fixed_tire_center_x = None
         
-        self._load_default_patterns()
+        # Încarcă pattern-urile din JSON dacă e specificat, altfel fallback la hardcoded
+        if patterns_json_file and os.path.exists(patterns_json_file):
+            count = self.load_patterns_from_json(patterns_json_file)
+            print(f"✅ Încărcat {count} pattern-uri din {patterns_json_file}")
+        else:
+            self._load_default_patterns()
         
         if config_file and os.path.exists(config_file):
             self._load_config(config_file)
@@ -211,6 +247,113 @@ class AdvancedTireQualityChecker:
         self.patterns["GYRP"] = gyrp_pattern
         self.line_shift_tolerance_ratio = 0.4
 
+    def load_patterns_from_json(self, json_file: str) -> int:
+        """Încarcă pattern-urile din fișierul JSON de producție.
+        
+        Args:
+            json_file: Calea către fișierul JSON cu pattern-urile
+            
+        Returns:
+            Numărul de pattern-uri încărcate
+        """
+        with open(json_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        count = 0
+        seen_patterns = set()
+        
+        for entry in data:
+            # Skip intrări goale
+            if not entry or not isinstance(entry, dict):
+                continue
+            
+            pattern_name = entry.get("pattern_name", "").strip()
+            if not pattern_name:
+                continue
+            
+            # Skip duplicate (păstrăm prima apariție)
+            if pattern_name in seen_patterns:
+                continue
+            seen_patterns.add(pattern_name)
+            
+            # Extrage culorile (coduri de o literă -> nume complete)
+            color_codes = entry.get("colors", [])
+            colors = []
+            for code in color_codes:
+                color_name = COLOR_CODE_MAP.get(code)
+                if color_name:
+                    colors.append(color_name)
+                else:
+                    print(f"⚠️ Cod culoare necunoscut '{code}' în pattern-ul {pattern_name}")
+            
+            if not colors:
+                continue
+            
+            # Construiește color_ranges din DEFAULT_COLOR_RANGES
+            color_ranges = {}
+            for color in colors:
+                if color in DEFAULT_COLOR_RANGES:
+                    color_ranges[color] = DEFAULT_COLOR_RANGES[color]
+                else:
+                    print(f"⚠️ Nu există range HSV implicit pentru '{color}'")
+                    color_ranges[color] = [([0, 0, 0], [180, 255, 255])]
+            
+            # Extrage pozițiile în mm
+            positions_mm_raw = entry.get("positions_mm", [])
+            expected_positions_mm = {}
+            expected_positions_px = {}
+            
+            for i, pos_str in enumerate(positions_mm_raw):
+                if i < len(colors):
+                    # Curăță valoarea (elimină caractere non-numerice)
+                    clean_val = ''.join(c for c in str(pos_str) if c.isdigit() or c == '.')
+                    if clean_val:
+                        try:
+                            mm_val = float(clean_val)
+                            expected_positions_mm[colors[i]] = int(mm_val)
+                            expected_positions_px[colors[i]] = int(mm_val * MM_TO_PX)
+                        except ValueError:
+                            expected_positions_mm[colors[i]] = 0
+                            expected_positions_px[colors[i]] = 0
+                    else:
+                        expected_positions_mm[colors[i]] = 0
+                        expected_positions_px[colors[i]] = 0
+            
+            # Lățimi implicite
+            expected_widths = [6] * len(colors)
+            
+            # Metadata
+            recipe_id = entry.get("recipe_id", "")
+            product_code = entry.get("product_code", "")
+            pattern_name_official = entry.get("pattern_name_official", "")
+            
+            pattern = Pattern(
+                name=pattern_name,
+                colors=colors,
+                color_ranges=color_ranges,
+                expected_widths=expected_widths,
+                expected_positions_mm=expected_positions_mm,
+                expected_positions_px=expected_positions_px,
+                tolerance_width=0.15,
+                min_line_continuity=0.43,
+                recipe_id=recipe_id,
+                product_code=product_code,
+                pattern_name_official=pattern_name_official
+            )
+            
+            self.patterns[pattern_name] = pattern
+            count += 1
+            
+            # Adaugă culori noi la position_history dacă lipsesc
+            for color in colors:
+                if color not in self.position_history:
+                    self.position_history[color] = deque(maxlen=12)
+        
+        return count
+
+    def get_pattern_names(self) -> List[str]:
+        """Returnează lista sortată a numelor de pattern-uri disponibile."""
+        return sorted(self.patterns.keys())
 
     def _measure_effective_width(self, mask: np.ndarray) -> float:
         """Estimate the effective band thickness from a binary mask.

@@ -3,23 +3,27 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import numpy as np
+import os
 from advanced_tire_qc import AdvancedTireQualityChecker
 import colorsys
 
 # ================= CONFIG =================
 # ROI partajat cu alte scripturi (y1, y2, x1, x2)
-ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
-# ROI = (379, 875, 680, 1294)  # pt video 1 => (379, 875, 680, 1294)
+# ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
+ROI = (379, 875, 680, 1294)  # pt video 1 => (379, 875, 680, 1294)
 # SOURCE: "local" sau "rtsp"
 SOURCE = "local"   # "local" | "rtsp"
 
 # Video local
-# VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
 # VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\video-scurt.mp4"
-VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\V20260129_153301_001.avi"
+# VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\V20260129_153301_001.avi"
 # RTSP stream
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
 FRAME_WAIT = 30  # warmup frames pentru RTSP
+
+# Fișierul JSON cu pattern-urile de producție
+PATTERNS_JSON_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patterns_productie.json")
 # ==========================================
 
 def hsv_to_bgr(h, s, v):
@@ -44,7 +48,7 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
     """
     img = np.zeros((height, width, 3), dtype=np.uint8)
     
-    MM_TO_PX = 3.2
+    MM_TO_PX = 1.67
     
     # Calculăm factorul de scalare (frame original -> video rescalat)
     frame_w, frame_h = frame_size
@@ -142,11 +146,26 @@ class TireQCViewer:
         self.root.geometry("1400x900")
         self.root.configure(bg="#2b2b2b")
 
-        self.checker = AdvancedTireQualityChecker()
-        self.checker.set_current_pattern("GYRP")  # Schimbat la BGWY ca în run_video_analysis
-        self.checker.fixed_tire_center_x = 991 # Setat ca în run_video_analysis
+        # Încarcă pattern-urile din fișierul JSON de producție
+        self.checker = AdvancedTireQualityChecker(patterns_json_file=PATTERNS_JSON_FILE)
+        
+        # Selectează primul pattern disponibil (sau un pattern specific dacă există)
+        available_patterns = self.checker.get_pattern_names()
+        if available_patterns:
+            # Setează primul pattern ca implicit
+            default_pattern = available_patterns[0]
+            self.checker.set_current_pattern(default_pattern)
+            print(f"✅ Pattern implicit setat: {default_pattern}")
+        else:
+            print("⚠️ Niciun pattern disponibil!")
+        
+        self.checker.fixed_tire_center_x = 991  # Setat ca în run_video_analysis
         self.checker.debug_mode = True
         pattern = self.checker.current_pattern
+        
+        # Verificare de siguranță în cazul în care nu există pattern-uri
+        if pattern is None:
+            raise RuntimeError("Nu s-a putut încărca niciun pattern. Verificați fișierul patterns_productie.json")
 
         # Dimensiuni fixe pentru video (nu se micșorează)
         self.VIDEO_WIDTH = 1000
@@ -217,35 +236,39 @@ class TireQCViewer:
         )
         self.video_label.grid(row=0, column=0, sticky="nw")
 
-        info = tk.Frame(content, bg="#2b2b2b", width=300, height=400)
+        info = tk.Frame(content, bg="#2b2b2b", width=300, height=550)
         info.grid(row=0, column=1, sticky="nw", padx=(20, 0))
         info.grid_propagate(False)  # Previne redimensionarea automată
 
         # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
-        pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=60, width=300)
+        pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=80, width=300)
         pattern_selector_frame.grid(row=0, column=0, sticky="nw", pady=(0, 10))
         pattern_selector_frame.grid_propagate(False)  # Nu se redimensionează automat
         pattern_selector_frame.grid_columnconfigure(0, weight=0)
 
         tk.Label(
             pattern_selector_frame,
-            text="Pattern:",
+            text="Pattern (caută sau selectează):",
             font=("Segoe UI", 11, "bold"),
             fg="white",
             bg="#2b2b2b"
         ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
+        # Lista completă de pattern-uri pentru filtrare
+        self.all_pattern_names = sorted(self.checker.patterns.keys())
+        
         self.pattern_var = tk.StringVar(value=pattern.name)
         self.pattern_selector = ttk.Combobox(
             pattern_selector_frame,
             textvariable=self.pattern_var,
-            values=list(self.checker.patterns.keys()),
-            state="readonly",
-            width=15,
-            font=("Segoe UI", 10)
+            values=self.all_pattern_names,
+            width=25,
+            font=("Segoe UI", 11)
         )
         self.pattern_selector.grid(row=1, column=0, sticky="w")
         self.pattern_selector.bind("<<ComboboxSelected>>", self.on_pattern_change)
+        self.pattern_selector.bind("<KeyRelease>", self.on_pattern_search)
+        self.pattern_selector.bind("<Return>", self.on_pattern_enter)
 
         # ============ COLORS SECTION (FIXED SIZE) ============
         colors_container_frame = tk.Frame(info, bg="#2b2b2b", height=200, width=300)
@@ -266,9 +289,62 @@ class TireQCViewer:
         self.colors_frame.grid(row=1, column=0, sticky="w")
         self._update_colors_display(pattern, color_map)
 
+        # ============ PATTERN INFO SECTION ============
+        pattern_info_frame = tk.Frame(info, bg="#2b2b2b", width=300)
+        pattern_info_frame.grid(row=2, column=0, sticky="nw", pady=(0, 10))
+        pattern_info_frame.grid_columnconfigure(0, weight=0)
+
+        tk.Label(
+            pattern_info_frame,
+            text="Informații pattern:",
+            font=("Segoe UI", 11, "bold"),
+            fg="white",
+            bg="#2b2b2b"
+        ).grid(row=0, column=0, sticky="w", pady=(0, 5))
+
+        # Pattern Name (mare, proeminent)
+        self.pattern_name_label = tk.Label(
+            pattern_info_frame,
+            text=pattern.name,
+            font=("Segoe UI", 40, "bold"),
+            fg="#00ff00",  # verde deschis
+            bg="#2b2b2b"
+        )
+        self.pattern_name_label.grid(row=1, column=0, sticky="w", pady=(0, 10))
+
+        # Recipe ID
+        self.recipe_id_label = tk.Label(
+            pattern_info_frame,
+            text=f"Recipe ID: {pattern.recipe_id}",
+            font=("Segoe UI", 10),
+            fg="#aaaaaa",
+            bg="#2b2b2b"
+        )
+        self.recipe_id_label.grid(row=2, column=0, sticky="w", pady=(0, 2))
+
+        # Product Code
+        self.product_code_label = tk.Label(
+            pattern_info_frame,
+            text=f"Product Code: {pattern.product_code}",
+            font=("Segoe UI", 10),
+            fg="#aaaaaa",
+            bg="#2b2b2b"
+        )
+        self.product_code_label.grid(row=3, column=0, sticky="w", pady=(0, 2))
+
+        # Pattern Name Official
+        self.pattern_official_label = tk.Label(
+            pattern_info_frame,
+            text=f"Nume oficial: {pattern.pattern_name_official}",
+            font=("Segoe UI", 10),
+            fg="#aaaaaa",
+            bg="#2b2b2b"
+        )
+        self.pattern_official_label.grid(row=4, column=0, sticky="w", pady=(0, 2))
+
         # ============ STATUS SECTION (FLEXIBLE SIZE - doar verdictul) ============
         status_frame = tk.Frame(info, bg="#2b2b2b")
-        status_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
+        status_frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
         status_frame.grid_columnconfigure(0, weight=1)
 
         self.status_label = tk.Label(
@@ -377,6 +453,12 @@ class TireQCViewer:
     def on_pattern_change(self, event=None):
         """Callback când se schimbă pattern-ul selectat."""
         new_pattern_name = self.pattern_var.get()
+        
+        # Verifică dacă pattern-ul există
+        if new_pattern_name not in self.checker.patterns:
+            print(f"⚠️ Pattern '{new_pattern_name}' nu există")
+            return
+        
         print(f"🔄 Schimbare pattern: {new_pattern_name}")
 
         # Setează noul pattern
@@ -397,6 +479,12 @@ class TireQCViewer:
         color_map = self._get_color_map(pattern)
         self._update_colors_display(pattern, color_map)
 
+        # Actualizează informațiile pattern-ului (metadata)
+        self.pattern_name_label.config(text=pattern.name)
+        self.recipe_id_label.config(text=f"Recipe ID: {pattern.recipe_id}")
+        self.product_code_label.config(text=f"Product Code: {pattern.product_code}")
+        self.pattern_official_label.config(text=f"Nume oficial: {pattern.pattern_name_official}")
+
         # Regenerează pattern image
         self.pattern_center_x = self.checker.fixed_tire_center_x
         pattern_img = generate_pattern_image(
@@ -413,6 +501,44 @@ class TireQCViewer:
         self.pattern_label.image = self.pattern_tk
 
         print(f"✅ Pattern schimbat la: {new_pattern_name} ({len(pattern.colors)} culori)")
+
+    def on_pattern_search(self, event=None):
+        """Filtrează pattern-urile pe baza textului introdus."""
+        # Ignorăm taste speciale
+        if event and event.keysym in ('Up', 'Down', 'Left', 'Right', 'Return', 'Escape', 'Tab'):
+            return
+        
+        search_text = self.pattern_var.get().upper().strip()
+        
+        if not search_text:
+            # Dacă nu e text, arată toate pattern-urile
+            filtered = self.all_pattern_names
+        else:
+            # Filtrează pattern-urile care conțin textul căutat
+            filtered = [p for p in self.all_pattern_names if search_text in p.upper()]
+        
+        # Actualizează valorile din combobox
+        self.pattern_selector['values'] = filtered
+        
+        # Deschide dropdown-ul automat dacă există rezultate
+        if filtered and len(search_text) >= 1:
+            self.pattern_selector.event_generate('<Down>')
+
+    def on_pattern_enter(self, event=None):
+        """Selectează pattern-ul când se apasă Enter."""
+        search_text = self.pattern_var.get().upper().strip()
+        
+        # Verifică dacă textul corespunde exact unui pattern
+        if search_text in self.checker.patterns:
+            self.on_pattern_change()
+            return
+        
+        # Caută primul pattern care se potrivește
+        filtered = [p for p in self.all_pattern_names if search_text in p.upper()]
+        if filtered:
+            # Selectează primul rezultat
+            self.pattern_var.set(filtered[0])
+            self.on_pattern_change()
 
     def update_frame(self):
         try:
@@ -453,7 +579,7 @@ class TireQCViewer:
             
             # VERIFICARE IMEDIATA a pozitiilor (ca in analyze_video)
             from advanced_tire_qc import DefectType, DefectReport
-            MM_TO_PX = 3.2
+            from advanced_tire_qc import MM_TO_PX
             
             # Calculez pozițiile și verific dacă sunt probleme
             dyn_c = debug_info.get("_detected_center")

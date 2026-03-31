@@ -330,6 +330,7 @@ class TireQCViewer:
         content.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
 
         # Video are dimensiune FIXĂ, info panel se adaptează
+        content.grid_rowconfigure(0, weight=1)
         content.grid_columnconfigure(0, weight=0, minsize=self.VIDEO_WIDTH)
         content.grid_columnconfigure(1, weight=1)
 
@@ -346,7 +347,7 @@ class TireQCViewer:
         info = tk.Frame(content, bg="#2b2b2b", width=300, height=550)
         info.grid(row=0, column=1, sticky="nw", padx=(20, 0))
         info.grid_propagate(False)  # Previne redimensionarea automată
-        info.grid_rowconfigure(3, weight=1)
+        # info.grid_rowconfigure(3, weight=1)
         info.grid_columnconfigure(0, weight=1)
 
         # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
@@ -505,11 +506,12 @@ class TireQCViewer:
         )
         self.pattern_official_label.grid(row=4, column=0, sticky="w", pady=(0, 2))
 
-        # ============ STATUS SECTION (BOTTOM-RIGHT) ============
-        status_frame = tk.Frame(info, bg="#2b2b2b")
-        status_frame.place(relx=1.0, rely=1.0, anchor="se", x=-6, y=-6, width=288)
-        status_frame.lift()
-        status_frame.grid_columnconfigure(0, weight=1)
+        # ============ STATUS SECTION (sub content, în main) ============
+        status_frame = tk.Frame(main, bg="#2b2b2b")
+        status_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=10, pady=(0, 10))
+        status_frame.grid_columnconfigure(0, weight=0)
+        status_frame.grid_columnconfigure(1, weight=0)
+        status_frame.grid_columnconfigure(2, weight=0)
 
         self.status_label = tk.Label(
             status_frame,
@@ -517,11 +519,9 @@ class TireQCViewer:
             font=("Segoe UI", 12, "bold"),
             fg="yellow",
             bg="#2b2b2b",
-            wraplength=280,
-            justify="left",
             anchor="w"
         )
-        self.status_label.grid(row=0, column=0, sticky="w", pady=(0, 5))
+        self.status_label.grid(row=0, column=0, sticky="w", padx=(0, 30))
 
         self.quality_label = tk.Label(
             status_frame,
@@ -533,7 +533,7 @@ class TireQCViewer:
             justify="left",
             anchor="w"
         )
-        self.quality_label.grid(row=1, column=0, sticky="w", pady=(0, 5))
+        self.quality_label.grid(row=0, column=1, sticky="w", padx=(0, 30))
 
         self.defects_label = tk.Label(
             status_frame,
@@ -545,7 +545,7 @@ class TireQCViewer:
             justify="left",
             anchor="w"
         )
-        self.defects_label.grid(row=2, column=0, sticky="w")
+        self.defects_label.grid(row=0, column=2, sticky="w")
 
         # Deschidem captura în funcție de SOURCE
         if SOURCE == "local":

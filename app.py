@@ -4,18 +4,22 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import numpy as np
 import os
-from advanced_tire_qc import AdvancedTireQualityChecker
+import json
+from advanced_tire_qc import AdvancedTireQualityChecker, SCALE_FINAL, OFFSET_FINAL, WARPED_SIZE
 import colorsys
 
 # ================= CONFIG =================
 # ROI partajat cu alte scripturi (y1, y2, x1, x2)
 # ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
-ROI = (379, 875, 680, 1294)  # pt video 1 => (379, 875, 680, 1294)
+ROI = (311, 474, 476, 763)  # pt video 1 => (379, 875, 680, 1294)
+# ROI este definit pe frame-ul original (înainte de warp).
+ROI_SPACE = "raw"  # "raw" | "warped"
 # SOURCE: "local" sau "rtsp"
 SOURCE = "local"   # "local" | "rtsp"
 
 # Video local
-VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi"  
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi"
 # VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\video-scurt.mp4"
 # VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\V20260129_153301_001.avi"
 # RTSP stream
@@ -24,6 +28,10 @@ FRAME_WAIT = 30  # warmup frames pentru RTSP
 
 # Fișierul JSON cu pattern-urile de producție
 PATTERNS_JSON_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "patterns_productie.json")
+
+# Fișiere de calibrare
+CAMERA_CALIBRATION_FILE = "calibrare_camera.npz"
+HOMOGRAPHY_FILE = "matrice_omografie.npy"
 # ==========================================
 
 def hsv_to_bgr(h, s, v):
@@ -33,6 +41,104 @@ def hsv_to_bgr(h, s, v):
     
     r, g, b = colorsys.hsv_to_rgb(h_norm, s_norm, v_norm)
     return (int(b * 255), int(g * 255), int(r * 255))
+
+
+def load_calibration():
+    """Încarcă fișierele de calibrare (camera matrix și homography matrix)."""
+    camera_mtx = None
+    dist = None
+
+    if os.path.exists(CAMERA_CALIBRATION_FILE):
+        data = np.load(CAMERA_CALIBRATION_FILE)
+        camera_mtx = data["mtx"]
+        dist = data["dist"]
+        print(f"[INFO] Calibrare camera încărcată din {CAMERA_CALIBRATION_FILE}")
+    else:
+        print(f"[WARN] Fișier lipsă: {CAMERA_CALIBRATION_FILE}. Voi continua fără undistort.")
+
+    if not os.path.exists(HOMOGRAPHY_FILE):
+        print(f"[WARN] Fișier lipsă: {HOMOGRAPHY_FILE}. Voi folosi imaginea originală.")
+        homography = None
+    else:
+        homography = np.load(HOMOGRAPHY_FILE)
+        print(f"[INFO] Omografie încărcată din {HOMOGRAPHY_FILE}")
+
+    return camera_mtx, dist, homography
+
+
+def preprocess_frame(frame, camera_mtx, dist, homography):
+    """Preprocessează frame-ul: undistort + perspectivă warping."""
+    processed = frame
+
+    # Aplică undistortion dacă dispunem de calibrare camerei
+    if camera_mtx is not None and dist is not None:
+        h, w = frame.shape[:2]
+        new_camera_mtx, _ = cv2.getOptimalNewCameraMatrix(camera_mtx, dist, (w, h), 1, (w, h))
+        processed = cv2.undistort(frame, camera_mtx, dist, None, new_camera_mtx)
+
+    # Aplică perspectivă warping dacă dispunem de matrice omografie
+    if homography is not None:
+        processed = cv2.warpPerspective(processed, homography, WARPED_SIZE)
+    
+    return processed
+
+
+def project_roi_raw_to_warped(roi, homography, warped_size):
+    """Proiectează ROI din coordonate frame original în coordonate warped."""
+    if homography is None or roi is None or len(roi) != 4:
+        return roi
+
+    y1, y2, x1, x2 = roi
+    corners = np.array(
+        [[x1, y1], [x2, y1], [x2, y2], [x1, y2]],
+        dtype=np.float32
+    ).reshape(-1, 1, 2)
+
+    warped_corners = cv2.perspectiveTransform(corners, homography).reshape(-1, 2)
+    xs = warped_corners[:, 0]
+    ys = warped_corners[:, 1]
+
+    wx, wy = warped_size
+    rx1 = int(max(0, min(np.floor(xs.min()), wx - 1)))
+    rx2 = int(max(0, min(np.ceil(xs.max()), wx)))
+    ry1 = int(max(0, min(np.floor(ys.min()), wy - 1)))
+    ry2 = int(max(0, min(np.ceil(ys.max()), wy)))
+
+    return (ry1, ry2, rx1, rx2)
+
+
+def load_pattern_names_from_json(json_path):
+    """Returneaza lista unica de pattern_name, in ordinea din JSON."""
+    names = []
+    seen = set()
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        print(f"[WARN] Nu pot citi pattern-uri din JSON: {exc}")
+        return names
+
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        name = str(entry.get("pattern_name", "")).strip()
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        names.append(name)
+
+    return names
+
+
+def get_expected_mm_by_color_index(pattern, color_name, index_in_colors):
+    """Returnează poziția în mm pentru o culoare la indexul dat din pattern.colors."""
+    mm_list = getattr(pattern, "expected_positions_mm_by_index", None)
+    if isinstance(mm_list, list) and index_in_colors < len(mm_list):
+        return int(mm_list[index_in_colors])
+
+    return pattern.expected_positions_mm.get(color_name, 0)
+
 
 def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs):
     """
@@ -88,27 +194,10 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
     cv2.putText(img, "CENTRU", (center_x_scaled - 30, height - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 255), 1)
 
     # Desenăm fiecare culoare la poziția sa exactă (scalată la fel ca video-ul)
-    # Pentru pattern-uri cu culori duplicate, construim pozițiile pe baza indexului
-    def get_position_by_color_index(pattern, color_name, index_in_colors):
-        """Returnează poziția în mm pentru o culoare la un anumit index în lista de culori."""
-        # Numărăm câte apariții ale acestei culori sunt înaintea indexului curent
-        occurrences_before = pattern.colors[:index_in_colors].count(color_name)
-        
-        # Colectăm toate pozițiile pentru această culoare din pattern-ul original
-        # (de obicei sunt definite în ordine în codul sursă, chiar dacă dicționarul le suprascrie)
-        
-        if pattern.name == "GWGB" and color_name == "green":
-            # Pentru GWGB, prima verde e la 19mm, a doua la 38mm
-            green_positions = [19, 38]
-            return green_positions[occurrences_before] if occurrences_before < len(green_positions) else 19
-        
-        # Pentru alte pattern-uri cu culori duplicate, putem extinde aici
-        # Alternativ, încercăm să extragem din expected_positions_mm existent
-        return pattern.expected_positions_mm.get(color_name, 0)
-    
+    # Pentru pattern-uri cu culori duplicate, folosim indexul din pattern.colors.
     for i, color in enumerate(pattern.colors):
         # Folosim funcția pentru a obține poziția corectă pentru această culoare la acest index
-        dist_mm = get_position_by_color_index(pattern, color, i)
+        dist_mm = get_expected_mm_by_color_index(pattern, color, i)
         dist_px_original = int(dist_mm * MM_TO_PX)  # distanța în pixeli în frame original
         
         # Poziția în frame original (la stânga centrului)
@@ -146,6 +235,9 @@ class TireQCViewer:
         self.root.geometry("1400x900")
         self.root.configure(bg="#2b2b2b")
 
+        # Încarcă calibrarea (camera matrix și homography)
+        self.camera_mtx, self.dist, self.homography = load_calibration()
+
         # Încarcă pattern-urile din fișierul JSON de producție
         self.checker = AdvancedTireQualityChecker(patterns_json_file=PATTERNS_JSON_FILE)
         
@@ -172,6 +264,8 @@ class TireQCViewer:
         self.VIDEO_HEIGHT = 600
         # Folosim ROI-ul partajat de nivel modul
         self.roi = ROI
+        self.roi_space = ROI_SPACE
+        print(f"[INFO] ROI activ ({self.roi_space}): {self.roi}")
 
         # Dimensiunea frame-ului original (vom actualiza după prima citire)
         self.frame_size = (1920, 1080)  # default, se va actualiza
@@ -241,34 +335,88 @@ class TireQCViewer:
         info.grid_propagate(False)  # Previne redimensionarea automată
 
         # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
-        pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=80, width=300)
+        pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=110, width=300)
         pattern_selector_frame.grid(row=0, column=0, sticky="nw", pady=(0, 10))
-        pattern_selector_frame.grid_propagate(False)  # Nu se redimensionează automat
-        pattern_selector_frame.grid_columnconfigure(0, weight=0)
+        pattern_selector_frame.grid_propagate(False)
+        pattern_selector_frame.grid_columnconfigure(0, weight=1)
 
         tk.Label(
             pattern_selector_frame,
-            text="Pattern (caută sau selectează):",
+            text="Selectează Pattern:",
             font=("Segoe UI", 11, "bold"),
             fg="white",
             bg="#2b2b2b"
         ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
-        # Lista completă de pattern-uri pentru filtrare
-        self.all_pattern_names = sorted(self.checker.patterns.keys())
-        
+        json_pattern_names = load_pattern_names_from_json(PATTERNS_JSON_FILE)
+        valid_loaded_names = set(self.checker.get_pattern_names())
+        self.all_pattern_names = [name for name in json_pattern_names if name in valid_loaded_names]
+        if not self.all_pattern_names:
+            self.all_pattern_names = self.checker.get_pattern_names()
+
+        # Navigare rapida pattern-uri
+        nav_frame = tk.Frame(pattern_selector_frame, bg="#2b2b2b")
+        nav_frame.grid(row=1, column=0, sticky="ew", pady=(0, 5))
+        nav_frame.grid_columnconfigure(1, weight=1)
+
+        tk.Button(
+            nav_frame,
+            text="◀ Prev",
+            font=("Segoe UI", 9),
+            bg="#404040",
+            fg="white",
+            relief="flat",
+            padx=5,
+            command=self.select_previous_pattern
+        ).grid(row=0, column=0, sticky="ew", padx=(0, 5))
+
+        tk.Button(
+            nav_frame,
+            text="Next ▶",
+            font=("Segoe UI", 9),
+            bg="#404040",
+            fg="white",
+            relief="flat",
+            padx=5,
+            command=self.select_next_pattern
+        ).grid(row=0, column=1, sticky="ew", padx=(5, 0))
+
+        # Cautare cu autocomplete (fara popup custom)
+        search_frame = tk.Frame(pattern_selector_frame, bg="#2b2b2b")
+        search_frame.grid(row=2, column=0, sticky="ew")
+        search_frame.grid_columnconfigure(1, weight=1)
+
+        tk.Label(
+            search_frame,
+            text="Cauta:",
+            font=("Segoe UI", 9),
+            fg="#aaaaaa",
+            bg="#2b2b2b"
+        ).grid(row=0, column=0, sticky="w", padx=(0, 5))
+
         self.pattern_var = tk.StringVar(value=pattern.name)
         self.pattern_selector = ttk.Combobox(
-            pattern_selector_frame,
+            search_frame,
             textvariable=self.pattern_var,
             values=self.all_pattern_names,
-            width=25,
-            font=("Segoe UI", 11)
+            font=("Segoe UI", 10),
+            state="normal"
         )
-        self.pattern_selector.grid(row=1, column=0, sticky="w")
+        self.pattern_selector.grid(row=0, column=1, sticky="ew")
+        self.pattern_selector.bind("<KeyRelease>", self.on_pattern_search_keyrelease)
         self.pattern_selector.bind("<<ComboboxSelected>>", self.on_pattern_change)
-        self.pattern_selector.bind("<KeyRelease>", self.on_pattern_search)
-        self.pattern_selector.bind("<Return>", self.on_pattern_enter)
+        self.pattern_selector.bind("<Return>", self.on_pattern_search_enter)
+
+        tk.Button(
+            search_frame,
+            text="Aplica",
+            font=("Segoe UI", 8),
+            bg="#404040",
+            fg="white",
+            relief="flat",
+            width=7,
+            command=self.on_pattern_search_enter
+        ).grid(row=0, column=2, sticky="ew", padx=(5, 0))
 
         # ============ COLORS SECTION (FIXED SIZE) ============
         colors_container_frame = tk.Frame(info, bg="#2b2b2b", height=200, width=300)
@@ -332,10 +480,10 @@ class TireQCViewer:
         )
         self.product_code_label.grid(row=3, column=0, sticky="w", pady=(0, 2))
 
-        # Pattern Name Official
+        # Nume pattern (canonic)
         self.pattern_official_label = tk.Label(
             pattern_info_frame,
-            text=f"Nume oficial: {pattern.pattern_name_official}",
+            text=f"Nume pattern: {pattern.name}",
             font=("Segoe UI", 10),
             fg="#aaaaaa",
             bg="#2b2b2b"
@@ -405,7 +553,104 @@ class TireQCViewer:
             self.fps = 25
 
         self.delay = int(1000 / self.fps)
+        self._last_terminal_report_signature = None
+        self._last_valid_state = None
+        self._last_position_skip_signature = None
+        self._last_offset_report_signature = None
         self.update_frame()
+
+    def _report_result_to_terminal(self, result):
+        """Afișează în terminal problemele detectate (fără spam pe fiecare frame)."""
+        defect_descriptions = sorted(d.description for d in result.defects)
+        signature = (result.is_valid, result.status_message, tuple(defect_descriptions))
+
+        if signature == self._last_terminal_report_signature:
+            return
+
+        self._last_terminal_report_signature = signature
+
+        if not result.is_valid:
+            pattern_name = self.checker.current_pattern.name if self.checker.current_pattern else "N/A"
+            print(f"[ALERTA] Pattern {pattern_name} | {result.quality_level} | {result.status_message}")
+            if result.defects:
+                for defect in result.defects:
+                    print(f"  - [{defect.defect_type.value}] {defect.description}")
+            else:
+                print("  - Problemă detectată fără defecte detaliate.")
+        elif self._last_valid_state is False:
+            print("[INFO] Sistemul a revenit la stare ACCEPTAT.")
+
+        self._last_valid_state = result.is_valid
+
+    def _report_position_check_skips(self, debug_info):
+        """Raportează explicit când verificarea de poziție a fost sărită pentru culori."""
+        if not isinstance(debug_info, dict):
+            return
+
+        skipped = []
+        for color, info in debug_info.items():
+            if not isinstance(info, dict):
+                continue
+            if info.get("position_check_skipped"):
+                reason = info.get("position_check_skipped_reason", "motiv_necunoscut")
+                skipped.append((color, reason))
+
+        skipped.sort(key=lambda x: x[0])
+        signature = tuple(skipped)
+        if signature == self._last_position_skip_signature:
+            return
+
+        self._last_position_skip_signature = signature
+        if skipped:
+            details = "; ".join([f"{color}: {reason}" for color, reason in skipped])
+            print(f"[WARN][POS-CHECK-SKIPPED] {details}")
+
+    def _report_line_offsets(self, result, center_px):
+        """Raportează offset-ul măsurat vs așteptat pentru fiecare linie din pattern."""
+        if self.checker.current_pattern is None:
+            return
+
+        rows = []
+        for idx, color in enumerate(self.checker.current_pattern.colors):
+            line_key = self.checker._line_key(color, idx)
+            expected_mm = float(get_expected_mm_by_color_index(self.checker.current_pattern, color, idx))
+
+            info = result.detected_lines.get(line_key)
+            if info is None:
+                rows.append((line_key, "MISS", None, expected_mm, None))
+                continue
+
+            abs_x = float(info["x_position"])
+            measured_mm = abs(abs_x - float(center_px)) / max(float(SCALE_FINAL), 1e-6)
+            delta_mm = measured_mm - expected_mm
+            rows.append((line_key, "OK", measured_mm, expected_mm, delta_mm))
+
+        signature = (
+            self.checker.current_pattern.name,
+            tuple(
+                (
+                    k,
+                    st,
+                    None if m is None else round(m, 1),
+                    round(e, 1),
+                    None if d is None else round(d, 1),
+                )
+                for k, st, m, e, d in rows
+            ),
+        )
+        if signature == self._last_offset_report_signature:
+            return
+
+        self._last_offset_report_signature = signature
+        print(f"[DEBUG][OFFSETS] Pattern {self.checker.current_pattern.name} | center={center_px}px")
+        for line_key, state, measured_mm, expected_mm, delta_mm in rows:
+            if state == "MISS":
+                print(f"  - {line_key}: MISS | expected={expected_mm:.1f}mm")
+            else:
+                print(
+                    f"  - {line_key}: measured={measured_mm:.1f}mm | "
+                    f"expected={expected_mm:.1f}mm | delta={delta_mm:+.1f}mm"
+                )
 
     def _get_color_map(self, pattern):
         """Generează color_map pentru un pattern."""
@@ -426,6 +671,102 @@ class TireQCViewer:
             b, g, r = color_bgr[color]
             color_map[color] = f"#{r:02x}{g:02x}{b:02x}"
         return color_map
+
+    def select_previous_pattern(self):
+        """Selectează pattern-ul anterior din listă."""
+        all_patterns = self.all_pattern_names
+        current_name = self.checker.current_pattern.name
+        
+        try:
+            current_idx = all_patterns.index(current_name)
+            new_idx = (current_idx - 1) % len(all_patterns)
+            new_pattern = all_patterns[new_idx]
+            self.apply_pattern(new_pattern)
+        except (ValueError, IndexError):
+            pass
+
+    def select_next_pattern(self):
+        """Selectează pattern-ul următor din listă."""
+        all_patterns = self.all_pattern_names
+        current_name = self.checker.current_pattern.name
+        
+        try:
+            current_idx = all_patterns.index(current_name)
+            new_idx = (current_idx + 1) % len(all_patterns)
+            new_pattern = all_patterns[new_idx]
+            self.apply_pattern(new_pattern)
+        except (ValueError, IndexError):
+            pass
+
+    def on_pattern_search_keyrelease(self, event=None):
+        """Filtrează lista din combobox în timp ce scrii, fără auto-select forțat."""
+        typed = self.pattern_var.get().strip()
+        if not typed:
+            self.pattern_selector["values"] = self.all_pattern_names
+            return
+
+        filtered = [p for p in self.all_pattern_names if typed.upper() in p.upper()]
+        self.pattern_selector["values"] = filtered if filtered else self.all_pattern_names
+        self.pattern_selector.event_generate("<Down>")
+
+    def on_pattern_search_enter(self, event=None):
+        """Aplică pattern-ul scris/selectat când apeși Enter."""
+        typed = self.pattern_var.get().strip()
+        if not typed:
+            return
+
+        if typed in self.checker.patterns:
+            self.apply_pattern(typed)
+            return
+
+        filtered = [p for p in self.all_pattern_names if typed.upper() in p.upper()]
+        if filtered:
+            self.apply_pattern(filtered[0])
+
+    def on_pattern_change(self, event=None):
+        """Aplică pattern-ul selectat din dropdown."""
+        selected = self.pattern_var.get().strip()
+        if selected in self.checker.patterns:
+            self.apply_pattern(selected)
+
+    def apply_pattern(self, pattern_name):
+        """Aplică un pattern și actualizează UI-ul."""
+        if pattern_name not in self.checker.patterns:
+            print(f"⚠️ Pattern '{pattern_name}' nu există")
+            return
+        
+        print(f"✅ Pattern selectat: {pattern_name}")
+
+        # Setează noul pattern
+        self.checker.set_current_pattern(pattern_name)
+        pattern = self.checker.current_pattern
+
+        # Reset position history pentru noul pattern
+        self.checker.last_positions = {}
+        self.checker.shift_persistence = {}
+        self._last_offset_report_signature = None
+        for color in pattern.colors:
+            if color not in self.checker.position_history:
+                from collections import deque
+                self.checker.position_history[color] = deque(maxlen=12)
+            else:
+                self.checker.position_history[color].clear()
+
+        self.pattern_var.set(pattern.name)
+        self.pattern_selector["values"] = self.all_pattern_names
+
+        # Actualizează afișarea culorilor
+        color_map = self._get_color_map(pattern)
+        self._update_colors_display(pattern, color_map)
+
+        # Actualizează informațiile pattern-ului
+        self.pattern_name_label.config(text=pattern.name)
+        self.recipe_id_label.config(text=f"Recipe ID: {pattern.recipe_id}")
+        self.product_code_label.config(text=f"Product Code: {pattern.product_code}")
+        self.pattern_official_label.config(text=f"Nume pattern: {pattern.name}")
+
+        # Regenerează pattern image
+        self.pattern_center_x = self.checker.fixed_tire_center_x
 
     def _update_colors_display(self, pattern, color_map):
         """Actualizează afișarea culorilor în panel."""
@@ -450,199 +791,112 @@ class TireQCViewer:
                 bg="#2b2b2b"
             ).grid(row=0, column=1, sticky="w")
 
-    def on_pattern_change(self, event=None):
-        """Callback când se schimbă pattern-ul selectat."""
-        new_pattern_name = self.pattern_var.get()
-        
-        # Verifică dacă pattern-ul există
-        if new_pattern_name not in self.checker.patterns:
-            print(f"⚠️ Pattern '{new_pattern_name}' nu există")
-            return
-        
-        print(f"🔄 Schimbare pattern: {new_pattern_name}")
-
-        # Setează noul pattern
-        self.checker.set_current_pattern(new_pattern_name)
-        pattern = self.checker.current_pattern
-
-        # Reset position history pentru noul pattern
-        self.checker.last_positions = {}
-        self.checker.shift_persistence = {}
-        for color in pattern.colors:
-            if color not in self.checker.position_history:
-                from collections import deque
-                self.checker.position_history[color] = deque(maxlen=12)
-            else:
-                self.checker.position_history[color].clear()
-
-        # Actualizează afișarea culorilor
-        color_map = self._get_color_map(pattern)
-        self._update_colors_display(pattern, color_map)
-
-        # Actualizează informațiile pattern-ului (metadata)
-        self.pattern_name_label.config(text=pattern.name)
-        self.recipe_id_label.config(text=f"Recipe ID: {pattern.recipe_id}")
-        self.product_code_label.config(text=f"Product Code: {pattern.product_code}")
-        self.pattern_official_label.config(text=f"Nume oficial: {pattern.pattern_name_official}")
-
-        # Regenerează pattern image
-        self.pattern_center_x = self.checker.fixed_tire_center_x
-        pattern_img = generate_pattern_image(
-            pattern,
-            width=self.VIDEO_WIDTH,
-            height=300,
-            roi=self.roi,
-            frame_size=self.frame_size,
-            center_x_abs=self.pattern_center_x
-        )
-        pattern_img = cv2.cvtColor(pattern_img, cv2.COLOR_BGR2RGB)
-        self.pattern_tk = ImageTk.PhotoImage(Image.fromarray(pattern_img))
-        self.pattern_label.configure(image=self.pattern_tk)
-        self.pattern_label.image = self.pattern_tk
-
-        print(f"✅ Pattern schimbat la: {new_pattern_name} ({len(pattern.colors)} culori)")
-
-    def on_pattern_search(self, event=None):
-        """Filtrează pattern-urile pe baza textului introdus."""
-        # Ignorăm taste speciale
-        if event and event.keysym in ('Up', 'Down', 'Left', 'Right', 'Return', 'Escape', 'Tab'):
-            return
-        
-        search_text = self.pattern_var.get().upper().strip()
-        
-        if not search_text:
-            # Dacă nu e text, arată toate pattern-urile
-            filtered = self.all_pattern_names
-        else:
-            # Filtrează pattern-urile care conțin textul căutat
-            filtered = [p for p in self.all_pattern_names if search_text in p.upper()]
-        
-        # Actualizează valorile din combobox
-        self.pattern_selector['values'] = filtered
-        
-        # Deschide dropdown-ul automat dacă există rezultate
-        if filtered and len(search_text) >= 1:
-            self.pattern_selector.event_generate('<Down>')
-
-    def on_pattern_enter(self, event=None):
-        """Selectează pattern-ul când se apasă Enter."""
-        search_text = self.pattern_var.get().upper().strip()
-        
-        # Verifică dacă textul corespunde exact unui pattern
-        if search_text in self.checker.patterns:
-            self.on_pattern_change()
-            return
-        
-        # Caută primul pattern care se potrivește
-        filtered = [p for p in self.all_pattern_names if search_text in p.upper()]
-        if filtered:
-            # Selectează primul rezultat
-            self.pattern_var.set(filtered[0])
-            self.on_pattern_change()
-
     def update_frame(self):
         try:
             ret, frame = self.cap.read()
             if not ret or frame is None:
-                print("⚠ Frame lipsă RTSP")
+                print("⚠ Frame lipsă")
                 self.root.after(50, self.update_frame)
                 return
             
-            # La prima rulare, creăm pattern image cu dimensiunile reale ale frame-ului
-            if not self.pattern_image_created:
-                self.frame_size = (frame.shape[1], frame.shape[0])
-                self.pattern_center_x = self.checker.fixed_tire_center_x
-                pattern_img = generate_pattern_image(
-                    self.checker.current_pattern,
-                    width=self.VIDEO_WIDTH,
-                    height=300,
-                    roi=self.roi,
-                    frame_size=self.frame_size,
-                    center_x_abs=self.pattern_center_x
-                )
-                pattern_img = cv2.cvtColor(pattern_img, cv2.COLOR_BGR2RGB)
-                self.pattern_tk = ImageTk.PhotoImage(Image.fromarray(pattern_img))
-                self.pattern_label.configure(image=self.pattern_tk)
-                self.pattern_label.image = self.pattern_tk
-                self.pattern_image_created = True
-                
-            if self.roi:
-                y1, y2, x1, x2 = self.roi
-                frame_roi = frame[y1:y2, x1:x2]
-            else:
-                frame_roi = frame
-                x1, y1 = 0, 0
+            # Preprocess frame: undistort + warp
+            frame_warped = preprocess_frame(frame, self.camera_mtx, self.dist, self.homography)
+            
+            if frame_warped is None or frame_warped.size == 0:
+                print("⚠ Frame warping failed")
+                self.root.after(50, self.update_frame)
+                return
+            
+            # Aplică ROI în fluxul live (similar cu analyze_video).
+            roi_ok = False
+            y1 = y2 = x1 = x2 = 0
+            frame_for_analysis = frame_warped
+            if self.roi and len(self.roi) == 4:
+                roi_for_warped = self.roi
+                if self.roi_space == "raw":
+                    roi_for_warped = project_roi_raw_to_warped(self.roi, self.homography, WARPED_SIZE)
 
-            result = self.checker.analyze_tire_frame(frame_roi)
+                y1, y2, x1, x2 = roi_for_warped
+                y1 = max(0, min(y1, frame_warped.shape[0]))
+                y2 = max(0, min(y2, frame_warped.shape[0]))
+                x1 = max(0, min(x1, frame_warped.shape[1]))
+                x2 = max(0, min(x2, frame_warped.shape[1]))
+                roi_ok = (y2 > y1 and x2 > x1)
+                if roi_ok:
+                    frame_for_analysis = frame_warped[y1:y2, x1:x2]
 
-            defects_abs, debug_info = self.checker._analyze_frame_absolute(frame_roi, tire_center_x=self.checker.fixed_tire_center_x - x1, x_offset=x1)
-            
-            # VERIFICARE IMEDIATA a pozitiilor (ca in analyze_video)
-            from advanced_tire_qc import DefectType, DefectReport
-            from advanced_tire_qc import MM_TO_PX
-            
-            # Calculez pozițiile și verific dacă sunt probleme
-            dyn_c = debug_info.get("_detected_center")
-            if dyn_c is not None:
-                center_abs = x1 + int(dyn_c)
+            # Detectează centrul dinamic în ROI-ul activ (dacă există), altfel pe cadrul complet.
+            if roi_ok:
+                detected_center_local = self.checker._find_center_by_intensity_profile(frame_for_analysis)
+                if detected_center_local is None:
+                    # Fallback corect în coordonate absolute: centrul ROI-ului proiectat.
+                    detected_center = x1 + (x2 - x1) // 2
+                else:
+                    detected_center = x1 + detected_center_local
             else:
-                center_abs = self.checker.fixed_tire_center_x
+                detected_center = self.checker._find_center_by_intensity_profile(frame_warped)
+                if detected_center is None:
+                    detected_center = WARPED_SIZE[0] // 2
+
+            # Stabilizare: 80% istoric + 20% detectat
+            center_px = int(0.8 * self.checker.last_center + 0.2 * detected_center)
+            self.checker.last_center = center_px
             
-            # Verific dacă avem probleme mari cu pozițiile
-            has_position_issues = False
-            for color, info in result.detected_lines.items():
-                abs_x = info["x_position"] + x1
-                measured_offset_mm = abs(abs_x - center_abs) / MM_TO_PX
-                expected_offset_mm = self.checker.current_pattern.expected_positions_mm[color]
-                delta_mm = abs(measured_offset_mm - expected_offset_mm)
-                
-                if delta_mm > 10.0:
-                    has_position_issues = True
-                    result.defects.append(
-                        DefectReport(
-                            defect_type=DefectType.LINE_SHIFTED,
-                            severity=min(delta_mm / 20.0, 1.0),
-                            position=(info["x_position"], info["y_position"]),
-                            description=f"{color} POZITIE GRESITA: {measured_offset_mm:.1f}mm (asteptat {expected_offset_mm:.1f}mm, delta {delta_mm:.1f}mm)",
-                            confidence=0.95
+            # Analizează frame-ul (ROI dacă este valid, altfel frame complet)
+            result = self.checker.analyze_tire_frame(frame_for_analysis)
+
+            # Dacă am analizat pe ROI, translăm coordonatele în sistemul frame-ului complet.
+            if roi_ok:
+                remapped_lines = {}
+                for color, info in result.detected_lines.items():
+                    x, y, w, h = info["bounding_box"]
+                    info_abs = dict(info)
+                    info_abs["bounding_box"] = (x + x1, y + y1, w, h)
+                    info_abs["x_position"] = info["x_position"] + x1
+                    info_abs["y_position"] = info["y_position"] + y1
+                    remapped_lines[color] = info_abs
+                result.detected_lines = remapped_lines
+
+                remapped_defects = []
+                for d in result.defects:
+                    remapped_defects.append(
+                        type(d)(
+                            defect_type=d.defect_type,
+                            severity=d.severity,
+                            position=(d.position[0] + x1, d.position[1] + y1),
+                            description=d.description,
+                            confidence=d.confidence
                         )
                     )
-                elif delta_mm > 1.0:  # Delta mare dar sub limita critică
-                    has_position_issues = True
-            
-            # PRINTEZ DEBUG DOAR DACĂ SUNT PROBLEME
-            if len(result.defects) > 0 or has_position_issues:
-                print(f"Frame defects BEFORE position check: {len(result.defects)}")
-                for d in result.defects:
-                    print(f"  - {d.defect_type.value}: {d.description} (severity: {d.severity:.2f})")
-                
-                print(f"\n=== DEBUG POZITII FRAME ===")
-                print(f"Center fix: {self.checker.fixed_tire_center_x}px")
-                if dyn_c is not None:
-                    print(f"Center dinamic: {center_abs}px (ROI offset: {x1}px)")
-                else:
-                    print(f"Folosesc centrul fix: {center_abs}px")
-                    
-                for color, info in result.detected_lines.items():
-                    abs_x = info["x_position"] + x1
-                    measured_offset_mm = abs(abs_x - center_abs) / MM_TO_PX
-                    expected_offset_mm = self.checker.current_pattern.expected_positions_mm[color]
-                    delta_mm = abs(measured_offset_mm - expected_offset_mm)
-                    
-                    print(f"{color:12} | pos_abs={abs_x:4}px | dist_măs={measured_offset_mm:5.1f}mm | aștept={expected_offset_mm:3}mm | delta={delta_mm:5.1f}mm", end="")
-                    
-                    if delta_mm > 10.0:
-                        print(f" ❌ DEFECT!")
-                    elif delta_mm > 1.0:
-                        print(f" ⚠️ MARE")
-                    else:
-                        print(f" ✅ OK")
-            
+                result.defects = remapped_defects
+
+            # Verificare poziții față de centru folosind cotele din pattern (JSON).
+            if roi_ok:
+                defects_abs, debug_info_abs = self.checker._analyze_frame_absolute(
+                    frame_for_analysis,
+                    tire_center_x=center_px - x1,
+                    x_offset=x1,
+                    lock_to_input_center=True,
+                )
+            else:
+                defects_abs, debug_info_abs = self.checker._analyze_frame_absolute(
+                    frame_warped,
+                    tire_center_x=center_px,
+                    x_offset=0,
+                    lock_to_input_center=True,
+                )
             for d in defects_abs:
                 result.defects.append(d)
 
+            self._report_position_check_skips(debug_info_abs)
+            
+            # Rezumat status
+            found_lines = {
+                self.checker._line_key(c, i): (self.checker._line_key(c, i) in result.detected_lines)
+                for i, c in enumerate(self.checker.current_pattern.colors)
+            }
             status_message, quality_level, is_valid, summary = self.checker._generate_status_messages(
-                {c: c in result.detected_lines for c in self.checker.current_pattern.colors},
+                found_lines,
                 result.defects
             )
             result.status_message = status_message
@@ -650,126 +904,69 @@ class TireQCViewer:
             result.is_valid = is_valid
             result.summary = summary
 
-            overlay = frame.copy()
-            if self.roi:
+            self._report_line_offsets(result, center_px)
+
+            # Raportează în terminal problemele detectate de algoritm.
+            self._report_result_to_terminal(result)
+
+            # Vizualizare pe frame-ul warped
+            overlay = frame_warped.copy()
+
+            if roi_ok:
                 cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 255), 2)
-
-            # ========== DESENĂM POZIȚIILE AȘTEPTATE (GHOST BANDS) ==========
-            # Determinăm centrul folosit pentru verificare (poziție absolută în frame)
-            dyn_c = debug_info.get("_detected_center")
-            if dyn_c is not None:
-                center_used = x1 + int(dyn_c)
-            else:
-                center_used = self.checker.fixed_tire_center_x
-
-            # Actualizăm pattern-ul dacă centrul s-a mutat semnificativ (>10px)
-            if self.pattern_center_x is not None and abs(center_used - self.pattern_center_x) > 10:
-                self.pattern_center_x = center_used
-                pattern_img = generate_pattern_image(
-                    self.checker.current_pattern,
-                    width=self.VIDEO_WIDTH,
-                    height=300,
-                    roi=self.roi,
-                    frame_size=self.frame_size,
-                    center_x_abs=self.pattern_center_x
-                )
-                pattern_img = cv2.cvtColor(pattern_img, cv2.COLOR_BGR2RGB)
-                self.pattern_tk = ImageTk.PhotoImage(Image.fromarray(pattern_img))
-                self.pattern_label.configure(image=self.pattern_tk)
-                self.pattern_label.image = self.pattern_tk
-                print(f"🔄 Pattern actualizat - centru nou: {self.pattern_center_x}px")
-
-            # Culorile pentru ghost bands (semi-transparente)
-            ghost_colors = {
-                "green": (0, 180, 0),
-                "white": (200, 200, 200),
-                "yellow": (0, 200, 200),
-                "aqua": (200, 200, 0)
-            }
-
-            # DEBUG: afișăm pozițiile calculate (doar o dată la 30 frame-uri)
-            if not hasattr(self, '_frame_counter'):
-                self._frame_counter = 0
-            self._frame_counter += 1
+                cv2.putText(overlay, "ROI", (x1 + 4, max(15, y1 - 6)),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
             
-            # Desenăm fiecare bandă așteptată ca un dreptunghi semitransparent
-            ghost_overlay = overlay.copy()
-            for i, color in enumerate(self.checker.current_pattern.colors):
-                expected_mm = self.checker.current_pattern.expected_positions_mm.get(color, 0)
-                expected_px = int(expected_mm * MM_TO_PX)
-                
-                # Poziția așteptată e la STÂNGA centrului
-                expected_x = center_used - expected_px
-                
-                # Lățimea așteptată (din pattern)
-                if i < len(self.checker.current_pattern.expected_widths):
-                    band_width = self.checker.current_pattern.expected_widths[i]
-                else:
-                    band_width = 6
-                
-                half_w = band_width // 2
-                bx1 = expected_x - half_w
-                bx2 = expected_x + half_w
-                
-                # Desenăm dreptunghiul ghost (doar în zona ROI pe Y)
-                cv2.rectangle(ghost_overlay, (bx1, y1), (bx2, y2), ghost_colors.get(color, (128, 128, 128)), -1)
-                
-                # Linie centrală a benzii așteptate (punctată)
-                for yy in range(y1, y2, 8):
-                    cv2.line(ghost_overlay, (expected_x, yy), (expected_x, min(yy + 4, y2)), ghost_colors.get(color, (128, 128, 128)), 1)
-                
-                # Etichetă mică cu distanța
-                cv2.putText(ghost_overlay, f"{expected_mm}mm", (bx1, y1 - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.35, ghost_colors.get(color, (128, 128, 128)), 1)
-
-            # Combinăm ghost overlay cu overlay principal (semi-transparent)
-            overlay = cv2.addWeighted(overlay, 0.7, ghost_overlay, 0.3, 0)
-
-            # ========== DESENĂM LINIILE DETECTATE ==========
+            # Desenează centrul detectat dinamic (galben)
+            cv2.line(overlay, (center_px, 0), (center_px, WARPED_SIZE[1]), (0, 255, 255), 2)
+            cv2.putText(overlay, f"Center_dyn={center_px}px", (max(5, center_px-50), 30),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 1)
+            
+            # Desenează liniile așteptate pe index de culoare (suportă culori duplicate).
+            y_text = 60
+            for idx, color in enumerate(self.checker.current_pattern.colors):
+                cota_mm = get_expected_mm_by_color_index(self.checker.current_pattern, color, idx)
+                expected_px = int(cota_mm * SCALE_FINAL + OFFSET_FINAL)
+                pos_x = int(center_px - expected_px)
+                pos_x = max(0, min(WARPED_SIZE[0] - 1, pos_x))
+                cv2.line(overlay, (pos_x, 0), (pos_x, WARPED_SIZE[1]), (0, 255, 0), 2)
+                cv2.putText(overlay, f"{idx + 1}:{color}({cota_mm}mm)", (max(5, pos_x + 5), y_text),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                y_text += 14
+            
+            # Desenează liniile detectate (albastru)
             for color, info in result.detected_lines.items():
                 x, y, w, h = info["bounding_box"]
                 cx = info["x_position"]
-                cy = info["y_position"]
-                cv2.rectangle(overlay, (x1 + x, y1 + y), (x1 + x + w, y1 + y + h), (255, 0, 0), 2)
-                cv2.circle(overlay, (x1 + cx, y1 + cy), 5, (0, 0, 255), -1)
-
-            # Draw fixed center (fallback)
-            if self.checker.fixed_tire_center_x is not None:
-                cv2.line(overlay, (self.checker.fixed_tire_center_x, 0), (self.checker.fixed_tire_center_x, frame.shape[0]), (0, 255, 0), 2)
-
-            # Draw dynamic detected center (if available)
-            dyn_center = debug_info.get("_detected_center")
-            center_method = debug_info.get("_center_method", "unknown")
-            if dyn_center is not None:
-                cx_abs = x1 + int(dyn_center)
-                cv2.line(overlay, (cx_abs, 0), (cx_abs, frame.shape[0]), (255, 0, 255), 2)
-                # Afișăm metoda folosită pentru detectarea centrului
-                method_label = "INTENS" if center_method == "intensity_profile" else "COLOR"
-                cv2.putText(overlay, f"DYN_C ({method_label})", (cx_abs + 6, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 1)
-
-            for defect in result.defects:
-                dx = x1 + defect.position[0]
-                dy = y1 + defect.position[1]
-                col = (0, 0, 255) if defect.severity > 0.7 else ((0, 165, 255) if defect.severity > 0.3 else (0, 255, 255))
-                cv2.circle(overlay, (dx, dy), 10, col, 2)
-
+                cv2.rectangle(overlay, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                cv2.circle(overlay, (cx, info["y_position"]), 5, (0, 0, 255), -1)
+            
+            # Desenează defectele
             verdict_color = (0, 255, 0) if result.is_valid else (0, 0, 255)
-            cv2.putText(overlay, result.quality_level, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, verdict_color, 2)
-            cv2.putText(overlay, result.status_message, (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, verdict_color, 1)
+            cv2.putText(overlay, result.quality_level, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, verdict_color, 2)
+            cv2.putText(overlay, result.status_message, (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, verdict_color, 1)
+            
+            # Afișează info calibrare
+            cv2.putText(overlay, f"SCALE={SCALE_FINAL:.2f}px/mm  OFS={OFFSET_FINAL}px",
+                       (20, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+            
+            # Redimensionează pentru afișaj
+            overlay_resized = cv2.resize(overlay, (self.VIDEO_WIDTH, self.VIDEO_HEIGHT))
+            overlay_rgb = cv2.cvtColor(overlay_resized, cv2.COLOR_BGR2RGB)
+            img = ImageTk.PhotoImage(Image.fromarray(overlay_rgb))
+            self.video_label.configure(image=img)
+            self.video_label.image = img
 
             self.status_label.config(text=f"Status: {result.status_message}", fg="green" if result.is_valid else "red")
             self.quality_label.config(text=f"Calitate: {result.quality_level}")
             defects_text = f"Defecte: {len(result.defects)}" if result.defects else "Defecte: Niciunul"
             self.defects_label.config(text=defects_text)
 
-            overlay = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
-            overlay = cv2.resize(overlay, (self.VIDEO_WIDTH, self.VIDEO_HEIGHT))
-            img = ImageTk.PhotoImage(Image.fromarray(overlay))
-            self.video_label.configure(image=img)
-            self.video_label.image = img
-
             self.root.after(self.delay, self.update_frame)
         except Exception as e:
-            print("EROARE LIVE:", e)
+            print(f"EROARE LIVE: {e}")
+            import traceback
+            traceback.print_exc()
             self.root.after(100, self.update_frame)
 
 if __name__ == "__main__":

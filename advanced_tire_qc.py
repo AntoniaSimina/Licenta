@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Dict, Tuple, Optional
 from enum import Enum
 import time
@@ -10,12 +10,17 @@ from collections import deque
 
 MM_TO_PX = 1.67
 
+# --- VALORI DE CALIBRARE FINALE (integrate din run_video_analysis.py) ---
+SCALE_FINAL = 9.40        # px/mm (scara calibrata)
+OFFSET_FINAL = -1         # px (offset orizontal)
+WARPED_SIZE = (2750, 2000)  # (latime, inaltime) - dimensiunea planului warped
+
 # Mapare cod litere din JSON -> nume culori interne
 COLOR_CODE_MAP = {
     "A": "aqua",
     "B": "blue",
     "G": "green",
-    "L": "lime",
+    "L": "lilac",
     "O": "orange",
     "P": "purple",
     "R": "red",
@@ -26,14 +31,30 @@ COLOR_CODE_MAP = {
 # Range-uri HSV implicite pentru fiecare culoare
 DEFAULT_COLOR_RANGES = {
     "aqua":   [([85, 100, 150], [105, 255, 255])],
-    "blue":   [([100, 150, 100], [130, 255, 255])],
+    "blue":   [([100, 98, 150], [130, 150, 255])],
     "green":  [([65, 25, 130], [90, 255, 255])],
+    "lilac":  [([115, 55, 180], [125, 70, 220])],
     "lime":   [([35, 80, 130], [65, 255, 255])],
     "orange": [([5, 100, 150], [18, 255, 255])],
-    "purple": [([120, 50, 100], [160, 255, 255])],
-    "red":    [([0, 100, 100], [10, 255, 255]), ([160, 100, 100], [180, 255, 255])],
-    "white":  [([0, 0, 170], [180, 20, 255])],
+    "purple": [([110, 55, 190], [120, 85, 230])],
+    "red":    [([0, 70, 90], [12, 255, 255]), ([160, 70, 90], [180, 255, 255])],
+    # White is mostly low saturation; keep hue wide and rely on high value.
+    "white":  [([0, 0, 170], [180, 55, 255])],
+    "yellow": [([15, 10, 100], [45, 255, 255])],
+}
+
+GYRL_COLOR_OVERRIDE = {
+    "green": [([55, 40, 180], [80, 70, 220])],
     "yellow": [([18, 20, 140], [42, 255, 255])],
+    "red": [([160, 80, 155], [180, 155, 200])],
+    "lilac": [([115, 55, 180], [125, 70, 220])],
+}
+
+# Tuning punctual pentru GYRL (fără impact pe celelalte pattern-uri).
+GYRL_PATTERN_OVERRIDE = {
+    "expected_widths": [13, 28, 20, 15],
+    "tolerance_width": 0.35,
+    "min_line_continuity": 0.22,
 }
 
 class DefectType(Enum):
@@ -53,6 +74,8 @@ class Pattern:
     expected_widths: List[int]
     expected_positions_mm: Dict[str, int]
     expected_positions_px: Dict[str, int]
+    expected_positions_mm_by_index: List[int] = field(default_factory=list)
+    expected_positions_px_by_index: List[int] = field(default_factory=list)
     tolerance_width: float = 0.15
     min_line_continuity: float = 0.85
     recipe_id: str = ""
@@ -96,10 +119,11 @@ class AdvancedTireQualityChecker:
                 "purple": deque(maxlen=12),
                 "blue": deque(maxlen=12),
                 "green_pale": deque(maxlen=12),
-                "lime": deque(maxlen=12),
+                "lilac": deque(maxlen=12),
                 "orange": deque(maxlen=12)
             }
         self.fixed_tire_center_x = None
+        self.last_center = WARPED_SIZE[0] // 2  # Inițializare centru dinamic
         
         # Încarcă pattern-urile din JSON dacă e specificat, altfel fallback la hardcoded
         if patterns_json_file and os.path.exists(patterns_json_file):
@@ -151,6 +175,10 @@ class AdvancedTireQualityChecker:
                     "aqua": 90
                 }.items()
             },
+            expected_positions_mm_by_index=[28, 32, 56, 63],
+            expected_positions_px_by_index=[
+                int(28 * MM_TO_PX), int(32 * MM_TO_PX), int(56 * MM_TO_PX), int(63 * MM_TO_PX)
+            ],
 
             tolerance_width=0.12,          
             min_line_continuity=0.43      
@@ -195,6 +223,10 @@ class AdvancedTireQualityChecker:
                     "blue": 131
                 }.items()
             },
+            expected_positions_mm_by_index=[19, 22, 38, 41],
+            expected_positions_px_by_index=[
+                int(19 * MM_TO_PX), int(22 * MM_TO_PX), int(38 * MM_TO_PX), int(41 * MM_TO_PX)
+            ],
 
             tolerance_width=0.12,          
             min_line_continuity=0.43      
@@ -239,6 +271,10 @@ class AdvancedTireQualityChecker:
                     "purple": 180
                 }.items()
             },
+            expected_positions_mm_by_index=[6, 50, 53, 56],
+            expected_positions_px_by_index=[
+                int(6 * MM_TO_PX), int(50 * MM_TO_PX), int(53 * MM_TO_PX), int(56 * MM_TO_PX)
+            ],
 
             tolerance_width=0.25,          # Măresc toleranța de la 0.12 la 0.25
             min_line_continuity=0.40      # Relaxez de la 0.43 la 0.40 pentru purple
@@ -288,6 +324,10 @@ class AdvancedTireQualityChecker:
             
             if not colors:
                 continue
+
+            # Override dedicat pentru GYRL: folosim strict setul cerut de culori/range-uri.
+            if pattern_name.upper() == "GYRL":
+                colors = ["green", "yellow", "red", "lilac"]
             
             # Construiește color_ranges din DEFAULT_COLOR_RANGES
             color_ranges = {}
@@ -297,11 +337,16 @@ class AdvancedTireQualityChecker:
                 else:
                     print(f"⚠️ Nu există range HSV implicit pentru '{color}'")
                     color_ranges[color] = [([0, 0, 0], [180, 255, 255])]
+
+            if pattern_name.upper() == "GYRL":
+                color_ranges = {color: GYRL_COLOR_OVERRIDE[color] for color in colors}
             
             # Extrage pozițiile în mm
             positions_mm_raw = entry.get("positions_mm", [])
             expected_positions_mm = {}
             expected_positions_px = {}
+            expected_positions_mm_by_index = []
+            expected_positions_px_by_index = []
             
             for i, pos_str in enumerate(positions_mm_raw):
                 if i < len(colors):
@@ -310,22 +355,46 @@ class AdvancedTireQualityChecker:
                     if clean_val:
                         try:
                             mm_val = float(clean_val)
-                            expected_positions_mm[colors[i]] = int(mm_val)
-                            expected_positions_px[colors[i]] = int(mm_val * MM_TO_PX)
+                            mm_int = int(mm_val)
+                            px_int = int(mm_val * MM_TO_PX)
+                            expected_positions_mm[colors[i]] = mm_int
+                            expected_positions_px[colors[i]] = px_int
+                            expected_positions_mm_by_index.append(mm_int)
+                            expected_positions_px_by_index.append(px_int)
                         except ValueError:
                             expected_positions_mm[colors[i]] = 0
                             expected_positions_px[colors[i]] = 0
+                            expected_positions_mm_by_index.append(0)
+                            expected_positions_px_by_index.append(0)
                     else:
                         expected_positions_mm[colors[i]] = 0
                         expected_positions_px[colors[i]] = 0
+                        expected_positions_mm_by_index.append(0)
+                        expected_positions_px_by_index.append(0)
+
+            # Completează pozițiile lipsă pentru pattern-uri cu intrări incomplete.
+            while len(expected_positions_mm_by_index) < len(colors):
+                idx = len(expected_positions_mm_by_index)
+                fallback_mm = int(expected_positions_mm.get(colors[idx], 0))
+                expected_positions_mm_by_index.append(fallback_mm)
+                expected_positions_px_by_index.append(int(fallback_mm * MM_TO_PX))
             
             # Lățimi implicite
             expected_widths = [6] * len(colors)
+
+            # Override punctual pentru GYRL: lățimi calibrate pe fluxul video curent.
+            tolerance_width = 10.0  # Toleranță foarte permisivă (1000%) pentru pattern-uri fără tuning specific
+            min_line_continuity = 0.43
+            if pattern_name.upper() == "GYRL":
+                expected_widths = GYRL_PATTERN_OVERRIDE["expected_widths"][:len(colors)]
+                tolerance_width = GYRL_PATTERN_OVERRIDE["tolerance_width"]
+                min_line_continuity = GYRL_PATTERN_OVERRIDE["min_line_continuity"]
             
             # Metadata
             recipe_id = entry.get("recipe_id", "")
             product_code = entry.get("product_code", "")
-            pattern_name_official = entry.get("pattern_name_official", "")
+            # In aplicatie folosim un singur nume canonic: pattern_name.
+            pattern_name_official = pattern_name
             
             pattern = Pattern(
                 name=pattern_name,
@@ -334,8 +403,10 @@ class AdvancedTireQualityChecker:
                 expected_widths=expected_widths,
                 expected_positions_mm=expected_positions_mm,
                 expected_positions_px=expected_positions_px,
-                tolerance_width=0.15,
-                min_line_continuity=0.43,
+                expected_positions_mm_by_index=expected_positions_mm_by_index,
+                expected_positions_px_by_index=expected_positions_px_by_index,
+                tolerance_width=tolerance_width,
+                min_line_continuity=min_line_continuity,
                 recipe_id=recipe_id,
                 product_code=product_code,
                 pattern_name_official=pattern_name_official
@@ -354,6 +425,27 @@ class AdvancedTireQualityChecker:
     def get_pattern_names(self) -> List[str]:
         """Returnează lista sortată a numelor de pattern-uri disponibile."""
         return sorted(self.patterns.keys())
+
+    def _line_occurrence_index(self, color_name: str, color_index: int) -> int:
+        return self.current_pattern.colors[:color_index + 1].count(color_name)
+
+    def _line_key(self, color_name: str, color_index: int) -> str:
+        return f"{color_name}#{self._line_occurrence_index(color_name, color_index)}"
+
+    @staticmethod
+    def _base_color(line_key: str) -> str:
+        return line_key.split("#", 1)[0]
+
+    def _expected_mm_for_index(self, color_index: int, color_name: str) -> int:
+        mm_list = getattr(self.current_pattern, "expected_positions_mm_by_index", None)
+        if mm_list and color_index < len(mm_list):
+            return int(mm_list[color_index])
+        return int(self.current_pattern.expected_positions_mm.get(color_name, 0))
+
+    def _expected_px_for_index(self, color_index: int, color_name: str) -> int:
+        # În fluxul curent (imagine warped), pozițiile trebuie mapate cu scara calibrată finală.
+        expected_mm = self._expected_mm_for_index(color_index, color_name)
+        return int(expected_mm * SCALE_FINAL + OFFSET_FINAL)
 
     def _measure_effective_width(self, mask: np.ndarray) -> float:
         """Estimate the effective band thickness from a binary mask.
@@ -829,22 +921,37 @@ class AdvancedTireQualityChecker:
         image_stats = self._calculate_image_statistics(image)
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         height, width = image.shape[:2]
+        center_hint = self._find_center_by_intensity_profile(image)
+        if center_hint is None:
+            center_hint = width // 2
 
         detected_lines: Dict[str, Dict] = {}
         all_defects: List[DefectReport] = []
-        missing_colors = []
+        missing_lines: List[Tuple[str, str, int]] = []
+        used_centers_by_color: Dict[str, List[int]] = {}
 
         for i, color_name in enumerate(self.current_pattern.colors):
+            line_key = self._line_key(color_name, i)
             color_ranges = self.current_pattern.color_ranges[color_name]
 
             mask = self._adaptive_color_detection(hsv, color_ranges, image_stats)
-            line_info = self._detect_advanced_line(mask, color_name, i)
+            line_info = self._detect_advanced_line_near_expected(
+                mask,
+                color_name,
+                i,
+                center_hint,
+                used_centers=used_centers_by_color.get(color_name, []),
+            )
 
             if not line_info:
-                missing_colors.append(color_name)
+                missing_lines.append((line_key, color_name, i))
                 continue
 
-            detected_lines[color_name] = line_info
+            line_info["line_key"] = line_key
+            line_info["line_color"] = color_name
+            line_info["line_index"] = i
+            detected_lines[line_key] = line_info
+            used_centers_by_color.setdefault(color_name, []).append(int(line_info["x_position"]))
 
             x, y, w, h = line_info["bounding_box"]
             line_mask = mask[y:y + h, x:x + w]
@@ -864,7 +971,7 @@ class AdvancedTireQualityChecker:
                         severity=min(severity, 1.0),
                         position=(line_info["x_position"], height // 2),
                         description=(
-                            f"Lățime incorectă la {color_name}: "
+                            f"Lățime incorectă la {line_key}: "
                             f"{measured_width:.1f}px (așteptat {expected_width}±{width_tolerance:.1f})"
                         ),
                         confidence=0.9
@@ -881,7 +988,7 @@ class AdvancedTireQualityChecker:
                         severity=1.0,
                         position=(line_info["x_position"], height // 2),
                         description=(
-                            f"Linie {color_name} întreruptă "
+                            f"Linie {line_key} întreruptă "
                             f"(min={continuity['min_continuity']:.2f}, "
                             f"broken={continuity['broken_ratio']*100:.0f}%)"
                         ),
@@ -893,8 +1000,9 @@ class AdvancedTireQualityChecker:
             edge_defects = self._analyze_line_edges(line_mask)
             all_defects.extend(edge_defects)
 
-        for color in missing_colors:
-            wrong_color_info = self._detect_wrong_color(hsv, self.current_pattern.expected_positions_px[color], height, width, color)
+        for line_key, color, idx in missing_lines:
+            expected_px = self._expected_px_for_index(idx, color)
+            wrong_color_info = self._detect_wrong_color(hsv, expected_px, height, width, color)
             if wrong_color_info:
                 wrong_color_name, position = wrong_color_info
                 all_defects.append(
@@ -902,7 +1010,7 @@ class AdvancedTireQualityChecker:
                         defect_type=DefectType.COLOR_WRONG,
                         severity=1.0,
                         position=position,
-                        description=f"Culoare greșită pentru {color}: detectată {wrong_color_name}",
+                        description=f"Culoare greșită pentru {line_key}: detectată {wrong_color_name}",
                         confidence=0.85
                     )
                 )
@@ -912,7 +1020,7 @@ class AdvancedTireQualityChecker:
                         defect_type=DefectType.COLOR_MISSING,
                         severity=1.0,
                         position=(width // 2, height // 2),
-                        description=f"Linie lipsă: {color}",
+                        description=f"Linie lipsă: {line_key}",
                         confidence=0.95
                     )
                 )
@@ -925,9 +1033,13 @@ class AdvancedTireQualityChecker:
                 c: info["x_position"] for c, info in detected_lines.items()
             }
 
+        expected_line_keys = [
+            self._line_key(c, i) for i, c in enumerate(self.current_pattern.colors)
+        ]
+
         status_message, quality_level, is_valid, summary = \
             self._generate_status_messages(
-                {c: c in detected_lines for c in self.current_pattern.colors},
+                {k: (k in detected_lines) for k in expected_line_keys},
                 all_defects
             )
 
@@ -1008,7 +1120,13 @@ class AdvancedTireQualityChecker:
         
         return None
 
-    def _analyze_frame_absolute(self, image: np.ndarray, tire_center_x: int, x_offset: int = 0):
+    def _analyze_frame_absolute(
+        self,
+        image: np.ndarray,
+        tire_center_x: int,
+        x_offset: int = 0,
+        lock_to_input_center: bool = True,
+    ):
         defects = []
         debug_info = {}
 
@@ -1031,7 +1149,7 @@ class AdvancedTireQualityChecker:
         
         # Metoda 2: Backup - folosim pozițiile liniilor colorate detectate
         estimated_centers = []
-        for color in self.current_pattern.colors:
+        for i, color in enumerate(self.current_pattern.colors):
             ranges = self.current_pattern.color_ranges[color]
             mask_full = self._adaptive_color_detection(hsv, ranges, image_stats)
             
@@ -1050,8 +1168,9 @@ class AdvancedTireQualityChecker:
                 if best is not None and score_contour(best) > 0:
                     x, y, w, h = cv2.boundingRect(best)
                     line_center_x = x + w // 2
-                    
-                    expected_px = self.current_pattern.expected_positions_px[color]
+
+                    expected_mm = self._expected_mm_for_index(i, color)
+                    expected_px = int(expected_mm * SCALE_FINAL + OFFSET_FINAL)
                     estimated_center = line_center_x + expected_px
                     estimated_centers.append(estimated_center)
         
@@ -1066,18 +1185,23 @@ class AdvancedTireQualityChecker:
             dynamic_center = None
             debug_info["_center_method"] = "none"
         
-        if dynamic_center is not None:
-            debug_info["_detected_center"] = dynamic_center
+        debug_info["_input_center"] = int(tire_center_x)
+        debug_info["_detected_center"] = int(dynamic_center) if dynamic_center is not None else None
+
+        if dynamic_center is not None and not lock_to_input_center:
             tire_center_x = dynamic_center
-        else:
-            debug_info["_detected_center"] = None
+
+        debug_info["_used_center"] = int(tire_center_x)
+        debug_info["_center_locked"] = bool(lock_to_input_center)
 
         # ========== RESTUL ANALIZEI CU CENTRUL ACTUALIZAT ==========
-        for color in self.current_pattern.colors:
+        for i, color in enumerate(self.current_pattern.colors):
+            line_key = self._line_key(color, i)
             ranges = self.current_pattern.color_ranges[color]
-            expected_px = self.current_pattern.expected_positions_px[color]
+            expected_mm = self._expected_mm_for_index(i, color)
+            expected_px = int(expected_mm * SCALE_FINAL + OFFSET_FINAL)
 
-            roi_half_width = int(20 * MM_TO_PX)
+            roi_half_width = int(20 * SCALE_FINAL)
             x_center_expected = tire_center_x - expected_px
             x1 = max(0, x_center_expected - roi_half_width)
             x2 = min(width, x_center_expected + roi_half_width)
@@ -1121,41 +1245,57 @@ class AdvancedTireQualityChecker:
                     bbox = (x, y, w, h)
                     found = True
 
-            debug_info[color] = {
+            debug_info[line_key] = {
                 "mask": mask,
                 "roi": (x1, x2, 0, height),
                 "coverage": coverage,
                 "current_center": current_center_abs,
                 "expected_center": (x_center_expected, height // 2),
                 "bbox": bbox,
-                "found": found
+                "found": found,
+                "line_color": color,
+                "line_index": i,
             }
 
-            if not found or current_center_abs is None or coverage < 0.4:
+            skip_reason = None
+            if not found:
+                skip_reason = "linie_nedetectata"
+            elif current_center_abs is None:
+                skip_reason = "centru_nedetectat"
+            elif coverage < 0.4:
+                skip_reason = f"coverage_mic({coverage:.2f}<0.40)"
+
+            if skip_reason is not None:
+                debug_info[line_key]["position_check_skipped"] = True
+                debug_info[line_key]["position_check_skipped_reason"] = skip_reason
                 continue
 
-            prev = self.last_positions.get(color)
+            debug_info[line_key]["position_check_skipped"] = False
+            debug_info[line_key]["position_check_skipped_reason"] = ""
+
+            prev = self.last_positions.get(line_key)
             if prev is not None:
                 smoothed_center = int(0.7 * prev + 0.3 * current_center_abs[0])
             else:
                 smoothed_center = current_center_abs[0]
 
-            measured_offset_mm = abs(smoothed_center - tire_center_x) / MM_TO_PX
-            expected_offset_mm = self.current_pattern.expected_positions_mm[color]
+            measured_offset_mm = abs(smoothed_center - tire_center_x) / max(SCALE_FINAL, 1e-6)
+            expected_offset_mm = expected_mm
             delta_mm = abs(measured_offset_mm - expected_offset_mm)
 
-            abs_offset_mm = abs(smoothed_center - tire_center_x) / MM_TO_PX
+            abs_offset_mm = abs(smoothed_center - tire_center_x) / max(SCALE_FINAL, 1e-6)
             abs_error_mm = abs(abs_offset_mm - expected_offset_mm)
 
-            self.last_positions[color] = smoothed_center
+            self.last_positions[line_key] = smoothed_center
 
+            if line_key not in self.position_history:
+                self.position_history[line_key] = deque(maxlen=12)
+            self.position_history[line_key].append(delta_mm)
 
-            self.position_history[color].append(delta_mm)
-
-            FAIL_MM = 7.0
+            FAIL_MM = 3.5
             PERSISTENCE_FRAMES = 6
 
-            bad = [d for d in self.position_history[color] if d > FAIL_MM]
+            bad = [d for d in self.position_history[line_key] if d > FAIL_MM]
 
             if len(bad) >= PERSISTENCE_FRAMES:
                 defects.append(
@@ -1164,7 +1304,7 @@ class AdvancedTireQualityChecker:
                         severity=min((delta_mm - FAIL_MM) / FAIL_MM, 1.0),
                         position=(smoothed_center - x_offset, height // 2),
                         description=(
-                            f"{color} deviată: {measured_offset_mm:.1f}mm "
+                            f"{line_key} deviată: {measured_offset_mm:.1f}mm "
                             f"(așteptat {expected_offset_mm:.1f}±{FAIL_MM}mm)"
                         ),
                         confidence=0.95
@@ -1178,7 +1318,7 @@ class AdvancedTireQualityChecker:
                     f"coverage={coverage:.2f} "
                     f"center={smoothed_center} "
                     f"expected={expected_px} "
-                    f"dead_zone={int(3 * MM_TO_PX)} "
+                    f"dead_zone={int(3 * SCALE_FINAL)} "
                     f"persist={self.shift_persistence.get(color, 0)}"
                 )
 
@@ -1248,18 +1388,95 @@ class AdvancedTireQualityChecker:
             }
         
         return None
+
+    def _detect_advanced_line_near_expected(
+        self,
+        mask: np.ndarray,
+        color_name: str,
+        color_index: int,
+        center_x: int,
+        used_centers: Optional[List[int]] = None,
+        min_separation_px: int = 18,
+    ) -> Optional[Dict]:
+        """Detectează linia într-un ROI local în jurul poziției așteptate pentru apariția curentă."""
+        h, w = mask.shape[:2]
+        if h == 0 or w == 0:
+            return None
+
+        expected_px = self._expected_px_for_index(color_index, color_name)
+        expected_x = int(center_x - expected_px)
+        roi_half = int(20 * SCALE_FINAL)
+        x1 = max(0, expected_x - roi_half)
+        x2 = min(w, expected_x + roi_half)
+
+        if x2 <= x1:
+            return None
+
+        roi_mask = mask[:, x1:x2]
+        contours, _ = cv2.findContours(roi_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        if not contours:
+            return None
+
+        used_centers = used_centers or []
+        best = None
+        best_score = -1e12
+
+        for contour in contours:
+            x, y, bw, bh = cv2.boundingRect(contour)
+            area = cv2.contourArea(contour)
+            if area < 120:
+                continue
+
+            aspect = bh / max(bw, 1)
+            if aspect < 1.2:
+                continue
+
+            cx_local = x + bw // 2
+            cx_abs = x1 + cx_local
+
+            # Do not reuse the same contour center for duplicated lines.
+            if any(abs(cx_abs - uc) < min_separation_px for uc in used_centers):
+                continue
+
+            dist = abs(cx_abs - expected_x)
+            shape_score = min(aspect / 2.5, 1.0)
+            area_score = min(area / 1200.0, 1.0)
+            proximity_score = 1.0 - min(dist / max(roi_half, 1), 1.0)
+            score = (proximity_score * 0.60) + (shape_score * 0.25) + (area_score * 0.15)
+
+            if score > best_score:
+                best_score = score
+                best = (x, y, bw, bh, cx_abs)
+
+        if best is None:
+            return None
+
+        x, y, bw, bh, cx_abs = best
+        return {
+            'x_position': int(cx_abs),
+            'y_position': int(y + bh // 2),
+            'width': bw,
+            'height': bh,
+            'area': float(bw * bh),
+            'bounding_box': (x + x1, y, bw, bh),
+            'confidence': float(max(0.0, min(best_score, 1.0))),
+            'aspect_ratio': bh / float(bw) if bw > 0 else 0,
+            'height_ratio': bh / h
+        }
     
     def _check_exact_order(self, detected_lines: dict) -> Optional[DefectReport]:
-    
-        required_order = self.current_pattern.colors
-    
-        for color in required_order:
-            if color not in detected_lines:
+
+        required_order = [
+            self._line_key(c, i) for i, c in enumerate(self.current_pattern.colors)
+        ]
+
+        for line_key in required_order:
+            if line_key not in detected_lines:
                 return DefectReport(
                     defect_type=DefectType.COLOR_MISSING,
                     severity=1.0,
                     position=(0, 0),
-                    description=f"Culoare lipsa: {color}",
+                    description=f"Culoare lipsa: {line_key}",
                     confidence=0.95
                 )
         
@@ -1350,7 +1567,8 @@ class AdvancedTireQualityChecker:
             "blue": (255, 0, 0)
         }
 
-        for color, info in detected_lines.items():
+        for line_key, info in detected_lines.items():
+            base_color = info.get("line_color") or self._base_color(line_key)
             x, y, w, h = info["bounding_box"]
             cx = info["x_position"]
             cy = info["y_position"]
@@ -1359,7 +1577,7 @@ class AdvancedTireQualityChecker:
                 image,
                 (ox + x, oy + y),
                 (ox + x + w, oy + y + h),
-                color_map.get(color, (0, 0, 255)),
+                color_map.get(base_color, (0, 0, 255)),
                 2
             )
 
@@ -1373,11 +1591,11 @@ class AdvancedTireQualityChecker:
 
             cv2.putText(
                 image,
-                color,
+                line_key,
                 (ox + x, oy + y - 5),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.5,
-                color_map.get(color, (0, 0, 255)),
+                color_map.get(base_color, (0, 0, 255)),
                 1
             )
 
@@ -1388,12 +1606,17 @@ class AdvancedTireQualityChecker:
         image_stats = self._calculate_image_statistics(frame)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         height, width = frame.shape[:2]
+        center_hint = self._find_center_by_intensity_profile(frame)
+        if center_hint is None:
+            center_hint = width // 2
 
         detected_lines = {}
         all_defects = []
-        missing_colors = []
+        missing_lines: List[Tuple[str, str, int]] = []
+        used_centers_by_color: Dict[str, List[int]] = {}
 
         for i, color_name in enumerate(self.current_pattern.colors):
+            line_key = self._line_key(color_name, i)
             ranges = self.current_pattern.color_ranges[color_name]
             mask = self._adaptive_color_detection(hsv, ranges, image_stats)
 
@@ -1403,13 +1626,23 @@ class AdvancedTireQualityChecker:
                 except Exception:
                     pass
 
-            line_info = self._detect_advanced_line(mask, color_name, i)
+            line_info = self._detect_advanced_line_near_expected(
+                mask,
+                color_name,
+                i,
+                center_hint,
+                used_centers=used_centers_by_color.get(color_name, []),
+            )
 
             if not line_info:
-                missing_colors.append(color_name)
+                missing_lines.append((line_key, color_name, i))
                 continue
 
-            detected_lines[color_name] = line_info
+            line_info["line_key"] = line_key
+            line_info["line_color"] = color_name
+            line_info["line_index"] = i
+            detected_lines[line_key] = line_info
+            used_centers_by_color.setdefault(color_name, []).append(int(line_info["x_position"]))
 
             x, y, w, h = line_info["bounding_box"]
             line_mask = mask[y:y + h, x:x + w]
@@ -1429,7 +1662,7 @@ class AdvancedTireQualityChecker:
                         severity=severity,
                         position=(line_info["x_position"], line_info["y_position"]),
                         description=(
-                            f"Lățime incorectă {color_name}: {measured_width:.1f}px (așteptat {expected_width}±{width_tolerance:.1f})"
+                            f"Lățime incorectă {line_key}: {measured_width:.1f}px (așteptat {expected_width}±{width_tolerance:.1f})"
                         ),
                         confidence=0.9
                     )
@@ -1442,7 +1675,7 @@ class AdvancedTireQualityChecker:
                         defect_type=DefectType.LINE_BROKEN,
                         severity=1.0 - continuity['avg_continuity'],
                         position=(line_info["x_position"], line_info["y_position"]),
-                        description=f"Linie întreruptă: {color_name} (continuitate {continuity['avg_continuity']:.2f})",
+                        description=f"Linie întreruptă: {line_key} (continuitate {continuity['avg_continuity']:.2f})",
                         confidence=0.9
                     )
                 )
@@ -1461,8 +1694,9 @@ class AdvancedTireQualityChecker:
                     )
                 )
 
-        for color in missing_colors:
-            wrong_color_info = self._detect_wrong_color(hsv, self.current_pattern.expected_positions_px[color], height, width, color)
+        for line_key, color, idx in missing_lines:
+            expected_px = self._expected_px_for_index(idx, color)
+            wrong_color_info = self._detect_wrong_color(hsv, expected_px, height, width, color)
             if wrong_color_info:
                 wrong_color_name, position = wrong_color_info
                 all_defects.append(
@@ -1470,7 +1704,7 @@ class AdvancedTireQualityChecker:
                         defect_type=DefectType.COLOR_WRONG,
                         severity=1.0,
                         position=position,
-                        description=f"Culoare greșită pentru {color}: detectată {wrong_color_name}",
+                        description=f"Culoare greșită pentru {line_key}: detectată {wrong_color_name}",
                         confidence=0.85
                     )
                 )
@@ -1480,14 +1714,18 @@ class AdvancedTireQualityChecker:
                         defect_type=DefectType.COLOR_MISSING,
                         severity=1.0,
                         position=(width // 2, height // 2),
-                        description=f"Linie lipsă: {color}",
+                        description=f"Linie lipsă: {line_key}",
                         confidence=0.95
                     )
                 )
 
+        expected_line_keys = [
+            self._line_key(c, i) for i, c in enumerate(self.current_pattern.colors)
+        ]
+
         status_message, quality_level, is_valid, summary = \
             self._generate_status_messages(
-                {c: c in detected_lines for c in self.current_pattern.colors},
+                {k: (k in detected_lines) for k in expected_line_keys},
                 all_defects
             )
 
@@ -1581,10 +1819,12 @@ class AdvancedTireQualityChecker:
 
                 defects_abs, debug_info = self._analyze_frame_absolute(frame_roi, tire_center_x=self.fixed_tire_center_x-x1, x_offset=x1)
 
-                for color, info in result.detected_lines.items():
+                for line_key, info in result.detected_lines.items():
+                    line_color = info.get("line_color", self._base_color(line_key))
+                    line_idx = int(info.get("line_index", 0))
                     abs_x = info["x_position"] + x1
                     measured_offset_mm = abs(abs_x - self.fixed_tire_center_x) / MM_TO_PX
-                    expected_offset_mm = self.current_pattern.expected_positions_mm[color]
+                    expected_offset_mm = self._expected_mm_for_index(line_idx, line_color)
                     delta_mm = abs(measured_offset_mm - expected_offset_mm)
 
                     if delta_mm > 10.0: 
@@ -1593,7 +1833,7 @@ class AdvancedTireQualityChecker:
                                 defect_type=DefectType.LINE_SHIFTED,
                                 severity=min(delta_mm / 20.0, 1.0),  
                                 position=(info["x_position"], info["y_position"]), 
-                                description=f"{color} POZITIE GRESITA: {measured_offset_mm:.1f}mm (asteptat {expected_offset_mm:.1f}mm, delta {delta_mm:.1f}mm)",
+                                description=f"{line_key} POZITIE GRESITA: {measured_offset_mm:.1f}mm (asteptat {expected_offset_mm:.1f}mm, delta {delta_mm:.1f}mm)",
                                 confidence=0.95
                             )
                         )
@@ -1611,7 +1851,10 @@ class AdvancedTireQualityChecker:
 
                 status_message, quality_level, is_valid, summary = \
                     self._generate_status_messages(
-                        {c: c in result.detected_lines for c in self.current_pattern.colors},
+                        {
+                            self._line_key(c, i): (self._line_key(c, i) in result.detected_lines)
+                            for i, c in enumerate(self.current_pattern.colors)
+                        },
                         result.defects
                     )
 
@@ -1633,7 +1876,7 @@ class AdvancedTireQualityChecker:
                             2
                         )
 
-                    for color, info in result.detected_lines.items():
+                    for line_key, info in result.detected_lines.items():
                         x, y, w, h = info["bounding_box"]
                         cx = info["x_position"]
                         cy = info["y_position"]
@@ -1660,7 +1903,7 @@ class AdvancedTireQualityChecker:
 
                         cv2.putText(
                             overlay,
-                            color,
+                            line_key,
                             (x1 + x, y1 + y - 5),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             0.5,

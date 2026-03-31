@@ -1,12 +1,79 @@
 import pandas as pd
 import json
 import os
+import re
+
+
+def normalize_cell(value):
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def normalize_pattern_name(value):
+    raw = normalize_cell(value)
+    if raw.startswith(':'):
+        raw = raw[1:]
+    # Keep only letters used by pattern codes.
+    return "".join(ch for ch in raw.upper() if ch.isalpha())
+
+
+def extract_positions(raw_value):
+    raw = normalize_cell(raw_value)
+    if not raw:
+        return []
+    # Distantele din Excel sunt marcate ca valori intregi separate prin semne
+    # precum '.', '/', '-' etc. (ex: 55.60.65, 45/45).
+    return re.findall(r"\d+", raw)
+
+
+def extract_raw_colors(row):
+    colors = []
+    for col_idx in range(2, 6):
+        color = normalize_cell(row[col_idx]).upper()
+        if color and color != "NAN":
+            colors.append(color)
+    return colors
+
+
+def pick_aligned_colors(raw_colors, official_pattern, positions):
+    official_colors = list(official_pattern)
+    target_len = len(positions)
+
+    candidates = []
+    if official_colors:
+        candidates.append(("official", official_colors))
+    if raw_colors:
+        candidates.append(("raw", raw_colors))
+
+    if not candidates:
+        return []
+
+    if target_len == 0:
+        # Prefer official pattern if positions are missing.
+        return candidates[0][1]
+
+    # Pick candidate whose length best matches positions count.
+    source, best = min(candidates, key=lambda item: (abs(len(item[1]) - target_len), 0 if item[0] == "official" else 1))
+
+    if len(best) > target_len:
+        return best[:target_len]
+
+    # If official has exact length, prefer it.
+    if len(official_colors) == target_len:
+        return official_colors
+
+    # If still shorter, keep as-is and let validation report it.
+    return best
 
 def read_patterns_from_excel(excel_file):
     # Citim Excel-ul fără header pentru a controla exact rândurile
     df = pd.read_excel(excel_file, header=None)
     
     patterns = []
+    seen_recipe_ids = set()
+    skipped_duplicates = 0
+    mismatched_rows = 0
     
     # Datele reale încep de la rândul 4 (index 4)
     # Rândurile 0-3 sunt antete, categorii și tipuri de date (Product, String, etc.)
@@ -14,43 +81,49 @@ def read_patterns_from_excel(excel_file):
         row = df.iloc[row_idx]
         
         # 1. Extragem ID-ul și Codul de Produs
-        recipe_id = str(row[0]).strip() if pd.notna(row[0]) else None
-        product_code = str(row[1]).strip() if pd.notna(row[1]) else None
+        recipe_id = normalize_cell(row[0])
+        product_code = normalize_cell(row[1])
         
         # Sărim peste rândurile goale sau invalide
-        if not recipe_id or recipe_id == "nan":
+        if not recipe_id or recipe_id.upper() == "NAN":
             continue
 
-        # 2. Colour Marking - Culorile sunt în coloanele 2, 3, 4 și 5
-        raw_colors = []
-        for col_idx in range(2, 6):
-            color = str(row[col_idx]).strip() if pd.notna(row[col_idx]) else ""
-            if color and color != "nan":
-                raw_colors.append(color)
+        # Evităm intrările duplicate pe același recipe_id.
+        if recipe_id in seen_recipe_ids:
+            skipped_duplicates += 1
+            continue
+        seen_recipe_ids.add(recipe_id)
+
+        # 2. Colour Marking - culori brute din coloanele 2, 3, 4, 5
+        raw_colors = extract_raw_colors(row)
         
-        # Construim numele pattern-ului din inițiale (ex: YAWG)
-        pattern_name_built = "".join(raw_colors)
+        # 3. EX_INF_CodeColor - pozițiile sunt în coloana 6
+        positions = extract_positions(row[6])
         
-        # 3. EX_INF_CodeColor - Pozițiile sunt în coloana 6
-        raw_positions = str(row[6]).strip() if pd.notna(row[6]) else ""
-        positions = [p.strip() for p in raw_positions.split('.') if p.strip()]
-        
-        # 4. Ex_INF_ID_Recipe - Numele din Excel este în coloana 8
-        pattern_name_excel = str(row[8]).strip() if pd.notna(row[8]) else ""
-        if pattern_name_excel.startswith(':'):
-            pattern_name_excel = pattern_name_excel[1:] # Eliminăm ":"
+        # 4. Ex_INF_ID_Recipe - numele oficial este în coloana 8
+        pattern_name_official = normalize_pattern_name(row[8])
+
+        # Aliniem culorile cu numărul de poziții și numele oficial.
+        aligned_colors = pick_aligned_colors(raw_colors, pattern_name_official, positions)
+        pattern_name_built = "".join(aligned_colors)
+
+        if positions and len(aligned_colors) != len(positions):
+            mismatched_rows += 1
             
         # Construim obiectul final pentru acest pattern
         pattern_data = {
             "recipe_id": recipe_id,
             "product_code": product_code,
-            "colors": raw_colors,
+            "colors": aligned_colors,
             "pattern_name": pattern_name_built,
-            "pattern_name_official": pattern_name_excel,
+            "pattern_name_official": pattern_name_official,
             "positions_mm": positions
         }
         
         patterns.append(pattern_data)
+
+    print(f"Info: duplicate recipe_id sărite: {skipped_duplicates}")
+    print(f"Info: rânduri cu mismatch culori/poziții: {mismatched_rows}")
         
     return patterns
 

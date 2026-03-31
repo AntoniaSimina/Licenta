@@ -21,10 +21,9 @@
         "colors": [
             "L",
             "L",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "LLAY",
+        "pattern_name": "LLA",
         "pattern_name_official": "LLA",
         "positions_mm": [
             "15",
@@ -75,9 +74,10 @@
             "L",
             "O",
             "W",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "LOWA",
+        "pattern_name": "LOWAR",
         "pattern_name_official": "LOWAR",
         "positions_mm": [
             "15",
@@ -93,10 +93,9 @@
         "colors": [
             "R",
             "W",
-            "A",
-            "O"
+            "A"
         ],
-        "pattern_name": "RWAO",
+        "pattern_name": "RWA",
         "pattern_name_official": "RWA",
         "positions_mm": [
             "15",
@@ -128,10 +127,9 @@
         "colors": [
             "R",
             "L",
-            "A",
-            "O"
+            "A"
         ],
-        "pattern_name": "RLAO",
+        "pattern_name": "RLA",
         "pattern_name_official": "RLA",
         "positions_mm": [
             "15",
@@ -217,10 +215,9 @@
         "colors": [
             "B",
             "L",
-            "A",
-            "O"
+            "A"
         ],
-        "pattern_name": "BLAO",
+        "pattern_name": "BLA",
         "pattern_name_official": "BLA",
         "positions_mm": [
             "15",
@@ -268,10 +265,9 @@
         "colors": [
             "O",
             "Y",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "OYGA",
+        "pattern_name": "OYG",
         "pattern_name_official": "OYG",
         "positions_mm": [
             "10",
@@ -285,10 +281,9 @@
         "colors": [
             "W",
             "O",
-            "A",
             "A"
         ],
-        "pattern_name": "WOAA",
+        "pattern_name": "WOA",
         "pattern_name_official": "WOA",
         "positions_mm": [
             "20",
@@ -301,11 +296,9 @@
         "product_code": "922410467500",
         "colors": [
             "O",
-            "Y",
-            "L",
-            "L"
+            "Y"
         ],
-        "pattern_name": "OYLL",
+        "pattern_name": "OY",
         "pattern_name_official": "OY",
         "positions_mm": [
             "10",
@@ -335,14 +328,13 @@
         "product_code": "922410407800",
         "colors": [
             "Y",
-            "L",
-            "G",
-            "Y"
+            "L"
         ],
-        "pattern_name": "YLGY",
-        "pattern_name_official": "Y:L",
+        "pattern_name": "YL",
+        "pattern_name_official": "YL",
         "positions_mm": [
-            "45/45"
+            "45",
+            "45"
         ]
     },
     {
@@ -369,10 +361,9 @@
         "colors": [
             "G",
             "G",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "GGOY",
+        "pattern_name": "GGO",
         "pattern_name_official": "GGO",
         "positions_mm": [
             "05",
@@ -422,10 +413,9 @@
         "colors": [
             "Y",
             "Y",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "YYBW",
+        "pattern_name": "YYB",
         "pattern_name_official": "YYB",
         "positions_mm": [
             "25",
@@ -472,11 +462,9 @@
         "product_code": "822410195000",
         "colors": [
             "B",
-            "W",
-            "A",
-            "L"
+            "W"
         ],
-        "pattern_name": "BWAL",
+        "pattern_name": "BW",
         "pattern_name_official": "BW",
         "positions_mm": [
             "20",
@@ -495,7 +483,7 @@
         "pattern_name": "RYLY",
         "pattern_name_official": "RYLY",
         "positions_mm": [
-            "RYLY 10",
+            "10",
             "20",
             "45",
             "55"
@@ -523,10 +511,9 @@
         "colors": [
             "B",
             "G",
-            "L",
-            "Y"
+            "L"
         ],
-        "pattern_name": "BGLY",
+        "pattern_name": "BGL",
         "pattern_name_official": "BGL",
         "positions_mm": [
             "05",
@@ -644,10 +631,9 @@
         "colors": [
             "W",
             "A",
-            "W",
-            "A"
+            "W"
         ],
-        "pattern_name": "WAWA",
+        "pattern_name": "WAW",
         "pattern_name_official": "WAW",
         "positions_mm": [
             "15",
@@ -680,9 +666,10 @@
             "A",
             "R",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ARGY",
+        "pattern_name": "ARGYB",
         "pattern_name_official": "ARGYB",
         "positions_mm": [
             "15",
@@ -816,10 +803,9 @@
         "colors": [
             "G",
             "Y",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "GYGY",
+        "pattern_name": "GYG",
         "pattern_name_official": "GYG",
         "positions_mm": [
             "10",
@@ -833,10 +819,9 @@
         "colors": [
             "G",
             "W",
-            "Y",
             "Y"
         ],
-        "pattern_name": "GWYY",
+        "pattern_name": "GWY",
         "pattern_name_official": "GWY",
         "positions_mm": [
             "15",
@@ -865,9 +850,10 @@
             "R",
             "A",
             "Y",
-            "G"
+            "G",
+            "A"
         ],
-        "pattern_name": "RAYG",
+        "pattern_name": "RAYGA",
         "pattern_name_official": "RAYGA",
         "positions_mm": [
             "20",
@@ -985,10 +971,9 @@
         "colors": [
             "W",
             "Y",
-            "Y",
-            "A"
+            "Y"
         ],
-        "pattern_name": "WYYA",
+        "pattern_name": "WYY",
         "pattern_name_official": "WYY",
         "positions_mm": [
             "20",
@@ -1090,10 +1075,9 @@
         "colors": [
             "A",
             "L",
-            "L",
-            "Y"
+            "L"
         ],
-        "pattern_name": "ALLY",
+        "pattern_name": "ALL",
         "pattern_name_official": "ALL",
         "positions_mm": [
             "10",
@@ -1213,10 +1197,9 @@
         "colors": [
             "R",
             "Y",
-            "L",
-            "O"
+            "L"
         ],
-        "pattern_name": "RYLO",
+        "pattern_name": "RYL",
         "pattern_name_official": "RYL",
         "positions_mm": [
             "10",
@@ -1230,10 +1213,9 @@
         "colors": [
             "B",
             "L",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "BLGB",
+        "pattern_name": "BLG",
         "pattern_name_official": "BLG",
         "positions_mm": [
             "30",
@@ -1247,10 +1229,9 @@
         "colors": [
             "B",
             "L",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "BLRB",
+        "pattern_name": "BLR",
         "pattern_name_official": "BLR",
         "positions_mm": [
             "30",
@@ -1334,10 +1315,9 @@
         "colors": [
             "W",
             "O",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WOBY",
+        "pattern_name": "WOB",
         "pattern_name_official": "WOB",
         "positions_mm": [
             "15",
@@ -1369,10 +1349,9 @@
         "colors": [
             "O",
             "R",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "ORBL",
+        "pattern_name": "ORB",
         "pattern_name_official": "ORB",
         "positions_mm": [
             "30",
@@ -1440,10 +1419,9 @@
         "colors": [
             "Y",
             "G",
-            "B",
             "B"
         ],
-        "pattern_name": "YGBB",
+        "pattern_name": "YGB",
         "pattern_name_official": "YGB",
         "positions_mm": [
             "10",
@@ -1709,10 +1687,9 @@
         "colors": [
             "L",
             "Y",
-            "G",
-            "O"
+            "G"
         ],
-        "pattern_name": "LYGO",
+        "pattern_name": "LYG",
         "pattern_name_official": "LYG",
         "positions_mm": [
             "25",
@@ -1760,10 +1737,9 @@
         "colors": [
             "B",
             "L",
-            "W",
-            "Y"
+            "W"
         ],
-        "pattern_name": "BLWY",
+        "pattern_name": "BLW",
         "pattern_name_official": "BLW",
         "positions_mm": [
             "15",
@@ -1829,10 +1805,9 @@
         "colors": [
             "A",
             "W",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "AWBA",
+        "pattern_name": "AWB",
         "pattern_name_official": "AWB",
         "positions_mm": [
             "25",
@@ -1846,10 +1821,9 @@
         "colors": [
             "B",
             "W",
-            "A",
-            "G"
+            "A"
         ],
-        "pattern_name": "BWAG",
+        "pattern_name": "BWA",
         "pattern_name_official": "BWA",
         "positions_mm": [
             "25",
@@ -1863,10 +1837,9 @@
         "colors": [
             "B",
             "W",
-            "O",
-            "G"
+            "O"
         ],
-        "pattern_name": "BWOG",
+        "pattern_name": "BWO",
         "pattern_name_official": "BWO",
         "positions_mm": [
             "25",
@@ -2040,11 +2013,10 @@
         "colors": [
             "W",
             "A",
-            "R",
             "R"
         ],
-        "pattern_name": "WARR",
-        "pattern_name_official": "WAR",
+        "pattern_name": "WAR1",
+        "pattern_name_official": "WAR1",
         "positions_mm": [
             "20",
             "25",
@@ -2106,9 +2078,10 @@
             "O",
             "G",
             "L",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "OGLL",
+        "pattern_name": "OGLLB",
         "pattern_name_official": "OGLLB",
         "positions_mm": [
             "15",
@@ -2230,10 +2203,9 @@
         "colors": [
             "Y",
             "A",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "YAAY",
+        "pattern_name": "YAA",
         "pattern_name_official": "YAA",
         "positions_mm": [
             "65",
@@ -2247,10 +2219,9 @@
         "colors": [
             "B",
             "A",
-            "W",
-            "Y"
+            "W"
         ],
-        "pattern_name": "BAWY",
+        "pattern_name": "BAW",
         "pattern_name_official": "BAW",
         "positions_mm": [
             "35",
@@ -2282,10 +2253,9 @@
         "colors": [
             "Y",
             "Y",
-            "L",
-            "R"
+            "L"
         ],
-        "pattern_name": "YYLR",
+        "pattern_name": "YYL",
         "pattern_name_official": "YYL",
         "positions_mm": [
             "10",
@@ -2299,10 +2269,9 @@
         "colors": [
             "A",
             "O",
-            "W",
-            "A"
+            "W"
         ],
-        "pattern_name": "AOWA",
+        "pattern_name": "AOW",
         "pattern_name_official": "AOW",
         "positions_mm": [
             "25",
@@ -2316,10 +2285,9 @@
         "colors": [
             "Y",
             "L",
-            "B",
             "B"
         ],
-        "pattern_name": "YLBB",
+        "pattern_name": "YLB",
         "pattern_name_official": "YLB",
         "positions_mm": [
             "10",
@@ -2388,9 +2356,10 @@
             "G",
             "L",
             "R",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GLRA",
+        "pattern_name": "GLRAB",
         "pattern_name_official": "GLRAB",
         "positions_mm": [
             "30",
@@ -2654,10 +2623,9 @@
         "colors": [
             "O",
             "G",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "OGBA",
+        "pattern_name": "OGB",
         "pattern_name_official": "OGB",
         "positions_mm": [
             "15",
@@ -2852,9 +2820,10 @@
             "G",
             "L",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "GLRB",
+        "pattern_name": "GLRBB",
         "pattern_name_official": "GLRBB",
         "positions_mm": [
             "20",
@@ -2870,10 +2839,9 @@
         "colors": [
             "L",
             "Y",
-            "L",
             "L"
         ],
-        "pattern_name": "LYLL",
+        "pattern_name": "LYL",
         "pattern_name_official": "LYL",
         "positions_mm": [
             "15",
@@ -2888,9 +2856,10 @@
             "L",
             "G",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "LGRY",
+        "pattern_name": "LGRYB",
         "pattern_name_official": "LGRYB",
         "positions_mm": [
             "30",
@@ -2996,10 +2965,9 @@
         "colors": [
             "G",
             "R",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "GRBY",
+        "pattern_name": "GRB",
         "pattern_name_official": "GRB",
         "positions_mm": [
             "15",
@@ -3049,10 +3017,9 @@
         "colors": [
             "W",
             "R",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "WRBW",
+        "pattern_name": "WRB",
         "pattern_name_official": "WRB",
         "positions_mm": [
             "20",
@@ -3102,10 +3069,9 @@
         "colors": [
             "O",
             "L",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "OLBL",
+        "pattern_name": "OLB",
         "pattern_name_official": "OLB",
         "positions_mm": [
             "30",
@@ -3120,9 +3086,10 @@
             "A",
             "R",
             "Y",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ARYA",
+        "pattern_name": "ARYAB",
         "pattern_name_official": "ARYAB",
         "positions_mm": [
             "30",
@@ -3207,9 +3174,10 @@
             "A",
             "G",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AGGY",
+        "pattern_name": "AGGYB",
         "pattern_name_official": "AGGYB",
         "positions_mm": [
             "15",
@@ -3244,9 +3212,10 @@
             "G",
             "L",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "GLRB",
+        "pattern_name": "GLRBB",
         "pattern_name_official": "GLRBB",
         "positions_mm": [
             "20",
@@ -3281,9 +3250,10 @@
             "A",
             "G",
             "Y",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "AGYL",
+        "pattern_name": "AGYLB",
         "pattern_name_official": "AGYLB",
         "positions_mm": [
             "30",
@@ -3318,9 +3288,10 @@
             "A",
             "O",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AOGY",
+        "pattern_name": "AOGYB",
         "pattern_name_official": "AOGYB",
         "positions_mm": [
             "15",
@@ -3337,9 +3308,10 @@
             "L",
             "O",
             "R",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "LORA",
+        "pattern_name": "LORAB",
         "pattern_name_official": "LORAB",
         "positions_mm": [
             "35",
@@ -3391,10 +3363,9 @@
         "colors": [
             "W",
             "O",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WOBY",
+        "pattern_name": "WOB",
         "pattern_name_official": "WOB",
         "positions_mm": [
             "15",
@@ -3426,10 +3397,9 @@
         "colors": [
             "W",
             "W",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "WWBG",
+        "pattern_name": "WWB",
         "pattern_name_official": "WWB",
         "positions_mm": [
             "15",
@@ -3497,10 +3467,9 @@
         "colors": [
             "O",
             "W",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "OWBG",
+        "pattern_name": "OWB",
         "pattern_name_official": "OWB",
         "positions_mm": [
             "25",
@@ -3530,10 +3499,9 @@
         "colors": [
             "W",
             "L",
-            "B",
             "B"
         ],
-        "pattern_name": "WLBB",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "20",
@@ -3692,9 +3660,10 @@
             "A",
             "G",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "AGGB",
+        "pattern_name": "AGGBB",
         "pattern_name_official": "AGGBB",
         "positions_mm": [
             "15",
@@ -3763,9 +3732,10 @@
             "O",
             "R",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ORWY",
+        "pattern_name": "ORWYB",
         "pattern_name_official": "ORWYB",
         "positions_mm": [
             "20",
@@ -3854,9 +3824,10 @@
             "L",
             "O",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "LORB",
+        "pattern_name": "LORBB",
         "pattern_name_official": "LORBB",
         "positions_mm": [
             "35",
@@ -3963,9 +3934,10 @@
             "O",
             "R",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "ORWB",
+        "pattern_name": "ORWBB",
         "pattern_name_official": "ORWBB",
         "positions_mm": [
             "20",
@@ -3982,9 +3954,10 @@
             "A",
             "G",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AGGY",
+        "pattern_name": "AGGYB",
         "pattern_name_official": "AGGYB",
         "positions_mm": [
             "25",
@@ -4019,9 +3992,10 @@
             "A",
             "A",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "AAYB",
+        "pattern_name": "AAYBB",
         "pattern_name_official": "AAYBB",
         "positions_mm": [
             "25",
@@ -4127,10 +4101,9 @@
         "colors": [
             "R",
             "G",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "RGBY",
+        "pattern_name": "RGB",
         "pattern_name_official": "RGB",
         "positions_mm": [
             "20",
@@ -4163,9 +4136,10 @@
             "O",
             "R",
             "W",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ORWA",
+        "pattern_name": "ORWAB",
         "pattern_name_official": "ORWAB",
         "positions_mm": [
             "20",
@@ -4182,9 +4156,10 @@
             "O",
             "R",
             "W",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "ORWW",
+        "pattern_name": "ORWWB",
         "pattern_name_official": "ORWWB",
         "positions_mm": [
             "20",
@@ -4219,9 +4194,10 @@
             "Y",
             "Y",
             "A",
+            "B",
             "B"
         ],
-        "pattern_name": "YYAB",
+        "pattern_name": "YYABB",
         "pattern_name_official": "YYABB",
         "positions_mm": [
             "15",
@@ -4310,9 +4286,10 @@
             "L",
             "G",
             "O",
+            "B",
             "B"
         ],
-        "pattern_name": "LGOB",
+        "pattern_name": "LGOBB",
         "pattern_name_official": "LGOBB",
         "positions_mm": [
             "15",
@@ -4415,9 +4392,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAB",
         "pattern_name_official": "AWYAB",
         "positions_mm": [
             "10",
@@ -4470,9 +4448,10 @@
             "A",
             "G",
             "W",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "AGWL",
+        "pattern_name": "AGWLB",
         "pattern_name_official": "AGWLB",
         "positions_mm": [
             "20",
@@ -4525,9 +4504,10 @@
             "A",
             "G",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AGGY",
+        "pattern_name": "AGGYB",
         "pattern_name_official": "AGGYB",
         "positions_mm": [
             "25",
@@ -4544,9 +4524,10 @@
             "O",
             "R",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "ORBB",
+        "pattern_name": "ORBBB",
         "pattern_name_official": "ORBBB",
         "positions_mm": [
             "20",
@@ -4563,9 +4544,10 @@
             "O",
             "R",
             "W",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ORWA",
+        "pattern_name": "ORWAB",
         "pattern_name_official": "ORWAB",
         "positions_mm": [
             "20",
@@ -4615,10 +4597,9 @@
         "colors": [
             "G",
             "Y",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "GYBY",
+        "pattern_name": "GYB",
         "pattern_name_official": "GYB",
         "positions_mm": [
             "15",
@@ -4633,9 +4614,10 @@
             "W",
             "A",
             "L",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "WALY",
+        "pattern_name": "WALYB",
         "pattern_name_official": "WALYB",
         "positions_mm": [
             "25",
@@ -4706,9 +4688,10 @@
             "O",
             "R",
             "B",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "ORBW",
+        "pattern_name": "ORBWB",
         "pattern_name_official": "ORBWB",
         "positions_mm": [
             "20",
@@ -4725,9 +4708,10 @@
             "O",
             "R",
             "A",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ORAA",
+        "pattern_name": "ORAAB",
         "pattern_name_official": "ORAAB",
         "positions_mm": [
             "20",
@@ -4779,10 +4763,9 @@
         "colors": [
             "B",
             "B",
-            "W",
-            "G"
+            "W"
         ],
-        "pattern_name": "BBWG",
+        "pattern_name": "BBW",
         "pattern_name_official": "BBW",
         "positions_mm": [
             "30",
@@ -4796,10 +4779,9 @@
         "colors": [
             "B",
             "B",
-            "Y",
-            "G"
+            "Y"
         ],
-        "pattern_name": "BBYG",
+        "pattern_name": "BBY",
         "pattern_name_official": "BBY",
         "positions_mm": [
             "30",
@@ -4814,9 +4796,10 @@
             "G",
             "Y",
             "O",
+            "B",
             "B"
         ],
-        "pattern_name": "GYOB",
+        "pattern_name": "GYOBB",
         "pattern_name_official": "GYOBB",
         "positions_mm": [
             "10",
@@ -4866,10 +4849,9 @@
         "colors": [
             "W",
             "R",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "WRBW",
+        "pattern_name": "WRB",
         "pattern_name_official": "WRB",
         "positions_mm": [
             "15",
@@ -4883,10 +4865,9 @@
         "colors": [
             "R",
             "G",
-            "O",
-            "A"
+            "O"
         ],
-        "pattern_name": "RGOA",
+        "pattern_name": "RGO",
         "pattern_name_official": "RGO",
         "positions_mm": [
             "20",
@@ -4900,10 +4881,9 @@
         "colors": [
             "R",
             "L",
-            "O",
-            "W"
+            "O"
         ],
-        "pattern_name": "RLOW",
+        "pattern_name": "RLO",
         "pattern_name_official": "RLO",
         "positions_mm": [
             "15",
@@ -4970,11 +4950,9 @@
         "product_code": "722410125000",
         "colors": [
             "W",
-            "B",
-            "G",
-            "A"
+            "B"
         ],
-        "pattern_name": "WBGA",
+        "pattern_name": "WB",
         "pattern_name_official": "WB",
         "positions_mm": [
             "15",
@@ -4988,9 +4966,10 @@
             "R",
             "G",
             "A",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "RGAG",
+        "pattern_name": "RGAGB",
         "pattern_name_official": "RGAGB",
         "positions_mm": [
             "15",
@@ -5007,9 +4986,10 @@
             "A",
             "G",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AGWB",
+        "pattern_name": "AGWBB",
         "pattern_name_official": "AGWBB",
         "positions_mm": [
             "20",
@@ -5096,9 +5076,10 @@
             "R",
             "Y",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "RYWY",
+        "pattern_name": "RYWYB",
         "pattern_name_official": "RYWYB",
         "positions_mm": [
             "20",
@@ -5147,9 +5128,10 @@
             "O",
             "R",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "ORWB",
+        "pattern_name": "ORWBB",
         "pattern_name_official": "ORWBB",
         "positions_mm": [
             "20",
@@ -5183,10 +5165,9 @@
         "colors": [
             "O",
             "Y",
-            "R",
-            "A"
+            "R"
         ],
-        "pattern_name": "OYRA",
+        "pattern_name": "OYR",
         "pattern_name_official": "OYR",
         "positions_mm": [
             "10",
@@ -5201,9 +5182,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAB",
         "pattern_name_official": "AWYAB",
         "positions_mm": [
             "30",
@@ -5255,10 +5237,9 @@
         "colors": [
             "A",
             "L",
-            "Y",
             "Y"
         ],
-        "pattern_name": "ALYY",
+        "pattern_name": "ALY",
         "pattern_name_official": "ALY",
         "positions_mm": [
             "35",
@@ -5273,9 +5254,10 @@
             "O",
             "B",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "OBWB",
+        "pattern_name": "OBWBB",
         "pattern_name_official": "OBWBB",
         "positions_mm": [
             "20",
@@ -5310,9 +5292,10 @@
             "G",
             "Y",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "GYBB",
+        "pattern_name": "GYBBB",
         "pattern_name_official": "GYBBB",
         "positions_mm": [
             "10",
@@ -5347,9 +5330,10 @@
             "G",
             "O",
             "W",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "GOWO",
+        "pattern_name": "GOWOB",
         "pattern_name_official": "GOWOB",
         "positions_mm": [
             "20",
@@ -5364,12 +5348,10 @@
         "product_code": "722410168300",
         "colors": [
             "R",
-            "B",
-            "G",
-            "W"
+            "B"
         ],
-        "pattern_name": "RBGW",
-        "pattern_name_official": "R:B",
+        "pattern_name": "RB",
+        "pattern_name_official": "RB",
         "positions_mm": [
             "35",
             "35"
@@ -5396,12 +5378,10 @@
         "product_code": "722410168400",
         "colors": [
             "W",
-            "B",
-            "G",
-            "W"
+            "B"
         ],
-        "pattern_name": "WBGW",
-        "pattern_name_official": "W:B",
+        "pattern_name": "WB",
+        "pattern_name_official": "WB",
         "positions_mm": [
             "35",
             "35"
@@ -5414,9 +5394,10 @@
             "W",
             "Y",
             "R",
-            "Y"
+            "Y",
+            "L"
         ],
-        "pattern_name": "WYRY",
+        "pattern_name": "WYRYL",
         "pattern_name_official": "WYRYL",
         "positions_mm": [
             "20",
@@ -5469,9 +5450,10 @@
             "R",
             "Y",
             "Y",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "RYYY",
+        "pattern_name": "RYYYB",
         "pattern_name_official": "RYYYB",
         "positions_mm": [
             "20",
@@ -5488,9 +5470,10 @@
             "G",
             "O",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "GOWB",
+        "pattern_name": "GOWBB",
         "pattern_name_official": "GOWBB",
         "positions_mm": [
             "20",
@@ -5506,10 +5489,9 @@
         "colors": [
             "G",
             "Y",
-            "B",
             "B"
         ],
-        "pattern_name": "GYBB",
+        "pattern_name": "GYB",
         "pattern_name_official": "GYBBB",
         "positions_mm": [
             "65",
@@ -5594,12 +5576,10 @@
         "product_code": "722410177500",
         "colors": [
             "W",
-            "B",
-            "G",
-            "W"
+            "B"
         ],
-        "pattern_name": "WBGW",
-        "pattern_name_official": "W:B",
+        "pattern_name": "WB",
+        "pattern_name_official": "WB",
         "positions_mm": [
             "35",
             "35"
@@ -5610,12 +5590,10 @@
         "product_code": "722410176700",
         "colors": [
             "R",
-            "B",
-            "A",
-            "L"
+            "B"
         ],
-        "pattern_name": "RBAL",
-        "pattern_name_official": "R:B",
+        "pattern_name": "RB",
+        "pattern_name_official": "RB",
         "positions_mm": [
             "35",
             "35"
@@ -5644,11 +5622,9 @@
         "product_code": "822410234500",
         "colors": [
             "B",
-            "A",
-            "W",
             "A"
         ],
-        "pattern_name": "BAWA",
+        "pattern_name": "BA",
         "pattern_name_official": "BA",
         "positions_mm": [
             "30",
@@ -5662,9 +5638,10 @@
             "G",
             "L",
             "O",
-            "R"
+            "R",
+            "B"
         ],
-        "pattern_name": "GLOR",
+        "pattern_name": "GLORB",
         "pattern_name_official": "GLORB",
         "positions_mm": [
             "10",
@@ -5698,10 +5675,9 @@
         "colors": [
             "Y",
             "L",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "YLBA",
+        "pattern_name": "YLB",
         "pattern_name_official": "YLB",
         "positions_mm": [
             "40",
@@ -5734,9 +5710,10 @@
             "G",
             "O",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "GOBB",
+        "pattern_name": "GOBBB",
         "pattern_name_official": "GOBBB",
         "positions_mm": [
             "20",
@@ -5752,10 +5729,9 @@
         "colors": [
             "B",
             "G",
-            "W",
-            "L"
+            "W"
         ],
-        "pattern_name": "BGWL",
+        "pattern_name": "BGW",
         "pattern_name_official": "BGW",
         "positions_mm": [
             "35",
@@ -5985,10 +5961,9 @@
         "colors": [
             "G",
             "Y",
-            "O",
-            "B"
+            "O"
         ],
-        "pattern_name": "GYOB",
+        "pattern_name": "GYO",
         "pattern_name_official": "GYO",
         "positions_mm": [
             "10",
@@ -6019,12 +5994,10 @@
         "product_code": "922410582700",
         "colors": [
             "W",
-            "W",
-            "G",
             "W"
         ],
-        "pattern_name": "WWGW",
-        "pattern_name_official": "W:W",
+        "pattern_name": "WW",
+        "pattern_name_official": "WW",
         "positions_mm": [
             "35",
             "35"
@@ -6087,11 +6060,9 @@
         "product_code": "922410225100",
         "colors": [
             "W",
-            "O",
-            "A",
-            "A"
+            "O"
         ],
-        "pattern_name": "WOAA",
+        "pattern_name": "WO",
         "pattern_name_official": "WO",
         "positions_mm": [
             "20",
@@ -6122,10 +6093,9 @@
         "colors": [
             "A",
             "O",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "AORY",
+        "pattern_name": "AOR",
         "pattern_name_official": "AOR",
         "positions_mm": [
             "30",
@@ -6409,10 +6379,9 @@
         "colors": [
             "B",
             "A",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "BAGA",
+        "pattern_name": "BAG",
         "pattern_name_official": "BAG",
         "positions_mm": [
             "25",
@@ -6445,9 +6414,10 @@
             "G",
             "A",
             "O",
-            "L"
+            "L",
+            "A"
         ],
-        "pattern_name": "GAOL",
+        "pattern_name": "GAOLA",
         "pattern_name_official": "GAOLA",
         "positions_mm": [
             "05",
@@ -6531,10 +6501,9 @@
         "colors": [
             "B",
             "R",
-            "A",
-            "O"
+            "A"
         ],
-        "pattern_name": "BRAO",
+        "pattern_name": "BRA",
         "pattern_name_official": "BRA",
         "positions_mm": [
             "30",
@@ -6548,10 +6517,9 @@
         "colors": [
             "B",
             "R",
-            "G",
-            "O"
+            "G"
         ],
-        "pattern_name": "BRGO",
+        "pattern_name": "BRG",
         "pattern_name_official": "BRG",
         "positions_mm": [
             "30",
@@ -6566,9 +6534,10 @@
             "Y",
             "R",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "YRWG",
+        "pattern_name": "YRWGB",
         "pattern_name_official": "YRWGB",
         "positions_mm": [
             "15",
@@ -6603,9 +6572,10 @@
             "W",
             "A",
             "A",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "WAAG",
+        "pattern_name": "WAAGB",
         "pattern_name_official": "WAAGB",
         "positions_mm": [
             "15",
@@ -6639,10 +6609,9 @@
         "colors": [
             "Y",
             "O",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "YOBL",
+        "pattern_name": "YOB",
         "pattern_name_official": "YOB",
         "positions_mm": [
             "10",
@@ -6655,11 +6624,11 @@
         "product_code": "922410594000",
         "colors": [
             "L",
-            "O",
-            "R",
+            "A",
+            "Y",
             "A"
         ],
-        "pattern_name": "LORA",
+        "pattern_name": "LAYA",
         "pattern_name_official": "LAYA",
         "positions_mm": [
             "35",
@@ -6672,12 +6641,12 @@
         "recipe_id": "66183",
         "product_code": "722410191500",
         "colors": [
-            "W",
-            "W",
+            "Y",
+            "R",
             "A",
-            "R"
+            "B"
         ],
-        "pattern_name": "WWAR",
+        "pattern_name": "YRAB",
         "pattern_name_official": "YRAB",
         "positions_mm": [
             "15",
@@ -6710,10 +6679,10 @@
         "colors": [
             "Y",
             "L",
-            "Y",
+            "G",
             "B"
         ],
-        "pattern_name": "YLYB",
+        "pattern_name": "YLGB",
         "pattern_name_official": "YLGB",
         "positions_mm": [
             "40",
@@ -6762,10 +6731,9 @@
         "colors": [
             "B",
             "B",
-            "O",
-            "B"
+            "O"
         ],
-        "pattern_name": "BBOB",
+        "pattern_name": "BBO",
         "pattern_name_official": "BBO",
         "positions_mm": [
             "40",
@@ -6815,10 +6783,9 @@
         "colors": [
             "W",
             "L",
-            "B",
             "B"
         ],
-        "pattern_name": "WLBB",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "20",
@@ -6832,10 +6799,9 @@
         "colors": [
             "W",
             "A",
-            "B",
             "B"
         ],
-        "pattern_name": "WABB",
+        "pattern_name": "WAB",
         "pattern_name_official": "WAB",
         "positions_mm": [
             "20",
@@ -6885,10 +6851,9 @@
         "colors": [
             "B",
             "B",
-            "W",
-            "B"
+            "W"
         ],
-        "pattern_name": "BBWB",
+        "pattern_name": "BBW",
         "pattern_name_official": "BBW",
         "positions_mm": [
             "40",
@@ -6903,9 +6868,10 @@
             "W",
             "Y",
             "L",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "WYLY",
+        "pattern_name": "WYLYB",
         "pattern_name_official": "WYLYB",
         "positions_mm": [
             "15",
@@ -6958,9 +6924,10 @@
             "G",
             "Y",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "GYGY",
+        "pattern_name": "GYGYB",
         "pattern_name_official": "GYGYB",
         "positions_mm": [
             "05",
@@ -7168,10 +7135,9 @@
         "colors": [
             "B",
             "W",
-            "W",
             "W"
         ],
-        "pattern_name": "BWWW",
+        "pattern_name": "BWW",
         "pattern_name_official": "BWW",
         "positions_mm": [
             "10",
@@ -7362,11 +7328,9 @@
         "product_code": "822410247300",
         "colors": [
             "B",
-            "L",
-            "G",
             "L"
         ],
-        "pattern_name": "BLGL",
+        "pattern_name": "BL",
         "pattern_name_official": "BL",
         "positions_mm": [
             "40",
@@ -7398,9 +7362,10 @@
             "R",
             "G",
             "A",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "RGAG",
+        "pattern_name": "RGAGB",
         "pattern_name_official": "RGAGB",
         "positions_mm": [
             "15",
@@ -7415,12 +7380,10 @@
         "product_code": "922410582300",
         "colors": [
             "R",
-            "R",
-            "A",
-            "L"
+            "R"
         ],
-        "pattern_name": "RRAL",
-        "pattern_name_official": "R:R",
+        "pattern_name": "RR",
+        "pattern_name_official": "RR",
         "positions_mm": [
             "35",
             "35"
@@ -7432,10 +7395,9 @@
         "colors": [
             "W",
             "G",
-            "W",
-            "Y"
+            "W"
         ],
-        "pattern_name": "WGWY",
+        "pattern_name": "WGW",
         "pattern_name_official": "WGW",
         "positions_mm": [
             "15",
@@ -7573,10 +7535,9 @@
         "colors": [
             "B",
             "B",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "BBAY",
+        "pattern_name": "BBA",
         "pattern_name_official": "BBA",
         "positions_mm": [
             "35",
@@ -7627,9 +7588,10 @@
             "G",
             "A",
             "O",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "GAOL",
+        "pattern_name": "GAOLB",
         "pattern_name_official": "GAOLB",
         "positions_mm": [
             "05",
@@ -7649,7 +7611,7 @@
             "Y"
         ],
         "pattern_name": "OROY",
-        "pattern_name_official": "OROY Nut descentrat",
+        "pattern_name_official": "OROYNUTDESCENTRAT",
         "positions_mm": [
             "65",
             "70",
@@ -7664,9 +7626,10 @@
             "R",
             "G",
             "A",
+            "B",
             "B"
         ],
-        "pattern_name": "RGAB",
+        "pattern_name": "RGABB",
         "pattern_name_official": "RGABB",
         "positions_mm": [
             "15",
@@ -7683,9 +7646,10 @@
             "Y",
             "Y",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "YYRG",
+        "pattern_name": "YYRGB",
         "pattern_name_official": "YYRGB",
         "positions_mm": [
             "20",
@@ -7702,9 +7666,10 @@
             "O",
             "R",
             "W",
-            "R"
+            "R",
+            "B"
         ],
-        "pattern_name": "ORWR",
+        "pattern_name": "ORWRB",
         "pattern_name_official": "ORWRB",
         "positions_mm": [
             "20",
@@ -7721,9 +7686,10 @@
             "A",
             "L",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "ALRG",
+        "pattern_name": "ALRGB",
         "pattern_name_official": "ALRGB",
         "positions_mm": [
             "25",
@@ -7861,10 +7827,9 @@
         "colors": [
             "B",
             "G",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "BGAY",
+        "pattern_name": "BGA",
         "pattern_name_official": "BGA",
         "positions_mm": [
             "20",
@@ -7951,9 +7916,9 @@
             "W",
             "Y",
             "G",
-            "L"
+            "B"
         ],
-        "pattern_name": "WYGL",
+        "pattern_name": "WYGB",
         "pattern_name_official": "WYGB",
         "positions_mm": [
             "20",
@@ -8039,9 +8004,10 @@
             "O",
             "G",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "OGWB",
+        "pattern_name": "OGWBB",
         "pattern_name_official": "OGWBB",
         "positions_mm": [
             "15",
@@ -8381,10 +8347,9 @@
         "colors": [
             "Y",
             "B",
-            "B",
             "B"
         ],
-        "pattern_name": "YBBB",
+        "pattern_name": "YBB",
         "pattern_name_official": "YBB",
         "positions_mm": [
             "20",
@@ -8470,10 +8435,9 @@
         "colors": [
             "L",
             "Y",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "LYBW",
+        "pattern_name": "LYB",
         "pattern_name_official": "LYB",
         "positions_mm": [
             "25",
@@ -8487,10 +8451,9 @@
         "colors": [
             "A",
             "W",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "AWBA",
+        "pattern_name": "AWB",
         "pattern_name_official": "AWB",
         "positions_mm": [
             "10",
@@ -8595,9 +8558,10 @@
             "L",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "LARG",
+        "pattern_name": "LARGB",
         "pattern_name_official": "LARGB",
         "positions_mm": [
             "10",
@@ -8666,9 +8630,10 @@
             "A",
             "G",
             "L",
+            "B",
             "B"
         ],
-        "pattern_name": "AGLB",
+        "pattern_name": "AGLBB",
         "pattern_name_official": "AGLBB",
         "positions_mm": [
             "35",
@@ -8736,10 +8701,9 @@
         "colors": [
             "B",
             "Y",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "BYGB",
+        "pattern_name": "BYG",
         "pattern_name_official": "BYG",
         "positions_mm": [
             "20",
@@ -8843,10 +8807,9 @@
         "colors": [
             "B",
             "A",
-            "R",
-            "L"
+            "R"
         ],
-        "pattern_name": "BARL",
+        "pattern_name": "BAR",
         "pattern_name_official": "BAR",
         "positions_mm": [
             "35",
@@ -8966,10 +8929,9 @@
         "colors": [
             "B",
             "R",
-            "O",
-            "W"
+            "O"
         ],
-        "pattern_name": "BROW",
+        "pattern_name": "BRO",
         "pattern_name_official": "BRO",
         "positions_mm": [
             "15",
@@ -9107,10 +9069,9 @@
         "colors": [
             "B",
             "A",
-            "G",
-            "L"
+            "G"
         ],
-        "pattern_name": "BAGL",
+        "pattern_name": "BAG",
         "pattern_name_official": "BAG",
         "positions_mm": [
             "30",
@@ -9373,9 +9334,10 @@
             "B",
             "B",
             "L",
-            "Y"
+            "Y",
+            "O"
         ],
-        "pattern_name": "BBLY",
+        "pattern_name": "BBLYO",
         "pattern_name_official": "BBLYO",
         "positions_mm": [
             "55",
@@ -9392,9 +9354,10 @@
             "B",
             "B",
             "L",
-            "Y"
+            "Y",
+            "G"
         ],
-        "pattern_name": "BBLY",
+        "pattern_name": "BBLYG",
         "pattern_name_official": "BBLYG",
         "positions_mm": [
             "55",
@@ -9429,9 +9392,10 @@
             "G",
             "O",
             "W",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "GOWW",
+        "pattern_name": "GOWWB",
         "pattern_name_official": "GOWWB",
         "positions_mm": [
             "35",
@@ -9448,9 +9412,10 @@
             "G",
             "O",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "GOWG",
+        "pattern_name": "GOWGB",
         "pattern_name_official": "GOWGB",
         "positions_mm": [
             "35",
@@ -9629,9 +9594,10 @@
             "O",
             "R",
             "A",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "ORAW",
+        "pattern_name": "ORAWB",
         "pattern_name_official": "ORAWB",
         "positions_mm": [
             "20",
@@ -9683,10 +9649,9 @@
         "colors": [
             "B",
             "O",
-            "Y",
-            "O"
+            "Y"
         ],
-        "pattern_name": "BOYO",
+        "pattern_name": "BOY",
         "pattern_name_official": "BOY",
         "positions_mm": [
             "30",
@@ -9701,9 +9666,10 @@
             "A",
             "A",
             "Y",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AAYG",
+        "pattern_name": "AAYGB",
         "pattern_name_official": "AAYGB",
         "positions_mm": [
             "25",
@@ -9755,10 +9721,9 @@
         "colors": [
             "B",
             "L",
-            "A",
             "A"
         ],
-        "pattern_name": "BLAA",
+        "pattern_name": "BLA",
         "pattern_name_official": "BLA",
         "positions_mm": [
             "25",
@@ -9772,10 +9737,9 @@
         "colors": [
             "B",
             "L",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "BLGA",
+        "pattern_name": "BLG",
         "pattern_name_official": "BLG",
         "positions_mm": [
             "25",
@@ -9823,10 +9787,9 @@
         "colors": [
             "B",
             "Y",
-            "Y",
-            "W"
+            "Y"
         ],
-        "pattern_name": "BYYW",
+        "pattern_name": "BYY",
         "pattern_name_official": "BYY",
         "positions_mm": [
             "15",
@@ -9858,10 +9821,9 @@
         "colors": [
             "A",
             "Y",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "AYBY",
+        "pattern_name": "AYB",
         "pattern_name_official": "AYB",
         "positions_mm": [
             "10",
@@ -9943,10 +9905,9 @@
         "colors": [
             "B",
             "Y",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "BYOY",
+        "pattern_name": "BYO",
         "pattern_name_official": "BYO",
         "positions_mm": [
             "30",
@@ -9960,10 +9921,9 @@
         "colors": [
             "A",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "ALBY",
+        "pattern_name": "ALB",
         "pattern_name_official": "ALB",
         "positions_mm": [
             "10",
@@ -9976,10 +9936,9 @@
         "product_code": "722410227000",
         "colors": [
             "L",
-            "B",
             "B"
         ],
-        "pattern_name": "LBB",
+        "pattern_name": "LB",
         "pattern_name_official": "LB",
         "positions_mm": [
             "15",
@@ -10028,10 +9987,9 @@
         "colors": [
             "A",
             "G",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "AGGY",
+        "pattern_name": "AGG",
         "pattern_name_official": "AGG",
         "positions_mm": [
             "15",
@@ -10045,10 +10003,9 @@
         "colors": [
             "Y",
             "L",
-            "W",
-            "G"
+            "W"
         ],
-        "pattern_name": "YLWG",
+        "pattern_name": "YLW",
         "pattern_name_official": "YLW",
         "positions_mm": [
             "30",
@@ -10099,9 +10056,10 @@
             "R",
             "O",
             "L",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "ROLO",
+        "pattern_name": "ROLOB",
         "pattern_name_official": "ROLOB",
         "positions_mm": [
             "20",
@@ -10118,9 +10076,10 @@
             "R",
             "O",
             "B",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "ROBO",
+        "pattern_name": "ROBOB",
         "pattern_name_official": "ROBOB",
         "positions_mm": [
             "20",
@@ -10137,9 +10096,10 @@
             "O",
             "R",
             "W",
-            "Y"
+            "Y",
+            "L"
         ],
-        "pattern_name": "ORWY",
+        "pattern_name": "ORWYL",
         "pattern_name_official": "ORWYL",
         "positions_mm": [
             "20",
@@ -10244,11 +10204,9 @@
         "product_code": "922410614200",
         "colors": [
             "L",
-            "G",
-            "R",
-            "A"
+            "G"
         ],
-        "pattern_name": "LGRA",
+        "pattern_name": "LG",
         "pattern_name_official": "LG",
         "positions_mm": [
             "15",
@@ -10329,10 +10287,9 @@
         "colors": [
             "Y",
             "O",
-            "G",
-            "L"
+            "G"
         ],
-        "pattern_name": "YOGL",
+        "pattern_name": "YOG",
         "pattern_name_official": "YOG",
         "positions_mm": [
             "10",
@@ -10347,9 +10304,10 @@
             "W",
             "Y",
             "R",
-            "Y"
+            "Y",
+            "L"
         ],
-        "pattern_name": "WYRY",
+        "pattern_name": "WYRYL",
         "pattern_name_official": "WYRYL",
         "positions_mm": [
             "20",
@@ -10419,10 +10377,9 @@
         "colors": [
             "A",
             "R",
-            "W",
-            "L"
+            "W"
         ],
-        "pattern_name": "ARWL",
+        "pattern_name": "ARW",
         "pattern_name_official": "ARW",
         "positions_mm": [
             "30",
@@ -10490,10 +10447,9 @@
         "colors": [
             "L",
             "A",
-            "G",
-            "O"
+            "G"
         ],
-        "pattern_name": "LAGO",
+        "pattern_name": "LAG",
         "pattern_name_official": "LAG",
         "positions_mm": [
             "20",
@@ -10507,10 +10463,9 @@
         "colors": [
             "A",
             "O",
-            "R",
-            "L"
+            "R"
         ],
-        "pattern_name": "AORL",
+        "pattern_name": "AOR",
         "pattern_name_official": "AOR",
         "positions_mm": [
             "30",
@@ -10560,10 +10515,9 @@
         "colors": [
             "R",
             "A",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "RARY",
+        "pattern_name": "RAR",
         "pattern_name_official": "RAR",
         "positions_mm": [
             "15",
@@ -10662,9 +10616,10 @@
             "G",
             "L",
             "O",
-            "R"
+            "R",
+            "Y"
         ],
-        "pattern_name": "GLOR",
+        "pattern_name": "GLORY",
         "pattern_name_official": "GLORY",
         "positions_mm": [
             "10",
@@ -10766,10 +10721,9 @@
         "colors": [
             "W",
             "R",
-            "Y",
-            "O"
+            "Y"
         ],
-        "pattern_name": "WRYO",
+        "pattern_name": "WRY",
         "pattern_name_official": "WRY",
         "positions_mm": [
             "20",
@@ -10850,9 +10804,10 @@
             "L",
             "A",
             "R",
-            "G"
+            "G",
+            "A"
         ],
-        "pattern_name": "LARG",
+        "pattern_name": "LARGA",
         "pattern_name_official": "LARGA",
         "positions_mm": [
             "10",
@@ -11048,10 +11003,9 @@
         "colors": [
             "W",
             "L",
-            "W",
             "W"
         ],
-        "pattern_name": "WLWW",
+        "pattern_name": "WLW",
         "pattern_name_official": "WLW",
         "positions_mm": [
             "20",
@@ -11084,9 +11038,10 @@
             "W",
             "L",
             "A",
-            "G"
+            "G",
+            "A"
         ],
-        "pattern_name": "WLAG",
+        "pattern_name": "WLAGA",
         "pattern_name_official": "WLAGA",
         "positions_mm": [
             "20",
@@ -11174,10 +11129,9 @@
         "colors": [
             "G",
             "A",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "GALB",
+        "pattern_name": "GAL",
         "pattern_name_official": "GAL",
         "positions_mm": [
             "5",
@@ -11208,9 +11162,10 @@
             "L",
             "A",
             "W",
-            "A"
+            "A",
+            "L"
         ],
-        "pattern_name": "LAWA",
+        "pattern_name": "LAWAL",
         "pattern_name_official": "LAWAL",
         "positions_mm": [
             "35",
@@ -11295,9 +11250,10 @@
             "W",
             "A",
             "L",
+            "Y",
             "Y"
         ],
-        "pattern_name": "WALY",
+        "pattern_name": "WALYY",
         "pattern_name_official": "WALYY",
         "positions_mm": [
             "25",
@@ -11314,9 +11270,10 @@
             "W",
             "A",
             "A",
+            "L",
             "L"
         ],
-        "pattern_name": "WAAL",
+        "pattern_name": "WAALL",
         "pattern_name_official": "WAALL",
         "positions_mm": [
             "25",
@@ -11366,10 +11323,9 @@
         "colors": [
             "L",
             "A",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "LABW",
+        "pattern_name": "LAB",
         "pattern_name_official": "LAB",
         "positions_mm": [
             "30",
@@ -11383,10 +11339,9 @@
         "colors": [
             "R",
             "R",
-            "O",
             "O"
         ],
-        "pattern_name": "RROO",
+        "pattern_name": "RRO",
         "pattern_name_official": "RRO",
         "positions_mm": [
             "10",
@@ -11401,9 +11356,10 @@
             "A",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AARG",
+        "pattern_name": "AARGB",
         "pattern_name_official": "AARGB",
         "positions_mm": [
             "20",
@@ -11527,10 +11483,9 @@
         "colors": [
             "B",
             "G",
-            "W",
-            "B"
+            "W"
         ],
-        "pattern_name": "BGWB",
+        "pattern_name": "BGW",
         "pattern_name_official": "BGW",
         "positions_mm": [
             "35",
@@ -11562,10 +11517,9 @@
         "colors": [
             "L",
             "B",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "LBBY",
+        "pattern_name": "LBB",
         "pattern_name_official": "LBB",
         "positions_mm": [
             "10",
@@ -11579,10 +11533,9 @@
         "colors": [
             "Y",
             "R",
-            "Y",
-            "G"
+            "Y"
         ],
-        "pattern_name": "YRYG",
+        "pattern_name": "YRY",
         "pattern_name_official": "YRY",
         "positions_mm": [
             "30",
@@ -11844,11 +11797,10 @@
         "colors": [
             "W",
             "A",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "WARB",
-        "pattern_name_official": "WAR",
+        "pattern_name": "WAR2",
+        "pattern_name_official": "WAR2",
         "positions_mm": [
             "20",
             "50",
@@ -11931,10 +11883,9 @@
         "colors": [
             "O",
             "O",
-            "W",
-            "A"
+            "W"
         ],
-        "pattern_name": "OOWA",
+        "pattern_name": "OOW",
         "pattern_name_official": "OOW",
         "positions_mm": [
             "25",
@@ -11948,10 +11899,9 @@
         "colors": [
             "B",
             "L",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "BLRY",
+        "pattern_name": "BLR",
         "pattern_name_official": "BLR",
         "positions_mm": [
             "10",
@@ -11981,10 +11931,9 @@
         "colors": [
             "B",
             "L",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "BLAY",
+        "pattern_name": "BLA",
         "pattern_name_official": "BLA",
         "positions_mm": [
             "10",
@@ -12103,9 +12052,10 @@
             "W",
             "Y",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "WYRY",
+        "pattern_name": "WYRYB",
         "pattern_name_official": "WYRYB",
         "positions_mm": [
             "20",
@@ -12139,10 +12089,9 @@
         "colors": [
             "G",
             "L",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "GLGY",
+        "pattern_name": "GLG",
         "pattern_name_official": "GLG",
         "positions_mm": [
             "20",
@@ -12156,10 +12105,9 @@
         "colors": [
             "L",
             "O",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "LOYB",
+        "pattern_name": "LOY",
         "pattern_name_official": "LOYB",
         "positions_mm": [
             "15",
@@ -12210,9 +12158,10 @@
             "A",
             "G",
             "W",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "AGWL",
+        "pattern_name": "AGWLB",
         "pattern_name_official": "AGWLB",
         "positions_mm": [
             "20",
@@ -12228,10 +12177,9 @@
         "colors": [
             "Y",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "YLBY",
+        "pattern_name": "YLB",
         "pattern_name_official": "YLB",
         "positions_mm": [
             "10",
@@ -12367,10 +12315,9 @@
         "colors": [
             "W",
             "L",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "WLBW",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "30",
@@ -12385,9 +12332,10 @@
             "A",
             "L",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ALRY",
+        "pattern_name": "ALRYB",
         "pattern_name_official": "ALRYB",
         "positions_mm": [
             "35",
@@ -12422,9 +12370,10 @@
             "W",
             "Y",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "WYRB",
+        "pattern_name": "WYRBB",
         "pattern_name_official": "WYRBB",
         "positions_mm": [
             "10",
@@ -12458,10 +12407,9 @@
         "colors": [
             "G",
             "R",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "GRBY",
+        "pattern_name": "GRB",
         "pattern_name_official": "GRB",
         "positions_mm": [
             "20",
@@ -12511,10 +12459,9 @@
         "colors": [
             "Y",
             "R",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "YRBL",
+        "pattern_name": "YRB",
         "pattern_name_official": "YRB",
         "positions_mm": [
             "35",
@@ -12528,10 +12475,9 @@
         "colors": [
             "Y",
             "G",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "YGBL",
+        "pattern_name": "YGB",
         "pattern_name_official": "YGB",
         "positions_mm": [
             "35",
@@ -12545,10 +12491,9 @@
         "colors": [
             "B",
             "B",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "BBRB",
+        "pattern_name": "BBR",
         "pattern_name_official": "BBR",
         "positions_mm": [
             "45",
@@ -12634,10 +12579,9 @@
         "colors": [
             "R",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "RLBY",
+        "pattern_name": "RLB",
         "pattern_name_official": "RLB",
         "positions_mm": [
             "30",
@@ -12652,9 +12596,10 @@
             "W",
             "Y",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "WYBB",
+        "pattern_name": "WYBBB",
         "pattern_name_official": "WYBBB",
         "positions_mm": [
             "20",
@@ -12742,10 +12687,9 @@
         "colors": [
             "R",
             "O",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "ROBY",
+        "pattern_name": "ROB",
         "pattern_name_official": "ROB",
         "positions_mm": [
             "25",
@@ -12759,10 +12703,9 @@
         "colors": [
             "G",
             "B",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "GBBL",
+        "pattern_name": "GBB",
         "pattern_name_official": "GBB",
         "positions_mm": [
             "25",
@@ -12776,10 +12719,9 @@
         "colors": [
             "R",
             "B",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "RBBL",
+        "pattern_name": "RBB",
         "pattern_name_official": "RBB",
         "positions_mm": [
             "25",
@@ -12884,9 +12826,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAR",
         "pattern_name_official": "AWYAR",
         "positions_mm": [
             "35",
@@ -12902,10 +12845,9 @@
         "colors": [
             "W",
             "G",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "WGAY",
+        "pattern_name": "WGA",
         "pattern_name_official": "WGA",
         "positions_mm": [
             "10",
@@ -13026,9 +12968,10 @@
             "O",
             "R",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ORWY",
+        "pattern_name": "ORWYB",
         "pattern_name_official": "ORWYB",
         "positions_mm": [
             "20",
@@ -13045,9 +12988,10 @@
             "G",
             "O",
             "L",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "GOLO",
+        "pattern_name": "GOLOB",
         "pattern_name_official": "GOLOB",
         "positions_mm": [
             "20",
@@ -13081,10 +13025,9 @@
         "colors": [
             "Y",
             "Y",
-            "A",
-            "B"
+            "A"
         ],
-        "pattern_name": "YYAB",
+        "pattern_name": "YYA",
         "pattern_name_official": "YYA",
         "positions_mm": [
             "15",
@@ -13187,9 +13130,10 @@
             "L",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "LARG",
+        "pattern_name": "LARGB",
         "pattern_name_official": "LARGB",
         "positions_mm": [
             "10",
@@ -13223,10 +13167,9 @@
         "colors": [
             "L",
             "L",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "LLBG",
+        "pattern_name": "LLB",
         "pattern_name_official": "LLB",
         "positions_mm": [
             "10",
@@ -13294,10 +13237,9 @@
         "colors": [
             "W",
             "L",
-            "Y",
-            "W"
+            "Y"
         ],
-        "pattern_name": "WLYW",
+        "pattern_name": "WLY",
         "pattern_name_official": "WLY",
         "positions_mm": [
             "15",
@@ -13311,10 +13253,9 @@
         "colors": [
             "B",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "BLBY",
+        "pattern_name": "BLB",
         "pattern_name_official": "BLB",
         "positions_mm": [
             "10",
@@ -13328,10 +13269,9 @@
         "colors": [
             "Y",
             "L",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "YLBA",
+        "pattern_name": "YLB",
         "pattern_name_official": "YLB",
         "positions_mm": [
             "10",
@@ -13417,10 +13357,9 @@
         "colors": [
             "O",
             "G",
-            "L",
-            "A"
+            "L"
         ],
-        "pattern_name": "OGLA",
+        "pattern_name": "OGL",
         "pattern_name_official": "OGL",
         "positions_mm": [
             "15",
@@ -13435,9 +13374,10 @@
             "B",
             "O",
             "A",
-            "L"
+            "L",
+            "A"
         ],
-        "pattern_name": "BOAL",
+        "pattern_name": "BOALA",
         "pattern_name_official": "BOALA",
         "positions_mm": [
             "40",
@@ -13454,9 +13394,10 @@
             "B",
             "L",
             "A",
-            "L"
+            "L",
+            "A"
         ],
-        "pattern_name": "BLAL",
+        "pattern_name": "BLALA",
         "pattern_name_official": "BLALA",
         "positions_mm": [
             "40",
@@ -13562,10 +13503,9 @@
         "colors": [
             "B",
             "W",
-            "W",
-            "O"
+            "W"
         ],
-        "pattern_name": "BWWO",
+        "pattern_name": "BWW",
         "pattern_name_official": "BWW",
         "positions_mm": [
             "40",
@@ -13633,10 +13573,9 @@
         "colors": [
             "B",
             "G",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "BGRY",
+        "pattern_name": "BGR",
         "pattern_name_official": "BGR",
         "positions_mm": [
             "25",
@@ -13651,9 +13590,10 @@
             "L",
             "Y",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "LYGB",
+        "pattern_name": "LYGBB",
         "pattern_name_official": "LYGBB",
         "positions_mm": [
             "55",
@@ -13668,11 +13608,9 @@
         "product_code": "822410301200",
         "colors": [
             "B",
-            "L",
-            "W",
-            "A"
+            "L"
         ],
-        "pattern_name": "BLWA",
+        "pattern_name": "BL",
         "pattern_name_official": "BL",
         "positions_mm": [
             "70",
@@ -13685,10 +13623,9 @@
         "colors": [
             "B",
             "A",
-            "L",
             "L"
         ],
-        "pattern_name": "BALL",
+        "pattern_name": "BAL",
         "pattern_name_official": "BAL",
         "positions_mm": [
             "35",
@@ -13720,10 +13657,9 @@
         "colors": [
             "W",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WLBY",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "30",
@@ -13791,10 +13727,9 @@
         "colors": [
             "B",
             "O",
-            "L",
-            "A"
+            "L"
         ],
-        "pattern_name": "BOLA",
+        "pattern_name": "BOL",
         "pattern_name_official": "BOL",
         "positions_mm": [
             "30",
@@ -13808,10 +13743,9 @@
         "colors": [
             "B",
             "O",
-            "Y",
-            "A"
+            "Y"
         ],
-        "pattern_name": "BOYA",
+        "pattern_name": "BOY",
         "pattern_name_official": "BOY",
         "positions_mm": [
             "30",
@@ -13826,9 +13760,10 @@
             "O",
             "R",
             "L",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ORLA",
+        "pattern_name": "ORLAB",
         "pattern_name_official": "ORLAB",
         "positions_mm": [
             "30",
@@ -13935,9 +13870,10 @@
             "L",
             "O",
             "W",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "LOWA",
+        "pattern_name": "LOWAR",
         "pattern_name_official": "LOWAR",
         "positions_mm": [
             "45",
@@ -13990,9 +13926,10 @@
             "O",
             "R",
             "L",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ORLA",
+        "pattern_name": "ORLAB",
         "pattern_name_official": "ORLAB",
         "positions_mm": [
             "30",
@@ -14008,10 +13945,9 @@
         "colors": [
             "W",
             "G",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "WGGY",
+        "pattern_name": "WGG",
         "pattern_name_official": "WGG",
         "positions_mm": [
             "10",
@@ -14025,10 +13961,9 @@
         "colors": [
             "O",
             "Y",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "OYBR",
+        "pattern_name": "OYB",
         "pattern_name_official": "OYB",
         "positions_mm": [
             "20",
@@ -14115,9 +14050,10 @@
             "L",
             "O",
             "Y",
-            "A"
+            "A",
+            "L"
         ],
-        "pattern_name": "LOYA",
+        "pattern_name": "LOYAL",
         "pattern_name_official": "LOYAL",
         "positions_mm": [
             "30",
@@ -14134,9 +14070,10 @@
             "A",
             "O",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AOWB",
+        "pattern_name": "AOWBB",
         "pattern_name_official": "AOWBB",
         "positions_mm": [
             "20",
@@ -14152,10 +14089,9 @@
         "colors": [
             "R",
             "R",
-            "B",
             "B"
         ],
-        "pattern_name": "RRBB",
+        "pattern_name": "RRB",
         "pattern_name_official": "RRB",
         "positions_mm": [
             "10",
@@ -14169,10 +14105,9 @@
         "colors": [
             "G",
             "G",
-            "B",
             "B"
         ],
-        "pattern_name": "GGBB",
+        "pattern_name": "GGB",
         "pattern_name_official": "GGB",
         "positions_mm": [
             "45",
@@ -14254,10 +14189,9 @@
         "colors": [
             "B",
             "O",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "BOGA",
+        "pattern_name": "BOG",
         "pattern_name_official": "BOG",
         "positions_mm": [
             "30",
@@ -14271,10 +14205,9 @@
         "colors": [
             "W",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WLBY",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "15",
@@ -14557,9 +14490,10 @@
             "O",
             "R",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "ORGB",
+        "pattern_name": "ORGBB",
         "pattern_name_official": "ORGBB",
         "positions_mm": [
             "20",
@@ -14673,10 +14607,9 @@
         "colors": [
             "L",
             "R",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "LRBA",
+        "pattern_name": "LRB",
         "pattern_name_official": "LRB",
         "positions_mm": [
             "30",
@@ -14708,10 +14641,9 @@
         "colors": [
             "B",
             "W",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "BWLB",
+        "pattern_name": "BWL",
         "pattern_name_official": "BWL",
         "positions_mm": [
             "35",
@@ -14725,10 +14657,9 @@
         "colors": [
             "B",
             "W",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "BWGB",
+        "pattern_name": "BWG",
         "pattern_name_official": "BWG",
         "positions_mm": [
             "35",
@@ -14742,10 +14673,9 @@
         "colors": [
             "B",
             "L",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "BLLB",
+        "pattern_name": "BLL",
         "pattern_name_official": "BLL",
         "positions_mm": [
             "40",
@@ -14759,10 +14689,9 @@
         "colors": [
             "B",
             "L",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "BLGB",
+        "pattern_name": "BLG",
         "pattern_name_official": "BLG",
         "positions_mm": [
             "40",
@@ -14794,10 +14723,9 @@
         "colors": [
             "B",
             "B",
-            "O",
             "O"
         ],
-        "pattern_name": "BBOO",
+        "pattern_name": "BBO",
         "pattern_name_official": "BBO",
         "positions_mm": [
             "30",
@@ -14811,10 +14739,9 @@
         "colors": [
             "B",
             "B",
-            "L",
-            "O"
+            "L"
         ],
-        "pattern_name": "BBLO",
+        "pattern_name": "BBL",
         "pattern_name_official": "BBL",
         "positions_mm": [
             "30",
@@ -14828,10 +14755,9 @@
         "colors": [
             "B",
             "B",
-            "W",
-            "O"
+            "W"
         ],
-        "pattern_name": "BBWO",
+        "pattern_name": "BBW",
         "pattern_name_official": "BBW",
         "positions_mm": [
             "30",
@@ -14863,10 +14789,9 @@
         "colors": [
             "G",
             "L",
-            "R",
-            "A"
+            "R"
         ],
-        "pattern_name": "GLRA",
+        "pattern_name": "GLR",
         "pattern_name_official": "GLR",
         "positions_mm": [
             "15",
@@ -14880,10 +14805,9 @@
         "colors": [
             "G",
             "W",
-            "L",
-            "O"
+            "L"
         ],
-        "pattern_name": "GWLO",
+        "pattern_name": "GWL",
         "pattern_name_official": "GWL",
         "positions_mm": [
             "15",
@@ -14915,10 +14839,9 @@
         "colors": [
             "A",
             "W",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "AWOY",
+        "pattern_name": "AWO",
         "pattern_name_official": "AWO",
         "positions_mm": [
             "15",
@@ -14999,11 +14922,9 @@
         "product_code": "822410308800",
         "colors": [
             "B",
-            "L",
-            "G",
-            "O"
+            "L"
         ],
-        "pattern_name": "BLGO",
+        "pattern_name": "BL",
         "pattern_name_official": "BL",
         "positions_mm": [
             "35",
@@ -15071,9 +14992,10 @@
             "A",
             "G",
             "R",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "AGRO",
+        "pattern_name": "AGROB",
         "pattern_name_official": "AGROB",
         "positions_mm": [
             "20",
@@ -15089,10 +15011,9 @@
         "colors": [
             "Y",
             "W",
-            "B",
             "B"
         ],
-        "pattern_name": "YWBB",
+        "pattern_name": "YWB",
         "pattern_name_official": "YWB",
         "positions_mm": [
             "45",
@@ -15341,9 +15262,10 @@
             "L",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "LARG",
+        "pattern_name": "LARGB",
         "pattern_name_official": "LARGB",
         "positions_mm": [
             "10",
@@ -15409,10 +15331,9 @@
         "colors": [
             "L",
             "W",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "LWBG",
+        "pattern_name": "LWB",
         "pattern_name_official": "LWB",
         "positions_mm": [
             "30",
@@ -15569,9 +15490,10 @@
             "G",
             "A",
             "O",
-            "R"
+            "R",
+            "B"
         ],
-        "pattern_name": "GAOR",
+        "pattern_name": "GAORB",
         "pattern_name_official": "GAORB",
         "positions_mm": [
             "35",
@@ -15639,10 +15561,9 @@
         "colors": [
             "R",
             "G",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "RGBL",
+        "pattern_name": "RGB",
         "pattern_name_official": "RGB",
         "positions_mm": [
             "35",
@@ -15656,10 +15577,9 @@
         "colors": [
             "G",
             "W",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "GWYB",
+        "pattern_name": "GWY",
         "pattern_name_official": "GWY",
         "positions_mm": [
             "40",
@@ -15709,10 +15629,9 @@
         "colors": [
             "Y",
             "O",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "YOBL",
+        "pattern_name": "YOB",
         "pattern_name_official": "YOB",
         "positions_mm": [
             "30",
@@ -15797,9 +15716,10 @@
             "G",
             "O",
             "L",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GOLA",
+        "pattern_name": "GOLAB",
         "pattern_name_official": "GOLAB",
         "positions_mm": [
             "20",
@@ -15852,9 +15772,10 @@
             "G",
             "O",
             "L",
+            "B",
             "B"
         ],
-        "pattern_name": "GOLB",
+        "pattern_name": "GOLBB",
         "pattern_name_official": "GOLBB",
         "positions_mm": [
             "20",
@@ -15960,10 +15881,9 @@
         "colors": [
             "Y",
             "O",
-            "B",
             "B"
         ],
-        "pattern_name": "YOBB",
+        "pattern_name": "YOB",
         "pattern_name_official": "YOB",
         "positions_mm": [
             "45",
@@ -15977,10 +15897,9 @@
         "colors": [
             "L",
             "A",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "LABG",
+        "pattern_name": "LAB",
         "pattern_name_official": "LAB",
         "positions_mm": [
             "30",
@@ -15994,10 +15913,9 @@
         "colors": [
             "B",
             "O",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "BOYB",
+        "pattern_name": "BOY",
         "pattern_name_official": "BOY",
         "positions_mm": [
             "20",
@@ -16083,10 +16001,9 @@
         "colors": [
             "R",
             "A",
-            "B",
             "B"
         ],
-        "pattern_name": "RABB",
+        "pattern_name": "RAB",
         "pattern_name_official": "RAB",
         "positions_mm": [
             "10",
@@ -16172,10 +16089,9 @@
         "colors": [
             "G",
             "Y",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "GYBG",
+        "pattern_name": "GYB",
         "pattern_name_official": "GYB",
         "positions_mm": [
             "30",
@@ -16189,10 +16105,9 @@
         "colors": [
             "Y",
             "Y",
-            "B",
             "B"
         ],
-        "pattern_name": "YYBB",
+        "pattern_name": "YYB",
         "pattern_name_official": "YYB",
         "positions_mm": [
             "10",
@@ -16205,11 +16120,9 @@
         "product_code": "722410274600",
         "colors": [
             "A",
-            "B",
-            "G",
             "B"
         ],
-        "pattern_name": "ABGB",
+        "pattern_name": "AB",
         "pattern_name_official": "AB",
         "positions_mm": [
             "25",
@@ -16384,10 +16297,9 @@
         "colors": [
             "B",
             "W",
-            "A",
-            "W"
+            "A"
         ],
-        "pattern_name": "BWAW",
+        "pattern_name": "BWA",
         "pattern_name_official": "BWA",
         "positions_mm": [
             "30",
@@ -16401,10 +16313,9 @@
         "colors": [
             "B",
             "W",
-            "O",
-            "W"
+            "O"
         ],
-        "pattern_name": "BWOW",
+        "pattern_name": "BWO",
         "pattern_name_official": "BWO",
         "positions_mm": [
             "30",
@@ -16454,10 +16365,9 @@
         "colors": [
             "A",
             "Y",
-            "B",
             "B"
         ],
-        "pattern_name": "AYBB",
+        "pattern_name": "AYB",
         "pattern_name_official": "AYB",
         "positions_mm": [
             "20",
@@ -16471,10 +16381,9 @@
         "colors": [
             "L",
             "R",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "LRRY",
+        "pattern_name": "LRR",
         "pattern_name_official": "LRR",
         "positions_mm": [
             "10",
@@ -16488,10 +16397,9 @@
         "colors": [
             "L",
             "R",
-            "Y",
             "Y"
         ],
-        "pattern_name": "LRYY",
+        "pattern_name": "LRY",
         "pattern_name_official": "LRY",
         "positions_mm": [
             "10",
@@ -16506,9 +16414,10 @@
             "W",
             "A",
             "A",
-            "L"
+            "L",
+            "G"
         ],
-        "pattern_name": "WAAL",
+        "pattern_name": "WAALG",
         "pattern_name_official": "WAALG",
         "positions_mm": [
             "30",
@@ -16560,10 +16469,9 @@
         "colors": [
             "L",
             "L",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "LLBY",
+        "pattern_name": "LLB",
         "pattern_name_official": "LLB",
         "positions_mm": [
             "10",
@@ -16632,9 +16540,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAR",
         "pattern_name_official": "AWYAR",
         "positions_mm": [
             "35",
@@ -16740,10 +16649,9 @@
         "colors": [
             "L",
             "L",
-            "Y",
-            "O"
+            "Y"
         ],
-        "pattern_name": "LLYO",
+        "pattern_name": "LLY",
         "pattern_name_official": "LLY",
         "positions_mm": [
             "20",
@@ -16758,9 +16666,10 @@
             "R",
             "G",
             "A",
-            "G"
+            "G",
+            "O"
         ],
-        "pattern_name": "RGAG",
+        "pattern_name": "RGAGO",
         "pattern_name_official": "RGAGO",
         "positions_mm": [
             "15",
@@ -16812,10 +16721,9 @@
         "colors": [
             "Y",
             "O",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "YOBG",
+        "pattern_name": "YOB",
         "pattern_name_official": "YOB",
         "positions_mm": [
             "20",
@@ -16863,10 +16771,9 @@
         "colors": [
             "B",
             "G",
-            "L",
-            "Y"
+            "L"
         ],
-        "pattern_name": "BGLY",
+        "pattern_name": "BGL",
         "pattern_name_official": "BGL",
         "positions_mm": [
             "05",
@@ -16935,9 +16842,10 @@
             "O",
             "R",
             "G",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ORGY",
+        "pattern_name": "ORGYB",
         "pattern_name_official": "ORGYB",
         "positions_mm": [
             "20",
@@ -16954,9 +16862,10 @@
             "O",
             "R",
             "G",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "ORGW",
+        "pattern_name": "ORGWB",
         "pattern_name_official": "ORGWB",
         "positions_mm": [
             "20",
@@ -16973,9 +16882,10 @@
             "G",
             "O",
             "L",
+            "B",
             "B"
         ],
-        "pattern_name": "GOLB",
+        "pattern_name": "GOLBB",
         "pattern_name_official": "GOLBB",
         "positions_mm": [
             "20",
@@ -17009,10 +16919,9 @@
         "colors": [
             "R",
             "B",
-            "B",
             "B"
         ],
-        "pattern_name": "RBBB",
+        "pattern_name": "RBB",
         "pattern_name_official": "RBB",
         "positions_mm": [
             "10",
@@ -17081,9 +16990,10 @@
             "G",
             "L",
             "O",
+            "B",
             "B"
         ],
-        "pattern_name": "GLOB",
+        "pattern_name": "GLOBB",
         "pattern_name_official": "GLOBB",
         "positions_mm": [
             "15",
@@ -17099,10 +17009,9 @@
         "colors": [
             "B",
             "A",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "BARY",
+        "pattern_name": "BAR",
         "pattern_name_official": "BAR",
         "positions_mm": [
             "20",
@@ -17116,10 +17025,9 @@
         "colors": [
             "L",
             "L",
-            "R",
-            "A"
+            "R"
         ],
-        "pattern_name": "LLRA",
+        "pattern_name": "LLR",
         "pattern_name_official": "LLR",
         "positions_mm": [
             "15",
@@ -17133,10 +17041,9 @@
         "colors": [
             "L",
             "L",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "LLGA",
+        "pattern_name": "LLG",
         "pattern_name_official": "LLG",
         "positions_mm": [
             "15",
@@ -17204,10 +17111,9 @@
         "colors": [
             "G",
             "A",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "GABG",
+        "pattern_name": "GAB",
         "pattern_name_official": "GAB",
         "positions_mm": [
             "30",
@@ -17275,10 +17181,9 @@
         "colors": [
             "Y",
             "B",
-            "B",
-            "L"
+            "B"
         ],
-        "pattern_name": "YBBL",
+        "pattern_name": "YBB",
         "pattern_name_official": "YBB",
         "positions_mm": [
             "30",
@@ -17292,10 +17197,9 @@
         "colors": [
             "A",
             "G",
-            "L",
-            "A"
+            "L"
         ],
-        "pattern_name": "AGLA",
+        "pattern_name": "AGL",
         "pattern_name_official": "AGL",
         "positions_mm": [
             "20",
@@ -17381,10 +17285,9 @@
         "colors": [
             "O",
             "L",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "OLBR",
+        "pattern_name": "OLB",
         "pattern_name_official": "OLB",
         "positions_mm": [
             "30",
@@ -17538,10 +17441,9 @@
         "colors": [
             "R",
             "W",
-            "G",
-            "O"
+            "G"
         ],
-        "pattern_name": "RWGO",
+        "pattern_name": "RWG",
         "pattern_name_official": "RWG",
         "positions_mm": [
             "10",
@@ -17573,10 +17475,9 @@
         "colors": [
             "G",
             "O",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "GORY",
+        "pattern_name": "GOR",
         "pattern_name_official": "GOR",
         "positions_mm": [
             "15",
@@ -17750,10 +17651,9 @@
         "colors": [
             "A",
             "R",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "ARRB",
+        "pattern_name": "ARR",
         "pattern_name_official": "ARR",
         "positions_mm": [
             "30",
@@ -17767,10 +17667,9 @@
         "colors": [
             "L",
             "A",
-            "O",
-            "L"
+            "O"
         ],
-        "pattern_name": "LAOL",
+        "pattern_name": "LAO",
         "pattern_name_official": "LAO",
         "positions_mm": [
             "30",
@@ -17784,10 +17683,9 @@
         "colors": [
             "L",
             "L",
-            "W",
-            "L"
+            "W"
         ],
-        "pattern_name": "LLWL",
+        "pattern_name": "LLW",
         "pattern_name_official": "LLW",
         "positions_mm": [
             "30",
@@ -17801,10 +17699,9 @@
         "colors": [
             "L",
             "R",
-            "G",
-            "L"
+            "G"
         ],
-        "pattern_name": "LRGL",
+        "pattern_name": "LRG",
         "pattern_name_official": "LRG",
         "positions_mm": [
             "30",
@@ -17836,10 +17733,9 @@
         "colors": [
             "A",
             "G",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "AGBR",
+        "pattern_name": "AGB",
         "pattern_name_official": "AGB",
         "positions_mm": [
             "40",
@@ -17853,10 +17749,9 @@
         "colors": [
             "B",
             "B",
-            "Y",
-            "O"
+            "Y"
         ],
-        "pattern_name": "BBYO",
+        "pattern_name": "BBY",
         "pattern_name_official": "BBY",
         "positions_mm": [
             "30",
@@ -17891,7 +17786,7 @@
             "W"
         ],
         "pattern_name": "OGW",
-        "pattern_name_official": "O:GW",
+        "pattern_name_official": "OGW",
         "positions_mm": [
             "55",
             "25",
@@ -17976,10 +17871,9 @@
         "colors": [
             "A",
             "O",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "AORB",
+        "pattern_name": "AOR",
         "pattern_name_official": "AOR",
         "positions_mm": [
             "20",
@@ -17994,9 +17888,10 @@
             "G",
             "A",
             "O",
-            "L"
+            "L",
+            "A"
         ],
-        "pattern_name": "GAOL",
+        "pattern_name": "GAOLA",
         "pattern_name_official": "GAOLA",
         "positions_mm": [
             "05",
@@ -18049,9 +17944,10 @@
             "G",
             "A",
             "G",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "GAGA",
+        "pattern_name": "GAGAR",
         "pattern_name_official": "GAGAR",
         "positions_mm": [
             "30",
@@ -18103,10 +17999,9 @@
         "colors": [
             "G",
             "G",
-            "L",
-            "A"
+            "L"
         ],
-        "pattern_name": "GGLA",
+        "pattern_name": "GGL",
         "pattern_name_official": "GGL",
         "positions_mm": [
             "20",
@@ -18206,10 +18101,9 @@
         "colors": [
             "W",
             "O",
-            "L",
-            "G"
+            "L"
         ],
-        "pattern_name": "WOLG",
+        "pattern_name": "WOL",
         "pattern_name_official": "WOL",
         "positions_mm": [
             "20",
@@ -18473,10 +18367,9 @@
         "colors": [
             "A",
             "L",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "ALBA",
+        "pattern_name": "ALB",
         "pattern_name_official": "ALB",
         "positions_mm": [
             "25",
@@ -18524,10 +18417,9 @@
         "colors": [
             "G",
             "W",
-            "B",
             "B"
         ],
-        "pattern_name": "GWBB",
+        "pattern_name": "GWB",
         "pattern_name_official": "GWB",
         "positions_mm": [
             "40",
@@ -18558,11 +18450,9 @@
         "product_code": "722410288800",
         "colors": [
             "L",
-            "B",
-            "Y",
             "B"
         ],
-        "pattern_name": "LBYB",
+        "pattern_name": "LB",
         "pattern_name_official": "LB",
         "positions_mm": [
             "30",
@@ -18628,9 +18518,10 @@
             "G",
             "W",
             "O",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "GWOY",
+        "pattern_name": "GWOYB",
         "pattern_name_official": "GWOYB",
         "positions_mm": [
             "25",
@@ -18646,10 +18537,9 @@
         "colors": [
             "Y",
             "Y",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "YYBR",
+        "pattern_name": "YYB",
         "pattern_name_official": "YYB",
         "positions_mm": [
             "40",
@@ -18717,10 +18607,9 @@
         "colors": [
             "G",
             "B",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "GBBR",
+        "pattern_name": "GBB",
         "pattern_name_official": "GBB",
         "positions_mm": [
             "40",
@@ -18734,10 +18623,9 @@
         "colors": [
             "O",
             "A",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "OARY",
+        "pattern_name": "OAR",
         "pattern_name_official": "OAR",
         "positions_mm": [
             "50",
@@ -18752,9 +18640,10 @@
             "L",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "LARG",
+        "pattern_name": "LARGB",
         "pattern_name_official": "LARGB",
         "positions_mm": [
             "10",
@@ -18805,11 +18694,9 @@
         "product_code": "822410327700",
         "colors": [
             "B",
-            "Y",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "BYYB",
+        "pattern_name": "BY",
         "pattern_name_official": "BY",
         "positions_mm": [
             "35",
@@ -18821,11 +18708,9 @@
         "product_code": "822410327800",
         "colors": [
             "B",
-            "A",
-            "Y",
-            "B"
+            "A"
         ],
-        "pattern_name": "BAYB",
+        "pattern_name": "BA",
         "pattern_name_official": "BA",
         "positions_mm": [
             "35",
@@ -18890,10 +18775,9 @@
         "colors": [
             "G",
             "G",
-            "G",
             "G"
         ],
-        "pattern_name": "GGGG",
+        "pattern_name": "GGG",
         "pattern_name_official": "GGG",
         "positions_mm": [
             "10",
@@ -18997,10 +18881,9 @@
         "colors": [
             "B",
             "Y",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "BYRB",
+        "pattern_name": "BYR",
         "pattern_name_official": "BYR",
         "positions_mm": [
             "35",
@@ -19014,10 +18897,9 @@
         "colors": [
             "W",
             "R",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "WROY",
+        "pattern_name": "WRO",
         "pattern_name_official": "WRO",
         "positions_mm": [
             "30",
@@ -19067,10 +18949,9 @@
         "colors": [
             "Y",
             "A",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "YALB",
+        "pattern_name": "YAL",
         "pattern_name_official": "YAL",
         "positions_mm": [
             "20",
@@ -19084,10 +18965,9 @@
         "colors": [
             "R",
             "Y",
-            "O",
             "O"
         ],
-        "pattern_name": "RYOO",
+        "pattern_name": "RYO",
         "pattern_name_official": "RYO",
         "positions_mm": [
             "20",
@@ -19101,10 +18981,9 @@
         "colors": [
             "G",
             "W",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "GWBR",
+        "pattern_name": "GWB",
         "pattern_name_official": "GWB",
         "positions_mm": [
             "40",
@@ -19172,10 +19051,9 @@
         "colors": [
             "B",
             "W",
-            "A",
-            "L"
+            "A"
         ],
-        "pattern_name": "BWAL",
+        "pattern_name": "BWA",
         "pattern_name_official": "BWA",
         "positions_mm": [
             "30",
@@ -19189,10 +19067,9 @@
         "colors": [
             "B",
             "W",
-            "G",
-            "L"
+            "G"
         ],
-        "pattern_name": "BWGL",
+        "pattern_name": "BWG",
         "pattern_name_official": "BWG",
         "positions_mm": [
             "30",
@@ -19206,10 +19083,9 @@
         "colors": [
             "B",
             "W",
-            "O",
-            "L"
+            "O"
         ],
-        "pattern_name": "BWOL",
+        "pattern_name": "BWO",
         "pattern_name_official": "BWO",
         "positions_mm": [
             "30",
@@ -19240,9 +19116,10 @@
             "G",
             "W",
             "G",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GWGA",
+        "pattern_name": "GWGAB",
         "pattern_name_official": "GWGAB",
         "positions_mm": [
             "35",
@@ -19295,12 +19172,17 @@
             "A",
             "A",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AAWG",
+        "pattern_name": "AAWGB",
         "pattern_name_official": "AAWGB",
         "positions_mm": [
-            "35,45,65,75,80"
+            "35",
+            "45",
+            "65",
+            "75",
+            "80"
         ]
     },
     {
@@ -19346,9 +19228,10 @@
             "L",
             "A",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "LARB",
+        "pattern_name": "LARBB",
         "pattern_name_official": "LARBB",
         "positions_mm": [
             "10",
@@ -19364,10 +19247,9 @@
         "colors": [
             "A",
             "G",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "AGBY",
+        "pattern_name": "AGB",
         "pattern_name_official": "AGB",
         "positions_mm": [
             "30",
@@ -19382,9 +19264,10 @@
             "G",
             "R",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "GRWY",
+        "pattern_name": "GRWYB",
         "pattern_name_official": "GRWYB",
         "positions_mm": [
             "35",
@@ -19437,9 +19320,10 @@
             "L",
             "Y",
             "G",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "LYGO",
+        "pattern_name": "LYGOB",
         "pattern_name_official": "LYGOB",
         "positions_mm": [
             "40",
@@ -19474,9 +19358,10 @@
             "L",
             "O",
             "O",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "LOOL",
+        "pattern_name": "LOOLB",
         "pattern_name_official": "LOOLB",
         "positions_mm": [
             "45",
@@ -19511,9 +19396,10 @@
             "G",
             "A",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "GARG",
+        "pattern_name": "GARGB",
         "pattern_name_official": "GARGB",
         "positions_mm": [
             "35",
@@ -19552,7 +19438,9 @@
         "pattern_name": "GAA",
         "pattern_name_official": "GAA",
         "positions_mm": [
-            "15,45,55"
+            "15",
+            "45",
+            "55"
         ]
     },
     {
@@ -19579,10 +19467,9 @@
         "colors": [
             "A",
             "L",
-            "B",
-            "A"
+            "B"
         ],
-        "pattern_name": "ALBA",
+        "pattern_name": "ALB",
         "pattern_name_official": "ALB",
         "positions_mm": [
             "30",
@@ -19633,9 +19520,10 @@
             "A",
             "L",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ALRY",
+        "pattern_name": "ALRYB",
         "pattern_name_official": "ALRYB",
         "positions_mm": [
             "35",
@@ -19884,12 +19772,10 @@
         "product_code": "922410492700",
         "colors": [
             "L",
-            "O",
-            "L",
-            "Y"
+            "O"
         ],
-        "pattern_name": "LOLY",
-        "pattern_name_official": "L:O",
+        "pattern_name": "LO",
+        "pattern_name_official": "LO",
         "positions_mm": [
             "30",
             "25"
@@ -19914,9 +19800,10 @@
             "G",
             "W",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "GWGB",
+        "pattern_name": "GWGBB",
         "pattern_name_official": "GWGBB",
         "positions_mm": [
             "35",
@@ -19951,9 +19838,10 @@
             "A",
             "L",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "ALRB",
+        "pattern_name": "ALRBB",
         "pattern_name_official": "ALRBB",
         "positions_mm": [
             "35",
@@ -20060,9 +19948,10 @@
             "G",
             "L",
             "O",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "GLOY",
+        "pattern_name": "GLOYB",
         "pattern_name_official": "GLOYB",
         "positions_mm": [
             "30",
@@ -20133,9 +20022,10 @@
             "G",
             "A",
             "R",
-            "O"
+            "O",
+            "L"
         ],
-        "pattern_name": "GARO",
+        "pattern_name": "GAROL",
         "pattern_name_official": "GAROL",
         "positions_mm": [
             "35",
@@ -20152,9 +20042,10 @@
             "Y",
             "A",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "YAYB",
+        "pattern_name": "YAYBB",
         "pattern_name_official": "YAYBB",
         "positions_mm": [
             "20",
@@ -20279,9 +20170,10 @@
             "G",
             "L",
             "O",
+            "B",
             "B"
         ],
-        "pattern_name": "GLOB",
+        "pattern_name": "GLOBB",
         "pattern_name_official": "GLOBB",
         "positions_mm": [
             "30",
@@ -20298,9 +20190,10 @@
             "G",
             "R",
             "A",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "GRAW",
+        "pattern_name": "GRAWB",
         "pattern_name_official": "GRAWB",
         "positions_mm": [
             "25",
@@ -20317,9 +20210,10 @@
             "L",
             "A",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "LARY",
+        "pattern_name": "LARYB",
         "pattern_name_official": "LARYB",
         "positions_mm": [
             "10",
@@ -20353,10 +20247,9 @@
         "colors": [
             "G",
             "W",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "GWGB",
+        "pattern_name": "GWG",
         "pattern_name_official": "GWGBB",
         "positions_mm": [
             "10",
@@ -20407,9 +20300,10 @@
             "L",
             "O",
             "O",
+            "B",
             "B"
         ],
-        "pattern_name": "LOOB",
+        "pattern_name": "LOOBB",
         "pattern_name_official": "LOOBB",
         "positions_mm": [
             "45",
@@ -20426,9 +20320,10 @@
             "A",
             "G",
             "Y",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "AGYL",
+        "pattern_name": "AGYLB",
         "pattern_name_official": "AGYLB",
         "positions_mm": [
             "40",
@@ -20445,9 +20340,10 @@
             "A",
             "A",
             "G",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AAGG",
+        "pattern_name": "AAGGB",
         "pattern_name_official": "AAGGB",
         "positions_mm": [
             "35",
@@ -20481,10 +20377,9 @@
         "colors": [
             "O",
             "L",
-            "B",
             "B"
         ],
-        "pattern_name": "OLBB",
+        "pattern_name": "OLB",
         "pattern_name_official": "OLB",
         "positions_mm": [
             "30",
@@ -20499,9 +20394,10 @@
             "A",
             "A",
             "W",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "AAWW",
+        "pattern_name": "AAWWB",
         "pattern_name_official": "AAWWB",
         "positions_mm": [
             "30",
@@ -20518,9 +20414,10 @@
             "A",
             "A",
             "W",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "AAWO",
+        "pattern_name": "AAWOB",
         "pattern_name_official": "AAWOB",
         "positions_mm": [
             "30",
@@ -20537,9 +20434,10 @@
             "A",
             "A",
             "Y",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "AAYL",
+        "pattern_name": "AAYLB",
         "pattern_name_official": "AAYLB",
         "positions_mm": [
             "30",
@@ -20556,9 +20454,10 @@
             "G",
             "L",
             "W",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GLWA",
+        "pattern_name": "GLWAB",
         "pattern_name_official": "GLWAB",
         "positions_mm": [
             "15",
@@ -20593,9 +20492,10 @@
             "W",
             "A",
             "L",
-            "Y"
+            "Y",
+            "W"
         ],
-        "pattern_name": "WALY",
+        "pattern_name": "WALYW",
         "pattern_name_official": "WALYW",
         "positions_mm": [
             "30",
@@ -20640,11 +20540,9 @@
         "product_code": "922410526900",
         "colors": [
             "O",
-            "Y",
-            "L",
-            "L"
+            "Y"
         ],
-        "pattern_name": "OYLL",
+        "pattern_name": "OY",
         "pattern_name_official": "OY",
         "positions_mm": [
             "10",
@@ -20692,9 +20590,10 @@
             "A",
             "G",
             "Y",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "AGYO",
+        "pattern_name": "AGYOB",
         "pattern_name_official": "AGYOB",
         "positions_mm": [
             "30",
@@ -20742,10 +20641,9 @@
         "colors": [
             "G",
             "L",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "GLAY",
+        "pattern_name": "GLA",
         "pattern_name_official": "GLA",
         "positions_mm": [
             "15",
@@ -20760,9 +20658,10 @@
             "A",
             "O",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AOWB",
+        "pattern_name": "AOWBB",
         "pattern_name_official": "AOWBB",
         "positions_mm": [
             "25",
@@ -20779,9 +20678,10 @@
             "Y",
             "A",
             "L",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "YALY",
+        "pattern_name": "YALYB",
         "pattern_name_official": "YALYB",
         "positions_mm": [
             "20",
@@ -20886,9 +20786,10 @@
             "A",
             "G",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "AGYB",
+        "pattern_name": "AGYBB",
         "pattern_name_official": "AGYBB",
         "positions_mm": [
             "30",
@@ -20905,9 +20806,10 @@
             "A",
             "A",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "AAGB",
+        "pattern_name": "AAGBB",
         "pattern_name_official": "AAGBB",
         "positions_mm": [
             "35",
@@ -20924,9 +20826,10 @@
             "A",
             "A",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AAWB",
+        "pattern_name": "AAWBB",
         "pattern_name_official": "AAWBB",
         "positions_mm": [
             "30",
@@ -20943,9 +20846,10 @@
             "A",
             "A",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "AAYB",
+        "pattern_name": "AAYBB",
         "pattern_name_official": "AAYBB",
         "positions_mm": [
             "30",
@@ -20961,10 +20865,9 @@
         "colors": [
             "Y",
             "W",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "YWRB",
+        "pattern_name": "YWR",
         "pattern_name_official": "YWR",
         "positions_mm": [
             "40",
@@ -20979,9 +20882,10 @@
             "G",
             "A",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "GARB",
+        "pattern_name": "GARBB",
         "pattern_name_official": "GARBB",
         "positions_mm": [
             "35",
@@ -21106,9 +21010,10 @@
             "G",
             "A",
             "R",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "GARO",
+        "pattern_name": "GAROB",
         "pattern_name_official": "GAROB",
         "positions_mm": [
             "35",
@@ -21124,10 +21029,9 @@
         "colors": [
             "G",
             "R",
-            "B",
             "B"
         ],
-        "pattern_name": "GRBB",
+        "pattern_name": "GRB",
         "pattern_name_official": "GRB",
         "positions_mm": [
             "40",
@@ -21142,9 +21046,10 @@
             "L",
             "O",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "LOBB",
+        "pattern_name": "LOBBB",
         "pattern_name_official": "LOBBB",
         "positions_mm": [
             "45",
@@ -21301,9 +21206,10 @@
             "A",
             "W",
             "G",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AWGG",
+        "pattern_name": "AWGGB",
         "pattern_name_official": "AWGGB",
         "positions_mm": [
             "30",
@@ -21320,9 +21226,10 @@
             "Y",
             "A",
             "L",
+            "B",
             "B"
         ],
-        "pattern_name": "YALB",
+        "pattern_name": "YALBB",
         "pattern_name_official": "YALBB",
         "positions_mm": [
             "20",
@@ -21389,9 +21296,10 @@
             "A",
             "Y",
             "R",
+            "B",
             "B"
         ],
-        "pattern_name": "AYRB",
+        "pattern_name": "AYRBB",
         "pattern_name_official": "AYRBB",
         "positions_mm": [
             "30",
@@ -21408,9 +21316,10 @@
             "A",
             "Y",
             "R",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "AYRW",
+        "pattern_name": "AYRWB",
         "pattern_name_official": "AYRWB",
         "positions_mm": [
             "30",
@@ -21445,9 +21354,10 @@
             "A",
             "R",
             "G",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "ARGA",
+        "pattern_name": "ARGAB",
         "pattern_name_official": "ARGAB",
         "positions_mm": [
             "20",
@@ -21480,11 +21390,9 @@
         "product_code": "722410308800",
         "colors": [
             "A",
-            "B",
-            "O",
             "B"
         ],
-        "pattern_name": "ABOB",
+        "pattern_name": "AB",
         "pattern_name_official": "AB",
         "positions_mm": [
             "30",
@@ -21516,9 +21424,10 @@
             "G",
             "W",
             "G",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GWGA",
+        "pattern_name": "GWGAB",
         "pattern_name_official": "GWGAB",
         "positions_mm": [
             "35",
@@ -21534,10 +21443,9 @@
         "colors": [
             "L",
             "L",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "LLBW",
+        "pattern_name": "LLB",
         "pattern_name_official": "LLB",
         "positions_mm": [
             "30",
@@ -21588,9 +21496,10 @@
             "G",
             "L",
             "R",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GLRA",
+        "pattern_name": "GLRAB",
         "pattern_name_official": "GLRAB",
         "positions_mm": [
             "35",
@@ -21607,9 +21516,10 @@
             "A",
             "W",
             "R",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AWRY",
+        "pattern_name": "AWRYB",
         "pattern_name_official": "AWRYB",
         "positions_mm": [
             "20",
@@ -21626,9 +21536,10 @@
             "R",
             "A",
             "Y",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "RAYG",
+        "pattern_name": "RAYGB",
         "pattern_name_official": "RAYGB",
         "positions_mm": [
             "20",
@@ -21680,10 +21591,9 @@
         "colors": [
             "Y",
             "R",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "YRBY",
+        "pattern_name": "YRB",
         "pattern_name_official": "YRB",
         "positions_mm": [
             "10",
@@ -21698,9 +21608,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAR",
         "pattern_name_official": "AWYAR",
         "positions_mm": [
             "35",
@@ -21771,9 +21682,10 @@
             "A",
             "O",
             "W",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "AOWW",
+        "pattern_name": "AOWWB",
         "pattern_name_official": "AOWWB",
         "positions_mm": [
             "25",
@@ -21826,9 +21738,10 @@
             "Y",
             "L",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "YLWY",
+        "pattern_name": "YLWYB",
         "pattern_name_official": "YLWYB",
         "positions_mm": [
             "20",
@@ -21861,9 +21774,10 @@
             "A",
             "A",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "AABB",
+        "pattern_name": "AABBB",
         "pattern_name_official": "AABBB",
         "positions_mm": [
             "35",
@@ -21915,10 +21829,9 @@
         "colors": [
             "W",
             "O",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "WOBR",
+        "pattern_name": "WOB",
         "pattern_name_official": "WOB",
         "positions_mm": [
             "40",
@@ -21987,9 +21900,10 @@
             "A",
             "W",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "AWYB",
+        "pattern_name": "AWYBB",
         "pattern_name_official": "AWYBB",
         "positions_mm": [
             "20",
@@ -22004,11 +21918,9 @@
         "product_code": "822410345900",
         "colors": [
             "B",
-            "A",
-            "G",
-            "R"
+            "A"
         ],
-        "pattern_name": "BAGR",
+        "pattern_name": "BA",
         "pattern_name_official": "BA",
         "positions_mm": [
             "25",
@@ -22040,9 +21952,10 @@
             "A",
             "Y",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AYWG",
+        "pattern_name": "AYWGB",
         "pattern_name_official": "AYWGB",
         "positions_mm": [
             "20",
@@ -22058,10 +21971,9 @@
         "colors": [
             "A",
             "O",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "AOBR",
+        "pattern_name": "AOB",
         "pattern_name_official": "AOB",
         "positions_mm": [
             "15",
@@ -22195,10 +22107,9 @@
         "colors": [
             "Y",
             "Y",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "YYBW",
+        "pattern_name": "YYB",
         "pattern_name_official": "YYB",
         "positions_mm": [
             "30",
@@ -22212,10 +22123,9 @@
         "colors": [
             "W",
             "W",
-            "B",
-            "W"
+            "B"
         ],
-        "pattern_name": "WWBW",
+        "pattern_name": "WWB",
         "pattern_name_official": "WWB",
         "positions_mm": [
             "30",
@@ -22319,10 +22229,9 @@
         "colors": [
             "W",
             "Y",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "WYBR",
+        "pattern_name": "WYB",
         "pattern_name_official": "WYB",
         "positions_mm": [
             "40",
@@ -22337,9 +22246,10 @@
             "L",
             "A",
             "O",
-            "R"
+            "R",
+            "B"
         ],
-        "pattern_name": "LAOR",
+        "pattern_name": "LAORB",
         "pattern_name_official": "LAORB",
         "positions_mm": [
             "35",
@@ -22391,10 +22301,9 @@
         "colors": [
             "G",
             "R",
-            "Y",
             "Y"
         ],
-        "pattern_name": "GRYY",
+        "pattern_name": "GRY",
         "pattern_name_official": "GRY",
         "positions_mm": [
             "20",
@@ -22481,9 +22390,10 @@
             "A",
             "Y",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AYWB",
+        "pattern_name": "AYWBB",
         "pattern_name_official": "AYWBB",
         "positions_mm": [
             "20",
@@ -22640,9 +22550,10 @@
             "O",
             "W",
             "Y",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "OWYO",
+        "pattern_name": "OWYOB",
         "pattern_name_official": "OWYOB",
         "positions_mm": [
             "25",
@@ -22658,10 +22569,9 @@
         "colors": [
             "Y",
             "A",
-            "G",
-            "W"
+            "G"
         ],
-        "pattern_name": "YAGW",
+        "pattern_name": "YAG",
         "pattern_name_official": "YAG",
         "positions_mm": [
             "15",
@@ -22945,10 +22855,9 @@
         "colors": [
             "G",
             "G",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "GGBR",
+        "pattern_name": "GGB",
         "pattern_name_official": "GGB",
         "positions_mm": [
             "40",
@@ -22962,10 +22871,9 @@
         "colors": [
             "R",
             "O",
-            "B",
-            "R"
+            "B"
         ],
-        "pattern_name": "ROBR",
+        "pattern_name": "ROB",
         "pattern_name_official": "ROB",
         "positions_mm": [
             "15",
@@ -22980,9 +22888,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAB",
         "pattern_name_official": "AWYAB",
         "positions_mm": [
             "35",
@@ -23016,10 +22925,9 @@
         "colors": [
             "R",
             "R",
-            "R",
             "R"
         ],
-        "pattern_name": "RRRR",
+        "pattern_name": "RRR",
         "pattern_name_official": "RRR",
         "positions_mm": [
             "20",
@@ -23084,9 +22992,10 @@
             "A",
             "W",
             "Y",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "AWYO",
+        "pattern_name": "AWYOB",
         "pattern_name_official": "AWYOB",
         "positions_mm": [
             "20",
@@ -23191,9 +23100,10 @@
             "A",
             "R",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "ARWG",
+        "pattern_name": "ARWGB",
         "pattern_name_official": "ARWGB",
         "positions_mm": [
             "30",
@@ -23280,11 +23190,9 @@
         "product_code": "822410351700",
         "colors": [
             "B",
-            "L",
-            "W",
             "L"
         ],
-        "pattern_name": "BLWL",
+        "pattern_name": "BL",
         "pattern_name_official": "BL",
         "positions_mm": [
             "35",
@@ -23315,10 +23223,9 @@
         "colors": [
             "W",
             "Y",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "WYOY",
+        "pattern_name": "WYO",
         "pattern_name_official": "WYO",
         "positions_mm": [
             "30",
@@ -23345,11 +23252,9 @@
         "product_code": "922410508600",
         "colors": [
             "Y",
-            "O",
-            "A",
-            "A"
+            "O"
         ],
-        "pattern_name": "YOAA",
+        "pattern_name": "YO",
         "pattern_name_official": "YO",
         "positions_mm": [
             "30",
@@ -23361,11 +23266,9 @@
         "product_code": "922410508400",
         "colors": [
             "Y",
-            "R",
-            "A",
-            "A"
+            "R"
         ],
-        "pattern_name": "YRAA",
+        "pattern_name": "YR",
         "pattern_name_official": "YR",
         "positions_mm": [
             "20",
@@ -23410,10 +23313,9 @@
         "colors": [
             "W",
             "G",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "WGOY",
+        "pattern_name": "WGO",
         "pattern_name_official": "WGO",
         "positions_mm": [
             "10",
@@ -23481,10 +23383,9 @@
         "colors": [
             "W",
             "O",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "WOYB",
+        "pattern_name": "WOY",
         "pattern_name_official": "WOY",
         "positions_mm": [
             "15",
@@ -23516,10 +23417,9 @@
         "colors": [
             "Y",
             "L",
-            "A",
             "A"
         ],
-        "pattern_name": "YLAA",
+        "pattern_name": "YLA",
         "pattern_name_official": "YLA",
         "positions_mm": [
             "30",
@@ -23534,9 +23434,10 @@
             "G",
             "R",
             "A",
-            "W"
+            "W",
+            "Y"
         ],
-        "pattern_name": "GRAW",
+        "pattern_name": "GRAWY",
         "pattern_name_official": "GRAWY",
         "positions_mm": [
             "10",
@@ -23553,9 +23454,10 @@
             "G",
             "A",
             "O",
-            "R"
+            "R",
+            "Y"
         ],
-        "pattern_name": "GAOR",
+        "pattern_name": "GAORY",
         "pattern_name_official": "GAORY",
         "positions_mm": [
             "35",
@@ -23571,10 +23473,9 @@
         "colors": [
             "O",
             "O",
-            "O",
-            "A"
+            "O"
         ],
-        "pattern_name": "OOOA",
+        "pattern_name": "OOO",
         "pattern_name_official": "OOO",
         "positions_mm": [
             "20",
@@ -23780,10 +23681,9 @@
         "colors": [
             "O",
             "A",
-            "O",
-            "A"
+            "O"
         ],
-        "pattern_name": "OAOA",
+        "pattern_name": "OAO",
         "pattern_name_official": "OAO",
         "positions_mm": [
             "25",
@@ -23797,10 +23697,9 @@
         "colors": [
             "O",
             "A",
-            "A",
             "A"
         ],
-        "pattern_name": "OAAA",
+        "pattern_name": "OAA",
         "pattern_name_official": "OAA",
         "positions_mm": [
             "25",
@@ -23813,11 +23712,9 @@
         "product_code": "922410611500",
         "colors": [
             "L",
-            "W",
-            "R",
-            "O"
+            "W"
         ],
-        "pattern_name": "LWRO",
+        "pattern_name": "LW",
         "pattern_name_official": "LW",
         "positions_mm": [
             "30",
@@ -24202,10 +24099,9 @@
         "colors": [
             "L",
             "L",
-            "L",
-            "Y"
+            "L"
         ],
-        "pattern_name": "LLLY",
+        "pattern_name": "LLL",
         "pattern_name_official": "LLL",
         "positions_mm": [
             "15",
@@ -24254,9 +24150,10 @@
             "A",
             "W",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "AWYB",
+        "pattern_name": "AWYBB",
         "pattern_name_official": "AWYBB",
         "positions_mm": [
             "35",
@@ -24322,10 +24219,9 @@
         "colors": [
             "A",
             "O",
-            "Y",
-            "R"
+            "Y"
         ],
-        "pattern_name": "AOYR",
+        "pattern_name": "AOY",
         "pattern_name_official": "AOY",
         "positions_mm": [
             "15",
@@ -24355,10 +24251,9 @@
         "colors": [
             "B",
             "O",
-            "B",
-            "G"
+            "B"
         ],
-        "pattern_name": "BOBG",
+        "pattern_name": "BOB",
         "pattern_name_official": "BOB",
         "positions_mm": [
             "10",
@@ -24480,10 +24375,9 @@
         "colors": [
             "B",
             "O",
-            "G",
             "G"
         ],
-        "pattern_name": "BOGG",
+        "pattern_name": "BOG",
         "pattern_name_official": "BOG",
         "positions_mm": [
             "10",
@@ -24497,10 +24391,9 @@
         "colors": [
             "B",
             "O",
-            "O",
-            "G"
+            "O"
         ],
-        "pattern_name": "BOOG",
+        "pattern_name": "BOO",
         "pattern_name_official": "BOO",
         "positions_mm": [
             "10",
@@ -24514,10 +24407,9 @@
         "colors": [
             "B",
             "O",
-            "W",
-            "G"
+            "W"
         ],
-        "pattern_name": "BOWG",
+        "pattern_name": "BOW",
         "pattern_name_official": "BOW",
         "positions_mm": [
             "10",
@@ -24531,10 +24423,9 @@
         "colors": [
             "B",
             "O",
-            "R",
-            "G"
+            "R"
         ],
-        "pattern_name": "BORG",
+        "pattern_name": "BOR",
         "pattern_name_official": "BOR",
         "positions_mm": [
             "10",
@@ -24548,10 +24439,9 @@
         "colors": [
             "B",
             "O",
-            "L",
-            "G"
+            "L"
         ],
-        "pattern_name": "BOLG",
+        "pattern_name": "BOL",
         "pattern_name_official": "BOL",
         "positions_mm": [
             "10",
@@ -24565,10 +24455,9 @@
         "colors": [
             "B",
             "O",
-            "Y",
-            "G"
+            "Y"
         ],
-        "pattern_name": "BOYG",
+        "pattern_name": "BOY",
         "pattern_name_official": "BOY",
         "positions_mm": [
             "10",
@@ -24670,10 +24559,9 @@
         "colors": [
             "Y",
             "R",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "YRGY",
+        "pattern_name": "YRG",
         "pattern_name_official": "YRG",
         "positions_mm": [
             "10",
@@ -24687,10 +24575,9 @@
         "colors": [
             "G",
             "R",
-            "R",
-            "Y"
+            "R"
         ],
-        "pattern_name": "GRRY",
+        "pattern_name": "GRR",
         "pattern_name_official": "GRR",
         "positions_mm": [
             "10",
@@ -24722,10 +24609,9 @@
         "colors": [
             "W",
             "R",
-            "W",
-            "G"
+            "W"
         ],
-        "pattern_name": "WRWG",
+        "pattern_name": "WRW",
         "pattern_name_official": "WRW",
         "positions_mm": [
             "15",
@@ -24775,10 +24661,9 @@
         "colors": [
             "A",
             "O",
-            "W",
             "W"
         ],
-        "pattern_name": "AOWW",
+        "pattern_name": "AOW",
         "pattern_name_official": "AOW",
         "positions_mm": [
             "25",
@@ -24847,9 +24732,10 @@
             "A",
             "R",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "ARWB",
+        "pattern_name": "ARWBB",
         "pattern_name_official": "ARWBB",
         "positions_mm": [
             "30",
@@ -24865,10 +24751,9 @@
         "colors": [
             "G",
             "B",
-            "B",
             "B"
         ],
-        "pattern_name": "GBBB",
+        "pattern_name": "GBB",
         "pattern_name_official": "GBB",
         "positions_mm": [
             "40",
@@ -24883,9 +24768,10 @@
             "A",
             "Y",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "AYGB",
+        "pattern_name": "AYGBB",
         "pattern_name_official": "AYGBB",
         "positions_mm": [
             "20",
@@ -24972,9 +24858,10 @@
             "G",
             "G",
             "Y",
+            "B",
             "B"
         ],
-        "pattern_name": "GGYB",
+        "pattern_name": "GGYBB",
         "pattern_name_official": "GGYBB",
         "positions_mm": [
             "10",
@@ -25009,12 +24896,17 @@
             "A",
             "G",
             "A",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "AGAY",
+        "pattern_name": "AGAYB",
         "pattern_name_official": "AGAYB",
         "positions_mm": [
-            "15,35,65,75,80"
+            "15",
+            "35",
+            "65",
+            "75",
+            "80"
         ]
     },
     {
@@ -25167,10 +25059,9 @@
         "colors": [
             "G",
             "W",
-            "Y",
-            "B"
+            "Y"
         ],
-        "pattern_name": "GWYB",
+        "pattern_name": "GWY",
         "pattern_name_official": "GWY",
         "positions_mm": [
             "40",
@@ -25239,9 +25130,10 @@
             "G",
             "R",
             "A",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "GRAW",
+        "pattern_name": "GRAWB",
         "pattern_name_official": "GRAWB",
         "positions_mm": [
             "10",
@@ -25280,7 +25172,9 @@
         "pattern_name": "YGB",
         "pattern_name_official": "YGB",
         "positions_mm": [
-            "35,70,75"
+            "35",
+            "70",
+            "75"
         ]
     },
     {
@@ -25396,11 +25290,9 @@
         "product_code": "922410650200",
         "colors": [
             "A",
-            "W",
-            "Y",
-            "B"
+            "W"
         ],
-        "pattern_name": "AWYB",
+        "pattern_name": "AW",
         "pattern_name_official": "AW",
         "positions_mm": [
             "30",
@@ -25413,10 +25305,9 @@
         "colors": [
             "A",
             "Y",
-            "O",
-            "B"
+            "O"
         ],
-        "pattern_name": "AYOB",
+        "pattern_name": "AYO",
         "pattern_name_official": "AYO",
         "positions_mm": [
             "40",
@@ -25640,10 +25531,9 @@
         "colors": [
             "R",
             "L",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "RLOY",
+        "pattern_name": "RLO",
         "pattern_name_official": "RLO",
         "positions_mm": [
             "15",
@@ -25657,11 +25547,10 @@
         "colors": [
             "W",
             "A",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "WARB",
-        "pattern_name_official": "WAR",
+        "pattern_name": "WAR3",
+        "pattern_name_official": "WAR3",
         "positions_mm": [
             "45",
             "55",
@@ -25764,10 +25653,9 @@
         "colors": [
             "G",
             "G",
-            "R",
-            "W"
+            "R"
         ],
-        "pattern_name": "GGRW",
+        "pattern_name": "GGR",
         "pattern_name_official": "GGR",
         "positions_mm": [
             "30",
@@ -25799,10 +25687,9 @@
         "colors": [
             "R",
             "G",
-            "R",
-            "L"
+            "R"
         ],
-        "pattern_name": "RGRL",
+        "pattern_name": "RGR",
         "pattern_name_official": "RGR",
         "positions_mm": [
             "35",
@@ -25940,10 +25827,9 @@
         "colors": [
             "W",
             "O",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "WOGB",
+        "pattern_name": "WOG",
         "pattern_name_official": "WOG",
         "positions_mm": [
             "15",
@@ -26023,10 +25909,9 @@
         "colors": [
             "Y",
             "W",
-            "Y",
             "Y"
         ],
-        "pattern_name": "YWYY",
+        "pattern_name": "YWY",
         "pattern_name_official": "YWY",
         "positions_mm": [
             "25",
@@ -26040,10 +25925,9 @@
         "colors": [
             "G",
             "L",
-            "Y",
             "Y"
         ],
-        "pattern_name": "GLYY",
+        "pattern_name": "GLY",
         "pattern_name_official": "GLY",
         "positions_mm": [
             "20",
@@ -26091,10 +25975,9 @@
         "colors": [
             "A",
             "L",
-            "Y",
-            "R"
+            "Y"
         ],
-        "pattern_name": "ALYR",
+        "pattern_name": "ALY",
         "pattern_name_official": "ALY",
         "positions_mm": [
             "20",
@@ -26162,10 +26045,9 @@
         "colors": [
             "R",
             "W",
-            "R",
-            "G"
+            "R"
         ],
-        "pattern_name": "RWRG",
+        "pattern_name": "RWR",
         "pattern_name_official": "RWR",
         "positions_mm": [
             "20",
@@ -26198,9 +26080,10 @@
             "G",
             "W",
             "G",
-            "L"
+            "L",
+            "B"
         ],
-        "pattern_name": "GWGL",
+        "pattern_name": "GWGLB",
         "pattern_name_official": "GWGLB",
         "positions_mm": [
             "30",
@@ -26271,9 +26154,10 @@
             "L",
             "A",
             "Y",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "LAYY",
+        "pattern_name": "LAYYB",
         "pattern_name_official": "LAYYB",
         "positions_mm": [
             "15",
@@ -26308,9 +26192,10 @@
             "G",
             "G",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "GGBB",
+        "pattern_name": "GGBBB",
         "pattern_name_official": "GGBBB",
         "positions_mm": [
             "15",
@@ -26344,10 +26229,9 @@
         "colors": [
             "B",
             "G",
-            "G",
-            "R"
+            "G"
         ],
-        "pattern_name": "BGGR",
+        "pattern_name": "BGG",
         "pattern_name_official": "BGG",
         "positions_mm": [
             "35",
@@ -26397,10 +26281,9 @@
         "colors": [
             "R",
             "O",
-            "W",
-            "Y"
+            "W"
         ],
-        "pattern_name": "ROWY",
+        "pattern_name": "ROW",
         "pattern_name_official": "ROW",
         "positions_mm": [
             "20",
@@ -26413,11 +26296,9 @@
         "product_code": "922410634100",
         "colors": [
             "L",
-            "L",
-            "Y",
             "L"
         ],
-        "pattern_name": "LLYL",
+        "pattern_name": "LL",
         "pattern_name_official": "LL",
         "positions_mm": [
             "35",
@@ -26545,11 +26426,9 @@
         "product_code": "922410554300",
         "colors": [
             "O",
-            "L",
-            "Y",
-            "B"
+            "L"
         ],
-        "pattern_name": "OLYB",
+        "pattern_name": "OL",
         "pattern_name_official": "OL",
         "positions_mm": [
             "30",
@@ -26634,10 +26513,9 @@
         "colors": [
             "G",
             "R",
-            "Y",
             "Y"
         ],
-        "pattern_name": "GRYY",
+        "pattern_name": "GRY",
         "pattern_name_official": "GRY",
         "positions_mm": [
             "20",
@@ -26651,10 +26529,9 @@
         "colors": [
             "G",
             "O",
-            "O",
-            "Y"
+            "O"
         ],
-        "pattern_name": "GOOY",
+        "pattern_name": "GOO",
         "pattern_name_official": "GOO",
         "positions_mm": [
             "15",
@@ -26687,9 +26564,10 @@
             "O",
             "R",
             "W",
-            "Y"
+            "Y",
+            "W"
         ],
-        "pattern_name": "ORWY",
+        "pattern_name": "ORWYW",
         "pattern_name_official": "ORWYW",
         "positions_mm": [
             "20",
@@ -26705,10 +26583,9 @@
         "colors": [
             "W",
             "L",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "WLGY",
+        "pattern_name": "WLG",
         "pattern_name_official": "WLG",
         "positions_mm": [
             "15",
@@ -26810,10 +26687,9 @@
         "colors": [
             "Y",
             "W",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "YWGY",
+        "pattern_name": "YWG",
         "pattern_name_official": "YWG",
         "positions_mm": [
             "25",
@@ -26828,9 +26704,10 @@
             "A",
             "A",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "AAWG",
+        "pattern_name": "AAWGB",
         "pattern_name_official": "AAWGB",
         "positions_mm": [
             "35",
@@ -27060,10 +26937,9 @@
         "colors": [
             "L",
             "R",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "LRBY",
+        "pattern_name": "LRB",
         "pattern_name_official": "LRB",
         "positions_mm": [
             "70",
@@ -27149,10 +27025,9 @@
         "colors": [
             "W",
             "O",
-            "A",
-            "G"
+            "A"
         ],
-        "pattern_name": "WOAG",
+        "pattern_name": "WOA",
         "pattern_name_official": "WOA",
         "positions_mm": [
             "20",
@@ -27375,9 +27250,10 @@
             "G",
             "W",
             "G",
+            "B",
             "B"
         ],
-        "pattern_name": "GWGB",
+        "pattern_name": "GWGBB",
         "pattern_name_official": "GWGBB",
         "positions_mm": [
             "30",
@@ -27394,9 +27270,10 @@
             "G",
             "B",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "GBBB",
+        "pattern_name": "GBBBB",
         "pattern_name_official": "GBBBB",
         "positions_mm": [
             "15",
@@ -27448,10 +27325,9 @@
         "colors": [
             "R",
             "O",
-            "Y",
             "Y"
         ],
-        "pattern_name": "ROYY",
+        "pattern_name": "ROY",
         "pattern_name_official": "ROY",
         "positions_mm": [
             "25",
@@ -27519,10 +27395,9 @@
         "colors": [
             "W",
             "A",
-            "L",
-            "R"
+            "L"
         ],
-        "pattern_name": "WALR",
+        "pattern_name": "WAL",
         "pattern_name_official": "WAL",
         "positions_mm": [
             "20",
@@ -27554,10 +27429,9 @@
         "colors": [
             "W",
             "Y",
-            "O",
-            "W"
+            "O"
         ],
-        "pattern_name": "WYOW",
+        "pattern_name": "WYO",
         "pattern_name_official": "WYO",
         "positions_mm": [
             "30",
@@ -27571,10 +27445,9 @@
         "colors": [
             "Y",
             "R",
-            "A",
             "A"
         ],
-        "pattern_name": "YRAA",
+        "pattern_name": "YRA",
         "pattern_name_official": "YRA",
         "positions_mm": [
             "25",
@@ -27658,10 +27531,9 @@
         "colors": [
             "A",
             "G",
-            "G",
-            "A"
+            "G"
         ],
-        "pattern_name": "AGGA",
+        "pattern_name": "AGG",
         "pattern_name_official": "AGG",
         "positions_mm": [
             "10",
@@ -27692,9 +27564,10 @@
             "A",
             "G",
             "R",
-            "W"
+            "W",
+            "B"
         ],
-        "pattern_name": "AGRW",
+        "pattern_name": "AGRWB",
         "pattern_name_official": "AGRWB",
         "positions_mm": [
             "30",
@@ -27888,10 +27761,9 @@
         "colors": [
             "W",
             "L",
-            "B",
-            "O"
+            "B"
         ],
-        "pattern_name": "WLBO",
+        "pattern_name": "WLB",
         "pattern_name_official": "WLB",
         "positions_mm": [
             "20",
@@ -27994,9 +27866,10 @@
             "G",
             "W",
             "G",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "GWGG",
+        "pattern_name": "GWGGB",
         "pattern_name_official": "GWGGB",
         "positions_mm": [
             "30",
@@ -28013,9 +27886,10 @@
             "G",
             "G",
             "W",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "GGWY",
+        "pattern_name": "GGWYB",
         "pattern_name_official": "GGWYB",
         "positions_mm": [
             "15",
@@ -28139,10 +28013,9 @@
         "colors": [
             "R",
             "R",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "RRLB",
+        "pattern_name": "RRL",
         "pattern_name_official": "RRL",
         "positions_mm": [
             "15",
@@ -28211,9 +28084,10 @@
             "Y",
             "A",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "YAWG",
+        "pattern_name": "YAWGB",
         "pattern_name_official": "YAWGB",
         "positions_mm": [
             "15",
@@ -28320,9 +28194,10 @@
             "L",
             "A",
             "O",
-            "R"
+            "R",
+            "A"
         ],
-        "pattern_name": "LAOR",
+        "pattern_name": "LAORA",
         "pattern_name_official": "LAORA",
         "positions_mm": [
             "35",
@@ -28338,10 +28213,9 @@
         "colors": [
             "R",
             "L",
-            "Y",
-            "A"
+            "Y"
         ],
-        "pattern_name": "RLYA",
+        "pattern_name": "RLY",
         "pattern_name_official": "RLY",
         "positions_mm": [
             "15",
@@ -28406,11 +28280,9 @@
         "product_code": "822410371200",
         "colors": [
             "B",
-            "L",
-            "O",
-            "B"
+            "L"
         ],
-        "pattern_name": "BLOB",
+        "pattern_name": "BL",
         "pattern_name_official": "BL",
         "positions_mm": [
             "30",
@@ -28475,10 +28347,9 @@
         "colors": [
             "B",
             "A",
-            "R",
-            "O"
+            "R"
         ],
-        "pattern_name": "BARO",
+        "pattern_name": "BAR",
         "pattern_name_official": "BAR",
         "positions_mm": [
             "50",
@@ -28622,7 +28493,10 @@
         "pattern_name": "AAWG",
         "pattern_name_official": "AAWG",
         "positions_mm": [
-            "35,45,65,75"
+            "35",
+            "45",
+            "65",
+            "75"
         ]
     },
     {
@@ -28632,9 +28506,10 @@
             "A",
             "A",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "AAWB",
+        "pattern_name": "AAWBB",
         "pattern_name_official": "AAWBB",
         "positions_mm": [
             "35",
@@ -28686,10 +28561,9 @@
         "colors": [
             "Y",
             "W",
-            "W",
-            "Y"
+            "W"
         ],
-        "pattern_name": "YWWY",
+        "pattern_name": "YWW",
         "pattern_name_official": "YWW",
         "positions_mm": [
             "25",
@@ -28737,10 +28611,9 @@
         "colors": [
             "Y",
             "G",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "YGGB",
+        "pattern_name": "YGG",
         "pattern_name_official": "YGG",
         "positions_mm": [
             "30",
@@ -28809,9 +28682,10 @@
             "B",
             "R",
             "A",
-            "W"
+            "W",
+            "Y"
         ],
-        "pattern_name": "BRAW",
+        "pattern_name": "BRAWY",
         "pattern_name_official": "BRAWY",
         "positions_mm": [
             "10",
@@ -28828,9 +28702,10 @@
             "G",
             "W",
             "R",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "GWRG",
+        "pattern_name": "GWRGB",
         "pattern_name_official": "GWRGB",
         "positions_mm": [
             "25",
@@ -29020,10 +28895,9 @@
         "colors": [
             "A",
             "O",
-            "L",
-            "W"
+            "L"
         ],
-        "pattern_name": "AOLW",
+        "pattern_name": "AOL",
         "pattern_name_official": "AOL",
         "positions_mm": [
             "30",
@@ -29074,9 +28948,10 @@
             "R",
             "A",
             "Y",
-            "G"
+            "G",
+            "A"
         ],
-        "pattern_name": "RAYG",
+        "pattern_name": "RAYGA",
         "pattern_name_official": "RAYGA",
         "positions_mm": [
             "20",
@@ -29096,7 +28971,7 @@
             "O"
         ],
         "pattern_name": "YGOO",
-        "pattern_name_official": "YGOO NUT DESCENTRAT",
+        "pattern_name_official": "YGOONUTDESCENTRAT",
         "positions_mm": [
             "15",
             "25",
@@ -29181,9 +29056,10 @@
             "G",
             "O",
             "L",
-            "A"
+            "A",
+            "R"
         ],
-        "pattern_name": "GOLA",
+        "pattern_name": "GOLAR",
         "pattern_name_official": "GOLAR",
         "positions_mm": [
             "20",
@@ -29200,9 +29076,10 @@
             "O",
             "R",
             "G",
-            "Y"
+            "Y",
+            "A"
         ],
-        "pattern_name": "ORGY",
+        "pattern_name": "ORGYA",
         "pattern_name_official": "ORGYA",
         "positions_mm": [
             "20",
@@ -29428,11 +29305,9 @@
         "recipe_id": "185889",
         "product_code": "922410404100",
         "colors": [
-            "R",
-            "G",
-            "W"
+            "R"
         ],
-        "pattern_name": "RGW",
+        "pattern_name": "R",
         "pattern_name_official": "R",
         "positions_mm": [
             "15"
@@ -29553,9 +29428,10 @@
             "G",
             "G",
             "W",
-            "G"
+            "G",
+            "B"
         ],
-        "pattern_name": "GGWG",
+        "pattern_name": "GGWGB",
         "pattern_name_official": "GGWGB",
         "positions_mm": [
             "25",
@@ -29641,10 +29517,9 @@
         "colors": [
             "R",
             "R",
-            "G",
-            "O"
+            "G"
         ],
-        "pattern_name": "RRGO",
+        "pattern_name": "RRG",
         "pattern_name_official": "RRG",
         "positions_mm": [
             "15",
@@ -29659,9 +29534,10 @@
             "A",
             "W",
             "Y",
-            "A"
+            "A",
+            "L"
         ],
-        "pattern_name": "AWYA",
+        "pattern_name": "AWYAL",
         "pattern_name_official": "AWYAL",
         "positions_mm": [
             "35",
@@ -29710,9 +29586,10 @@
             "B",
             "R",
             "A",
-            "W"
+            "W",
+            "A"
         ],
-        "pattern_name": "BRAW",
+        "pattern_name": "BRAWA",
         "pattern_name_official": "BRAWA",
         "positions_mm": [
             "25",
@@ -29728,10 +29605,9 @@
         "colors": [
             "R",
             "L",
-            "A",
-            "O"
+            "A"
         ],
-        "pattern_name": "RLAO",
+        "pattern_name": "RLA",
         "pattern_name_official": "RLA",
         "positions_mm": [
             "15",
@@ -29818,9 +29694,10 @@
             "O",
             "R",
             "B",
-            "Y"
+            "Y",
+            "B"
         ],
-        "pattern_name": "ORBY",
+        "pattern_name": "ORBYB",
         "pattern_name_official": "ORBYB",
         "positions_mm": [
             "20",
@@ -29901,9 +29778,10 @@
             "G",
             "R",
             "A",
-            "W"
+            "W",
+            "A"
         ],
-        "pattern_name": "GRAW",
+        "pattern_name": "GRAWA",
         "pattern_name_official": "GRAWA",
         "positions_mm": [
             "25",
@@ -30163,10 +30041,9 @@
         "colors": [
             "W",
             "G",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WGBY",
+        "pattern_name": "WGB",
         "pattern_name_official": "WGB",
         "positions_mm": [
             "10",
@@ -30234,10 +30111,9 @@
         "colors": [
             "Y",
             "A",
-            "R",
-            "B"
+            "R"
         ],
-        "pattern_name": "YARB",
+        "pattern_name": "YAR",
         "pattern_name_official": "YAR",
         "positions_mm": [
             "35",
@@ -30270,9 +30146,10 @@
             "R",
             "A",
             "G",
-            "A"
+            "A",
+            "Y"
         ],
-        "pattern_name": "RAGA",
+        "pattern_name": "RAGAY",
         "pattern_name_official": "RAGAY",
         "positions_mm": [
             "30",
@@ -30288,10 +30165,9 @@
         "colors": [
             "Y",
             "O",
-            "O",
-            "L"
+            "O"
         ],
-        "pattern_name": "YOOL",
+        "pattern_name": "YOO",
         "pattern_name_official": "YOO",
         "positions_mm": [
             "25",
@@ -30360,9 +30236,10 @@
             "L",
             "O",
             "W",
-            "A"
+            "A",
+            "Y"
         ],
-        "pattern_name": "LOWA",
+        "pattern_name": "LOWAY",
         "pattern_name_official": "LOWAY",
         "positions_mm": [
             "45",
@@ -30378,10 +30255,9 @@
         "colors": [
             "W",
             "G",
-            "L",
-            "Y"
+            "L"
         ],
-        "pattern_name": "WGLY",
+        "pattern_name": "WGL",
         "pattern_name_official": "WGL",
         "positions_mm": [
             "10",
@@ -30414,9 +30290,10 @@
             "A",
             "R",
             "R",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "ARRO",
+        "pattern_name": "ARROB",
         "pattern_name_official": "ARROB",
         "positions_mm": [
             "40",
@@ -30433,9 +30310,10 @@
             "R",
             "G",
             "A",
-            "G"
+            "G",
+            "A"
         ],
-        "pattern_name": "RGAG",
+        "pattern_name": "RGAGA",
         "pattern_name_official": "RGAGA",
         "positions_mm": [
             "15",
@@ -30487,10 +30365,9 @@
         "colors": [
             "Y",
             "A",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "YALB",
+        "pattern_name": "YAL",
         "pattern_name_official": "YAL",
         "positions_mm": [
             "20",
@@ -30505,9 +30382,10 @@
             "O",
             "R",
             "W",
+            "B",
             "B"
         ],
-        "pattern_name": "ORWB",
+        "pattern_name": "ORWBB",
         "pattern_name_official": "ORWBB",
         "positions_mm": [
             "20",
@@ -30578,9 +30456,10 @@
             "O",
             "R",
             "G",
-            "Y"
+            "Y",
+            "L"
         ],
-        "pattern_name": "ORGY",
+        "pattern_name": "ORGYL",
         "pattern_name_official": "ORGYL",
         "positions_mm": [
             "20",
@@ -30596,10 +30475,9 @@
         "colors": [
             "G",
             "O",
-            "G",
-            "R"
+            "G"
         ],
-        "pattern_name": "GOGR",
+        "pattern_name": "GOG",
         "pattern_name_official": "GOG",
         "positions_mm": [
             "40",
@@ -30647,10 +30525,9 @@
         "colors": [
             "W",
             "G",
-            "A",
-            "Y"
+            "A"
         ],
-        "pattern_name": "WGAY",
+        "pattern_name": "WGA",
         "pattern_name_official": "WGA",
         "positions_mm": [
             "10",
@@ -30697,9 +30574,10 @@
             "Y",
             "R",
             "A",
-            "Y"
+            "Y",
+            "W"
         ],
-        "pattern_name": "YRAY",
+        "pattern_name": "YRAYW",
         "pattern_name_official": "YRAYW",
         "positions_mm": [
             "20",
@@ -30841,10 +30719,9 @@
         "colors": [
             "B",
             "A",
-            "G",
-            "B"
+            "G"
         ],
-        "pattern_name": "BAGB",
+        "pattern_name": "BAG",
         "pattern_name_official": "BAG",
         "positions_mm": [
             "05",
@@ -30858,10 +30735,9 @@
         "colors": [
             "B",
             "A",
-            "W",
-            "B"
+            "W"
         ],
-        "pattern_name": "BAWB",
+        "pattern_name": "BAW",
         "pattern_name_official": "BAW",
         "positions_mm": [
             "05",
@@ -30875,10 +30751,9 @@
         "colors": [
             "A",
             "W",
-            "A",
-            "B"
+            "A"
         ],
-        "pattern_name": "AWAB",
+        "pattern_name": "AWA",
         "pattern_name_official": "AWA",
         "positions_mm": [
             "05",
@@ -30963,9 +30838,10 @@
             "G",
             "A",
             "G",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "GAGA",
+        "pattern_name": "GAGAB",
         "pattern_name_official": "GAGAB",
         "positions_mm": [
             "30",
@@ -30999,10 +30875,9 @@
         "colors": [
             "Y",
             "W",
-            "L",
-            "B"
+            "L"
         ],
-        "pattern_name": "YWLB",
+        "pattern_name": "YWL",
         "pattern_name_official": "YWL",
         "positions_mm": [
             "30",
@@ -31087,9 +30962,10 @@
             "G",
             "W",
             "B",
+            "B",
             "B"
         ],
-        "pattern_name": "GWBB",
+        "pattern_name": "GWBBB",
         "pattern_name_official": "GWBBB",
         "positions_mm": [
             "40",
@@ -31196,9 +31072,10 @@
             "A",
             "R",
             "R",
-            "R"
+            "R",
+            "B"
         ],
-        "pattern_name": "ARRR",
+        "pattern_name": "ARRRB",
         "pattern_name_official": "ARRRB",
         "positions_mm": [
             "40",
@@ -31214,10 +31091,9 @@
         "colors": [
             "W",
             "A",
-            "B",
-            "Y"
+            "B"
         ],
-        "pattern_name": "WABY",
+        "pattern_name": "WAB",
         "pattern_name_official": "WAB",
         "positions_mm": [
             "30",
@@ -31320,9 +31196,10 @@
             "W",
             "Y",
             "R",
-            "A"
+            "A",
+            "L"
         ],
-        "pattern_name": "WYRA",
+        "pattern_name": "WYRAL",
         "pattern_name_official": "WYRAL",
         "positions_mm": [
             "20",
@@ -31339,9 +31216,10 @@
             "L",
             "O",
             "Y",
-            "A"
+            "A",
+            "B"
         ],
-        "pattern_name": "LOYA",
+        "pattern_name": "LOYAB",
         "pattern_name_official": "LOYAB",
         "positions_mm": [
             "30",
@@ -31357,10 +31235,9 @@
         "colors": [
             "B",
             "W",
-            "Y",
-            "O"
+            "Y"
         ],
-        "pattern_name": "BWYO",
+        "pattern_name": "BWY",
         "pattern_name_official": "BWY",
         "positions_mm": [
             "05",
@@ -31374,10 +31251,9 @@
         "colors": [
             "B",
             "W",
-            "L",
-            "O"
+            "L"
         ],
-        "pattern_name": "BWLO",
+        "pattern_name": "BWL",
         "pattern_name_official": "BWL",
         "positions_mm": [
             "05",
@@ -31536,9 +31412,10 @@
             "G",
             "R",
             "A",
-            "W"
+            "W",
+            "Y"
         ],
-        "pattern_name": "GRAW",
+        "pattern_name": "GRAWY",
         "pattern_name_official": "GRAWY",
         "positions_mm": [
             "10",
@@ -31554,10 +31431,9 @@
         "colors": [
             "G",
             "Y",
-            "L",
-            "A"
+            "L"
         ],
-        "pattern_name": "GYLA",
+        "pattern_name": "GYL",
         "pattern_name_official": "GYL",
         "positions_mm": [
             "35",
@@ -31751,10 +31627,9 @@
         "colors": [
             "O",
             "L",
-            "G",
-            "Y"
+            "G"
         ],
-        "pattern_name": "OLGY",
+        "pattern_name": "OLG",
         "pattern_name_official": "OLG",
         "positions_mm": [
             "30",
@@ -31769,9 +31644,10 @@
             "G",
             "A",
             "W",
-            "O"
+            "O",
+            "B"
         ],
-        "pattern_name": "GAWO",
+        "pattern_name": "GAWOB",
         "pattern_name_official": "GAWOB",
         "positions_mm": [
             "10",
@@ -31859,10 +31735,9 @@
         "colors": [
             "O",
             "W",
-            "L",
-            "W"
+            "L"
         ],
-        "pattern_name": "OWLW",
+        "pattern_name": "OWL",
         "pattern_name_official": "OWL",
         "positions_mm": [
             "30",

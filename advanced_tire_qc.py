@@ -14,6 +14,7 @@ MM_TO_PX = 1.67
 SCALE_FINAL = 9.40        # px/mm (scara calibrata)
 OFFSET_FINAL = -1         # px (offset orizontal)
 WARPED_SIZE = (2750, 2000)  # (latime, inaltime) - dimensiunea planului warped
+POSITION_TOLERANCE_MM = 4
 
 # Mapare cod litere din JSON -> nume culori interne
 COLOR_CODE_MAP = {
@@ -28,8 +29,8 @@ COLOR_CODE_MAP = {
     "Y": "yellow",
 }
 
-# Range-uri HSV implicite pentru fiecare culoare
-DEFAULT_COLOR_RANGES = {
+# --- TIER 1: Range-uri stricte (precizie maxima, fara fals-pozitive) ---
+STRICT_COLOR_RANGES = {
     "aqua":   [([85, 100, 150], [105, 255, 255])],
     "blue":   [([100, 98, 150], [130, 150, 255])],
     "green":  [([65, 25, 130], [90, 255, 255])],
@@ -38,10 +39,41 @@ DEFAULT_COLOR_RANGES = {
     "orange": [([5, 100, 150], [18, 255, 255])],
     "purple": [([110, 55, 190], [120, 85, 230])],
     "red":    [([0, 70, 90], [12, 255, 255]), ([160, 70, 90], [180, 255, 255])],
-    # White is mostly low saturation; keep hue wide and rely on high value.
     "white":  [([0, 0, 170], [180, 55, 255])],
     "yellow": [([15, 10, 100], [45, 255, 255])],
 }
+
+# --- TIER 2: Range-uri moderate (compromis precizie / acoperire) ---
+MODERATE_COLOR_RANGES = {
+    "aqua":   [([82, 75, 125], [108, 255, 255])],
+    "blue":   [([99, 84, 135], [131, 185, 255])],
+    "green":  [([60, 22, 115], [92, 255, 255])],
+    "lilac":  [([112, 40, 160], [130, 90, 238])],
+    "lime":   [([32, 70, 115], [66, 255, 255])],
+    "orange": [([4, 90, 130], [20, 255, 255])],
+    "purple": [([108, 42, 170], [124, 108, 242])],
+    "red":    [([0, 60, 80], [14, 255, 255]), ([158, 60, 80], [180, 255, 255])],
+    "white":  [([0, 0, 155], [180, 65, 255])],
+    "yellow": [([14, 9, 90], [46, 255, 255])],
+}
+
+# --- TIER 3: Range-uri permisive (acoperire maxima, ultima incercare) ---
+PERMISSIVE_COLOR_RANGES = {
+    "aqua":   [([78, 50, 100], [112, 255, 255])],
+    "blue":   [([98, 70, 120], [132, 220, 255])],
+    "green":  [([55, 20, 100], [95, 255, 255])],
+    "lilac":  [([110, 25, 140], [135, 110, 255])],
+    "lime":   [([30, 60, 100], [68, 255, 255])],
+    "orange": [([3, 80, 110], [22, 255, 255])],
+    "purple": [([105, 30, 150], [128, 130, 255])],
+    "red":    [([0, 50, 70], [15, 255, 255]), ([155, 50, 70], [180, 255, 255])],
+    "white":  [([0, 0, 140], [180, 75, 255])],
+    "yellow": [([13, 8, 80], [48, 255, 255])],
+}
+
+FALLBACK_RANGE_TIERS = [MODERATE_COLOR_RANGES, PERMISSIVE_COLOR_RANGES]
+
+DEFAULT_COLOR_RANGES = STRICT_COLOR_RANGES
 
 GYRL_COLOR_OVERRIDE = {
     "green": [([55, 40, 180], [80, 70, 220])],
@@ -932,16 +964,26 @@ class AdvancedTireQualityChecker:
 
         for i, color_name in enumerate(self.current_pattern.colors):
             line_key = self._line_key(color_name, i)
-            color_ranges = self.current_pattern.color_ranges[color_name]
+            used = used_centers_by_color.get(color_name, [])
 
-            mask = self._adaptive_color_detection(hsv, color_ranges, image_stats)
+            color_ranges = self.current_pattern.color_ranges[color_name]
+            active_mask = self._adaptive_color_detection(hsv, color_ranges, image_stats)
             line_info = self._detect_advanced_line_near_expected(
-                mask,
-                color_name,
-                i,
-                center_hint,
-                used_centers=used_centers_by_color.get(color_name, []),
+                active_mask, color_name, i, center_hint, used_centers=used,
             )
+
+            if not line_info:
+                for tier_ranges in FALLBACK_RANGE_TIERS:
+                    fallback = tier_ranges.get(color_name)
+                    if fallback is None:
+                        continue
+                    fb_mask = self._adaptive_color_detection(hsv, fallback, image_stats)
+                    line_info = self._detect_advanced_line_near_expected(
+                        fb_mask, color_name, i, center_hint, used_centers=used,
+                    )
+                    if line_info:
+                        active_mask = fb_mask
+                        break
 
             if not line_info:
                 missing_lines.append((line_key, color_name, i))
@@ -954,7 +996,7 @@ class AdvancedTireQualityChecker:
             used_centers_by_color.setdefault(color_name, []).append(int(line_info["x_position"]))
 
             x, y, w, h = line_info["bounding_box"]
-            line_mask = mask[y:y + h, x:x + w]
+            line_mask = active_mask[y:y + h, x:x + w]
 
             expected_width = self.current_pattern.expected_widths[i]
             width_tolerance = expected_width * self.current_pattern.tolerance_width
@@ -999,7 +1041,25 @@ class AdvancedTireQualityChecker:
             # Verificare margini neregulate
             edge_defects = self._analyze_line_edges(line_mask)
             all_defects.extend(edge_defects)
+# Position validation: compare measured offset from center vs expected
+            measured_offset_px = abs(line_info["x_position"] - center_hint)
+            expected_offset_px = self._expected_px_for_index(i, color_name)
+            delta_px = abs(measured_offset_px - expected_offset_px)
+            delta_mm = delta_px / max(SCALE_FINAL, 1e-6)
 
+            if delta_mm > POSITION_TOLERANCE_MM:
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.LINE_SHIFTED,
+                        severity=min(delta_mm / 10.0, 1.0),
+                        position=(line_info["x_position"], height // 2),
+                        description=(
+                            f"{line_key} deviată: {delta_mm:.1f}mm de la "
+                            f"poziția așteptată ({expected_offset_px / max(SCALE_FINAL, 1e-6):.1f}mm)"
+                        ),
+                        confidence=0.9
+                    )
+                )
         for line_key, color, idx in missing_lines:
             expected_px = self._expected_px_for_index(idx, color)
             wrong_color_info = self._detect_wrong_color(hsv, expected_px, height, width, color)
@@ -1617,22 +1677,32 @@ class AdvancedTireQualityChecker:
 
         for i, color_name in enumerate(self.current_pattern.colors):
             line_key = self._line_key(color_name, i)
+            used = used_centers_by_color.get(color_name, [])
+
             ranges = self.current_pattern.color_ranges[color_name]
-            mask = self._adaptive_color_detection(hsv, ranges, image_stats)
+            active_mask = self._adaptive_color_detection(hsv, ranges, image_stats)
+            line_info = self._detect_advanced_line_near_expected(
+                active_mask, color_name, i, center_hint, used_centers=used,
+            )
+
+            if not line_info:
+                for tier_ranges in FALLBACK_RANGE_TIERS:
+                    fallback = tier_ranges.get(color_name)
+                    if fallback is None:
+                        continue
+                    fb_mask = self._adaptive_color_detection(hsv, fallback, image_stats)
+                    line_info = self._detect_advanced_line_near_expected(
+                        fb_mask, color_name, i, center_hint, used_centers=used,
+                    )
+                    if line_info:
+                        active_mask = fb_mask
+                        break
 
             if self.debug_mode:
                 try:
-                    cv2.imwrite(f"debug_mask_frame_{color_name}.png", mask)
+                    cv2.imwrite(f"debug_mask_frame_{color_name}.png", active_mask)
                 except Exception:
                     pass
-
-            line_info = self._detect_advanced_line_near_expected(
-                mask,
-                color_name,
-                i,
-                center_hint,
-                used_centers=used_centers_by_color.get(color_name, []),
-            )
 
             if not line_info:
                 missing_lines.append((line_key, color_name, i))
@@ -1645,7 +1715,7 @@ class AdvancedTireQualityChecker:
             used_centers_by_color.setdefault(color_name, []).append(int(line_info["x_position"]))
 
             x, y, w, h = line_info["bounding_box"]
-            line_mask = mask[y:y + h, x:x + w]
+            line_mask = active_mask[y:y + h, x:x + w]
 
             # Width validation (frame mode)
             expected_width = self.current_pattern.expected_widths[i]
@@ -1691,6 +1761,26 @@ class AdvancedTireQualityChecker:
                         position=(x + d.position[0], y + d.position[1]),
                         description=d.description,
                         confidence=d.confidence
+                    )
+                )
+            
+            # Position validation: compare measured offset from center vs expected
+            measured_offset_px = abs(line_info["x_position"] - center_hint)
+            expected_offset_px = self._expected_px_for_index(i, color_name)
+            delta_px = abs(measured_offset_px - expected_offset_px)
+            delta_mm = delta_px / max(SCALE_FINAL, 1e-6)
+
+            if delta_mm > POSITION_TOLERANCE_MM:
+                all_defects.append(
+                    DefectReport(
+                        defect_type=DefectType.LINE_SHIFTED,
+                        severity=min(delta_mm / 10.0, 1.0),
+                        position=(line_info["x_position"], line_info["y_position"]),
+                        description=(
+                            f"{line_key} deviată: {delta_mm:.1f}mm de la "
+                            f"poziția așteptată ({expected_offset_px / max(SCALE_FINAL, 1e-6):.1f}mm)"
+                        ),
+                        confidence=0.9
                     )
                 )
 

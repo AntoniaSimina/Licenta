@@ -11,17 +11,23 @@ import colorsys
 # ================= CONFIG =================
 # ROI partajat cu alte scripturi (y1, y2, x1, x2)
 # ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
-ROI = (311, 474, 476, 763)  # pt video 1 => (379, 875, 680, 1294)
+ROI = (289, 479, 390, 723) # pt video 1 => (379, 875, 680, 1294)
 # ROI este definit pe frame-ul original (înainte de warp).
 ROI_SPACE = "raw"  # "raw" | "warped"
 # SOURCE: "local" sau "rtsp"
 SOURCE = "local"   # "local" | "rtsp"
 
 # Video local
-# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi"  
-VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi"
-# VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\video-scurt.mp4"
-# VIDEO_PATH = r"C:\Users\Antonia\Desktop\Licenta_2.0\V20260129_153301_001.avi"
+
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi" #GYRL
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi" #WWAA
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAR
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAL
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_081539_001.avi" #ARRY
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_151249_001.avi" #LAW
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153301_001.avi" #FINAL CHALLANGE
+
 # RTSP stream
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
 FRAME_WAIT = 30  # warmup frames pentru RTSP
@@ -154,8 +160,6 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
     """
     img = np.zeros((height, width, 3), dtype=np.uint8)
     
-    MM_TO_PX = 1.67
-    
     # Calculăm factorul de scalare (frame original -> video rescalat)
     frame_w, frame_h = frame_size
     scale_x = width / frame_w
@@ -198,27 +202,36 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
     for i, color in enumerate(pattern.colors):
         # Folosim funcția pentru a obține poziția corectă pentru această culoare la acest index
         dist_mm = get_expected_mm_by_color_index(pattern, color, i)
-        dist_px_original = int(dist_mm * MM_TO_PX)  # distanța în pixeli în frame original
+        dist_px_warped = int(dist_mm * SCALE_FINAL + OFFSET_FINAL)
         
-        # Poziția în frame original (la stânga centrului)
-        pos_x_original = center_x_abs - dist_px_original
+        # Poziția în frame-ul warped (la stânga centrului, identic cu overlay-ul video)
+        pos_x_warped = center_x_abs - dist_px_warped
         
-        # Poziția scalată (aceeași scalare ca video-ul)
-        pos_x_scaled = int(pos_x_original * scale_x)
+        # Poziția scalată (aceeași scalare ca video-ul rescalat)
+        pos_x_scaled = int(pos_x_warped * scale_x)
         
         # Lățimea benzii (din pattern, scalată)
         if i < len(pattern.expected_widths):
-            band_width_original = pattern.expected_widths[i]
+            band_width_warped = pattern.expected_widths[i]
         else:
-            band_width_original = 6
-        band_width_scaled = max(4, int(band_width_original * scale_x))
+            band_width_warped = 6
+        band_width_scaled = max(6, int(band_width_warped * scale_x))
         
         half_w = band_width_scaled // 2
         bx1 = pos_x_scaled - half_w
         bx2 = pos_x_scaled + half_w
 
-        # Desenăm banda colorată (pe toată înălțimea, fără etichete)
         cv2.rectangle(img, (bx1, y1_draw), (bx2, y2_draw), color_bgr[color], -1)
+        idx_text = str(i + 1)
+        tx = pos_x_scaled - 4
+        ty = height // 2 + 5
+        cv2.putText(img, idx_text, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 3, cv2.LINE_AA)
+        cv2.putText(img, idx_text, (tx, ty), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, cv2.LINE_AA)
+        mm_text = f"{dist_mm}mm"
+        cv2.putText(img, mm_text, (pos_x_scaled - 16, height - 6 - (i % 2) * 14),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0), 2, cv2.LINE_AA)
+        cv2.putText(img, mm_text, (pos_x_scaled - 16, height - 6 - (i % 2) * 14),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, (200, 200, 200), 1, cv2.LINE_AA)
 
     # Indicator ROI
     cv2.putText(img, "ROI", (x1_scaled + 5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
@@ -333,6 +346,8 @@ class TireQCViewer:
         info = tk.Frame(content, bg="#2b2b2b", width=300, height=550)
         info.grid(row=0, column=1, sticky="nw", padx=(20, 0))
         info.grid_propagate(False)  # Previne redimensionarea automată
+        info.grid_rowconfigure(3, weight=1)
+        info.grid_columnconfigure(0, weight=1)
 
         # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
         pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=110, width=300)
@@ -490,9 +505,10 @@ class TireQCViewer:
         )
         self.pattern_official_label.grid(row=4, column=0, sticky="w", pady=(0, 2))
 
-        # ============ STATUS SECTION (FLEXIBLE SIZE - doar verdictul) ============
+        # ============ STATUS SECTION (BOTTOM-RIGHT) ============
         status_frame = tk.Frame(info, bg="#2b2b2b")
-        status_frame.grid(row=3, column=0, sticky="ew", pady=(10, 0))
+        status_frame.place(relx=1.0, rely=1.0, anchor="se", x=-6, y=-6, width=288)
+        status_frame.lift()
         status_frame.grid_columnconfigure(0, weight=1)
 
         self.status_label = tk.Label(
@@ -700,14 +716,26 @@ class TireQCViewer:
 
     def on_pattern_search_keyrelease(self, event=None):
         """Filtrează lista din combobox în timp ce scrii, fără auto-select forțat."""
+        if event and event.keysym in ('Return', 'Down', 'Up', 'Left', 'Right', 'Escape', 'Tab', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R'):
+            return
+
         typed = self.pattern_var.get().strip()
+        cursor_pos = self.pattern_selector.index(tk.INSERT)
+
         if not typed:
             self.pattern_selector["values"] = self.all_pattern_names
             return
 
         filtered = [p for p in self.all_pattern_names if typed.upper() in p.upper()]
         self.pattern_selector["values"] = filtered if filtered else self.all_pattern_names
-        self.pattern_selector.event_generate("<Down>")
+
+        self.pattern_selector.set(typed)
+        self.pattern_selector.icursor(cursor_pos)
+
+        try:
+            self.pattern_selector.tk.call('ttk::combobox::Post', self.pattern_selector)
+        except Exception:
+            pass
 
     def on_pattern_search_enter(self, event=None):
         """Aplică pattern-ul scris/selectat când apeși Enter."""
@@ -842,6 +870,17 @@ class TireQCViewer:
             center_px = int(0.8 * self.checker.last_center + 0.2 * detected_center)
             self.checker.last_center = center_px
             
+            roi_for_pattern = (y1, y2, x1, x2) if roi_ok else (0, WARPED_SIZE[1], 0, WARPED_SIZE[0])
+            pattern_img = generate_pattern_image(
+                self.checker.current_pattern,
+                self.VIDEO_WIDTH, 250,
+                roi_for_pattern, WARPED_SIZE, center_px
+            )
+            pattern_rgb = cv2.cvtColor(pattern_img, cv2.COLOR_BGR2RGB)
+            pattern_tk = ImageTk.PhotoImage(Image.fromarray(pattern_rgb))
+            self.pattern_label.configure(image=pattern_tk)
+            self.pattern_label.image = pattern_tk
+
             # Analizează frame-ul (ROI dacă este valid, altfel frame complet)
             result = self.checker.analyze_tire_frame(frame_for_analysis)
 
@@ -909,49 +948,91 @@ class TireQCViewer:
             # Raportează în terminal problemele detectate de algoritm.
             self._report_result_to_terminal(result)
 
-            # Vizualizare pe frame-ul warped
+            # ========== OVERLAY VIZUAL (redesigned) ==========
             overlay = frame_warped.copy()
+            h_warped, w_warped = overlay.shape[:2]
+            cur_pattern = self.checker.current_pattern
 
-            if roi_ok:
-                cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 255), 2)
-                cv2.putText(overlay, "ROI", (x1 + 4, max(15, y1 - 6)),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
-            
-            # Desenează centrul detectat dinamic (galben)
-            cv2.line(overlay, (center_px, 0), (center_px, WARPED_SIZE[1]), (0, 255, 255), 2)
-            cv2.putText(overlay, f"Center_dyn={center_px}px", (max(5, center_px-50), 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 1)
-            
-            # Desenează liniile așteptate pe index de culoare (suportă culori duplicate).
-            y_text = 60
-            for idx, color in enumerate(self.checker.current_pattern.colors):
-                cota_mm = get_expected_mm_by_color_index(self.checker.current_pattern, color, idx)
+            # --- Layer semi-transparent: benzi colorate la pozițiile așteptate ---
+            semi = overlay.copy()
+
+            band_positions_warped = []
+            for idx, color_name in enumerate(cur_pattern.colors):
+                cota_mm = get_expected_mm_by_color_index(cur_pattern, color_name, idx)
                 expected_px = int(cota_mm * SCALE_FINAL + OFFSET_FINAL)
                 pos_x = int(center_px - expected_px)
-                pos_x = max(0, min(WARPED_SIZE[0] - 1, pos_x))
-                cv2.line(overlay, (pos_x, 0), (pos_x, WARPED_SIZE[1]), (0, 255, 0), 2)
-                cv2.putText(overlay, f"{idx + 1}:{color}({cota_mm}mm)", (max(5, pos_x + 5), y_text),
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-                y_text += 14
-            
-            # Desenează liniile detectate (albastru)
-            for color, info in result.detected_lines.items():
-                x, y, w, h = info["bounding_box"]
-                cx = info["x_position"]
-                cv2.rectangle(overlay, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                cv2.circle(overlay, (cx, info["y_position"]), 5, (0, 0, 255), -1)
-            
-            # Desenează defectele
-            verdict_color = (0, 255, 0) if result.is_valid else (0, 0, 255)
-            cv2.putText(overlay, result.quality_level, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.0, verdict_color, 2)
-            cv2.putText(overlay, result.status_message, (20, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.7, verdict_color, 1)
-            
-            # Afișează info calibrare
-            cv2.putText(overlay, f"SCALE={SCALE_FINAL:.2f}px/mm  OFS={OFFSET_FINAL}px",
-                       (20, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
-            
-            # Redimensionează pentru afișaj
+                pos_x = max(0, min(w_warped - 1, pos_x))
+                band_positions_warped.append((pos_x, color_name, cota_mm, idx))
+
+                ranges = cur_pattern.color_ranges.get(color_name, [])
+                if ranges:
+                    lo, hi = ranges[0]
+                    band_bgr = hsv_to_bgr((lo[0]+hi[0])/2, (lo[1]+hi[1])/2, (lo[2]+hi[2])/2)
+                else:
+                    band_bgr = (128, 128, 128)
+
+                bw = max(12, cur_pattern.expected_widths[idx] if idx < len(cur_pattern.expected_widths) else 6)
+                cv2.rectangle(semi, (pos_x - bw, 0), (pos_x + bw, h_warped), band_bgr, -1)
+
+            cv2.rectangle(semi, (center_px - 6, 0), (center_px + 6, h_warped), (255, 0, 255), -1)
+            overlay = cv2.addWeighted(overlay, 0.72, semi, 0.28, 0)
+
+            # --- Elemente opace pe frame-ul warped ---
+            cv2.line(overlay, (center_px, 0), (center_px, h_warped), (255, 0, 255), 3)
+
+            for pos_x, _, _, _ in band_positions_warped:
+                cv2.line(overlay, (pos_x, 0), (pos_x, h_warped), (255, 255, 255), 1)
+
+            if roi_ok:
+                cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 255), 4)
+
+            for color_key, info in result.detected_lines.items():
+                bx, by, bw, bh = info["bounding_box"]
+                cx_det = info["x_position"]
+                cy_det = info["y_position"]
+                cv2.rectangle(overlay, (bx, by), (bx + bw, by + bh), (255, 200, 0), 4)
+                cv2.circle(overlay, (cx_det, cy_det), 10, (0, 0, 255), -1)
+                cv2.circle(overlay, (cx_det, cy_det), 10, (255, 255, 255), 2)
+
+            # --- Resize pentru afișaj ---
             overlay_resized = cv2.resize(overlay, (self.VIDEO_WIDTH, self.VIDEO_HEIGHT))
+            sx = self.VIDEO_WIDTH / w_warped
+            sy = self.VIDEO_HEIGHT / h_warped
+
+            # --- Text clar pe frame-ul RESIZED (nu pe warped) ---
+            def _put_outlined(img, text, pos, scale, fg, thickness=1):
+                cv2.putText(img, str(text), pos, cv2.FONT_HERSHEY_SIMPLEX, scale, (0, 0, 0), thickness + 2, cv2.LINE_AA)
+                cv2.putText(img, str(text), pos, cv2.FONT_HERSHEY_SIMPLEX, scale, fg, thickness, cv2.LINE_AA)
+
+            # Fără banner de verdict peste video: verdictul rămâne în panoul din dreapta.
+            _put_outlined(overlay_resized, f"SCALE={SCALE_FINAL:.1f}px/mm | OFS={OFFSET_FINAL}px", (15, 24), 0.38, (200, 200, 200), 1)
+
+            # Etichete pozitii asteptate
+            label_y_start = 100
+            for i_bp, (pos_x_w, color_name, cota_mm, idx) in enumerate(band_positions_warped):
+                lx = int(pos_x_w * sx)
+                label = f"{idx+1}:{color_name} ({cota_mm}mm)"
+                ly = label_y_start + i_bp * 20
+                _put_outlined(overlay_resized, label, (max(5, lx + 6), ly), 0.45, (0, 255, 80), 1)
+
+            # Label centru
+            center_rx = int(center_px * sx)
+            _put_outlined(overlay_resized, f"Centru: {center_px}px",
+                          (max(5, center_rx - 50), self.VIDEO_HEIGHT - 15), 0.5, (255, 100, 255), 1)
+
+            # Label ROI
+            if roi_ok:
+                rx1 = int(x1 * sx)
+                ry1 = int(y1 * sy)
+                _put_outlined(overlay_resized, "ROI", (rx1 + 4, max(18, ry1 - 6)), 0.6, (0, 255, 255), 1)
+
+            # Contor defecte
+            n_defects = len(result.defects)
+            if n_defects > 0:
+                _put_outlined(overlay_resized, f"Defecte: {n_defects}",
+                              (self.VIDEO_WIDTH - 170, 30), 0.6, (0, 80, 255), 2)
+                              
+            # Redimensionează pentru afișaj
             overlay_rgb = cv2.cvtColor(overlay_resized, cv2.COLOR_BGR2RGB)
             img = ImageTk.PhotoImage(Image.fromarray(overlay_rgb))
             self.video_label.configure(image=img)

@@ -6,13 +6,13 @@ import cv2
 SOURCE = "local"  # "local" | "rtsp"
 
 # Video local (când SOURCE == "local")
-VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
 
 # URL RTSP (când SOURCE == "rtsp")
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
 
 # ROI predefinit (y1, y2, x1, x2)
-roi = (299, 779, 666, 1313)
+roi = (243, 555, 379, 836) 
 
 
 def grab_first_frame():

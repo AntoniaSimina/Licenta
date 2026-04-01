@@ -9,24 +9,22 @@ from advanced_tire_qc import AdvancedTireQualityChecker, SCALE_FINAL, OFFSET_FIN
 import colorsys
 
 # ================= CONFIG =================
-# ROI partajat cu alte scripturi (y1, y2, x1, x2)
-# ROI = (233, 659, 379, 807)  # ROI ca în run_video_analysis CELELALTE 2, pt video 1 => (379, 875, 680, 1294)
-ROI = (289, 479, 390, 723) # pt video 1 => (379, 875, 680, 1294)
+ROI = (289, 479, 390, 723) 
 # ROI este definit pe frame-ul original (înainte de warp).
 ROI_SPACE = "raw"  # "raw" | "warped"
 # SOURCE: "local" sau "rtsp"
-SOURCE = "local"   # "local" | "rtsp"
+SOURCE = "rtsp"   # "local" | "rtsp"
 
 # Video local
 
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi" #GYRL
-VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi" #WWAA
-# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi" #WWAA
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAR
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAL
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_081539_001.avi" #ARRY
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_151249_001.avi" #LAW
-# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153301_001.avi" #FINAL CHALLANGE
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153301_001.avi" #FINAL
 
 # RTSP stream
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
@@ -50,7 +48,6 @@ def hsv_to_bgr(h, s, v):
 
 
 def load_calibration():
-    """Încarcă fișierele de calibrare (camera matrix și homography matrix)."""
     camera_mtx = None
     dist = None
 
@@ -76,13 +73,11 @@ def preprocess_frame(frame, camera_mtx, dist, homography):
     """Preprocessează frame-ul: undistort + perspectivă warping."""
     processed = frame
 
-    # Aplică undistortion dacă dispunem de calibrare camerei
     if camera_mtx is not None and dist is not None:
         h, w = frame.shape[:2]
         new_camera_mtx, _ = cv2.getOptimalNewCameraMatrix(camera_mtx, dist, (w, h), 1, (w, h))
         processed = cv2.undistort(frame, camera_mtx, dist, None, new_camera_mtx)
 
-    # Aplică perspectivă warping dacă dispunem de matrice omografie
     if homography is not None:
         processed = cv2.warpPerspective(processed, homography, WARPED_SIZE)
     
@@ -90,7 +85,6 @@ def preprocess_frame(frame, camera_mtx, dist, homography):
 
 
 def project_roi_raw_to_warped(roi, homography, warped_size):
-    """Proiectează ROI din coordonate frame original în coordonate warped."""
     if homography is None or roi is None or len(roi) != 4:
         return roi
 
@@ -147,32 +141,17 @@ def get_expected_mm_by_color_index(pattern, color_name, index_in_colors):
 
 
 def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs):
-    """
-    Generează pattern preview care se ALINIAZĂ cu video-ul rescalat.
-    
-    Args:
-        pattern: Pattern object cu colors, expected_positions_mm etc.
-        width: lățimea imaginii pattern (= VIDEO_WIDTH)
-        height: înălțimea imaginii pattern
-        roi: (y1, y2, x1, x2) - ROI din frame original
-        frame_size: (frame_width, frame_height) - dimensiunea frame-ului original
-        center_x_abs: poziția X absolută a centrului în frame original
-    """
     img = np.zeros((height, width, 3), dtype=np.uint8)
     
-    # Calculăm factorul de scalare (frame original -> video rescalat)
     frame_w, frame_h = frame_size
     scale_x = width / frame_w
     
-    # Poziția centrului în imaginea rescalată
     center_x_scaled = int(center_x_abs * scale_x)
     
-    # ROI rescalat (pentru a desena zona activă)
     y1_roi, y2_roi, x1_roi, x2_roi = roi
     x1_scaled = int(x1_roi * scale_x)
     x2_scaled = int(x2_roi * scale_x)
 
-    # Culori BGR din HSV ranges
     color_bgr = {}
     for color_name in pattern.colors:
         ranges = pattern.color_ranges.get(color_name, [])
@@ -185,32 +164,23 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
         else:
             color_bgr[color_name] = (128, 128, 128)
 
-    # Zona de desenare pe Y
     y1_draw = 0
     y2_draw = height
 
-    # Fundal ușor mai închis pentru zona ROI
     cv2.rectangle(img, (x1_scaled, 0), (x2_scaled, height), (30, 30, 30), -1)
 
-    # Desenăm linia de CENTRU (magenta, punctată)
     for yy in range(0, height, 6):
         cv2.line(img, (center_x_scaled, yy), (center_x_scaled, min(yy + 3, height)), (255, 0, 255), 2)
     cv2.putText(img, "CENTRU", (center_x_scaled - 30, height - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 255), 1)
 
-    # Desenăm fiecare culoare la poziția sa exactă (scalată la fel ca video-ul)
-    # Pentru pattern-uri cu culori duplicate, folosim indexul din pattern.colors.
     for i, color in enumerate(pattern.colors):
-        # Folosim funcția pentru a obține poziția corectă pentru această culoare la acest index
         dist_mm = get_expected_mm_by_color_index(pattern, color, i)
         dist_px_warped = int(dist_mm * SCALE_FINAL + OFFSET_FINAL)
         
-        # Poziția în frame-ul warped (la stânga centrului, identic cu overlay-ul video)
         pos_x_warped = center_x_abs - dist_px_warped
         
-        # Poziția scalată (aceeași scalare ca video-ul rescalat)
         pos_x_scaled = int(pos_x_warped * scale_x)
         
-        # Lățimea benzii (din pattern, scalată)
         if i < len(pattern.expected_widths):
             band_width_warped = pattern.expected_widths[i]
         else:
@@ -233,7 +203,6 @@ def generate_pattern_image(pattern, width, height, roi, frame_size, center_x_abs
         cv2.putText(img, mm_text, (pos_x_scaled - 16, height - 6 - (i % 2) * 14),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.3, (200, 200, 200), 1, cv2.LINE_AA)
 
-    # Indicator ROI
     cv2.putText(img, "ROI", (x1_scaled + 5, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
     cv2.line(img, (x1_scaled, 0), (x1_scaled, height), (0, 255, 255), 1)
     cv2.line(img, (x2_scaled, 0), (x2_scaled, height), (0, 255, 255), 1)
@@ -248,40 +217,32 @@ class TireQCViewer:
         self.root.geometry("1400x900")
         self.root.configure(bg="#2b2b2b")
 
-        # Încarcă calibrarea (camera matrix și homography)
         self.camera_mtx, self.dist, self.homography = load_calibration()
 
-        # Încarcă pattern-urile din fișierul JSON de producție
         self.checker = AdvancedTireQualityChecker(patterns_json_file=PATTERNS_JSON_FILE)
         
-        # Selectează primul pattern disponibil (sau un pattern specific dacă există)
         available_patterns = self.checker.get_pattern_names()
         if available_patterns:
-            # Setează primul pattern ca implicit
             default_pattern = available_patterns[0]
             self.checker.set_current_pattern(default_pattern)
             print(f"✅ Pattern implicit setat: {default_pattern}")
         else:
             print("⚠️ Niciun pattern disponibil!")
         
-        self.checker.fixed_tire_center_x = 991  # Setat ca în run_video_analysis
+        self.checker.fixed_tire_center_x = 991 
         self.checker.debug_mode = True
         pattern = self.checker.current_pattern
         
-        # Verificare de siguranță în cazul în care nu există pattern-uri
         if pattern is None:
             raise RuntimeError("Nu s-a putut încărca niciun pattern. Verificați fișierul patterns_productie.json")
 
-        # Dimensiuni fixe pentru video (nu se micșorează)
         self.VIDEO_WIDTH = 1000
         self.VIDEO_HEIGHT = 600
-        # Folosim ROI-ul partajat de nivel modul
         self.roi = ROI
         self.roi_space = ROI_SPACE
         print(f"[INFO] ROI activ ({self.roi_space}): {self.roi}")
 
-        # Dimensiunea frame-ului original (vom actualiza după prima citire)
-        self.frame_size = (1920, 1080)  # default, se va actualiza
+        self.frame_size = (1920, 1080)
 
         color_bgr = {}
         for color_name in pattern.colors:
@@ -307,14 +268,12 @@ class TireQCViewer:
         root.grid_columnconfigure(0, weight=1)
 
         main.grid_rowconfigure(1, weight=1)
-        main.grid_columnconfigure(0, weight=0)  # Video fix
-        main.grid_columnconfigure(1, weight=1)  # Info se extinde
+        main.grid_columnconfigure(0, weight=0)  
+        main.grid_columnconfigure(1, weight=1) 
 
         pattern_frame = tk.Frame(main, bg="#2b2b2b")
         pattern_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 5))
 
-        # Pattern image - va fi actualizat după prima citire a frame-ului
-        # pentru a folosi dimensiunile reale ale video-ului
         self.pattern_frame_widget = pattern_frame
         self.pattern_label = tk.Label(
             pattern_frame,
@@ -323,13 +282,11 @@ class TireQCViewer:
             relief="solid"
         )
         self.pattern_label.grid(row=0, column=0)
-        self.pattern_image_created = False
-        self.pattern_center_x = None  # Centrul folosit pentru pattern-ul curent
+        self.pattern_center_x = None 
 
         content = tk.Frame(main, bg="#2b2b2b")
         content.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
 
-        # Video are dimensiune FIXĂ, info panel se adaptează
         content.grid_rowconfigure(0, weight=1)
         content.grid_columnconfigure(0, weight=0, minsize=self.VIDEO_WIDTH)
         content.grid_columnconfigure(1, weight=1)
@@ -346,11 +303,9 @@ class TireQCViewer:
 
         info = tk.Frame(content, bg="#2b2b2b", width=300, height=550)
         info.grid(row=0, column=1, sticky="nw", padx=(20, 0))
-        info.grid_propagate(False)  # Previne redimensionarea automată
-        # info.grid_rowconfigure(3, weight=1)
+        info.grid_propagate(False)  
         info.grid_columnconfigure(0, weight=1)
 
-        # ============ PATTERN SELECTOR SECTION (FIXED SIZE) ============
         pattern_selector_frame = tk.Frame(info, bg="#2b2b2b", height=110, width=300)
         pattern_selector_frame.grid(row=0, column=0, sticky="nw", pady=(0, 10))
         pattern_selector_frame.grid_propagate(False)
@@ -370,7 +325,6 @@ class TireQCViewer:
         if not self.all_pattern_names:
             self.all_pattern_names = self.checker.get_pattern_names()
 
-        # Navigare rapida pattern-uri
         nav_frame = tk.Frame(pattern_selector_frame, bg="#2b2b2b")
         nav_frame.grid(row=1, column=0, sticky="ew", pady=(0, 5))
         nav_frame.grid_columnconfigure(1, weight=1)
@@ -397,7 +351,6 @@ class TireQCViewer:
             command=self.select_next_pattern
         ).grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
-        # Cautare cu autocomplete (fara popup custom)
         search_frame = tk.Frame(pattern_selector_frame, bg="#2b2b2b")
         search_frame.grid(row=2, column=0, sticky="ew")
         search_frame.grid_columnconfigure(1, weight=1)
@@ -434,10 +387,9 @@ class TireQCViewer:
             command=self.on_pattern_search_enter
         ).grid(row=0, column=2, sticky="ew", padx=(5, 0))
 
-        # ============ COLORS SECTION (FIXED SIZE) ============
         colors_container_frame = tk.Frame(info, bg="#2b2b2b", height=200, width=300)
         colors_container_frame.grid(row=1, column=0, sticky="nw", pady=(0, 10))
-        colors_container_frame.grid_propagate(False)  # Nu se redimensionează automat
+        colors_container_frame.grid_propagate(False)  
         colors_container_frame.grid_columnconfigure(0, weight=0)
 
         tk.Label(
@@ -448,12 +400,10 @@ class TireQCViewer:
             bg="#2b2b2b"
         ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
-        # Frame pentru culori (va fi actualizat dinamic)
         self.colors_frame = tk.Frame(colors_container_frame, bg="#2b2b2b")
         self.colors_frame.grid(row=1, column=0, sticky="w")
         self._update_colors_display(pattern, color_map)
 
-        # ============ PATTERN INFO SECTION ============
         pattern_info_frame = tk.Frame(info, bg="#2b2b2b", width=300)
         pattern_info_frame.grid(row=2, column=0, sticky="nw", pady=(0, 10))
         pattern_info_frame.grid_columnconfigure(0, weight=0)
@@ -466,17 +416,15 @@ class TireQCViewer:
             bg="#2b2b2b"
         ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
-        # Pattern Name (mare, proeminent)
         self.pattern_name_label = tk.Label(
             pattern_info_frame,
             text=pattern.name,
             font=("Segoe UI", 40, "bold"),
-            fg="#00ff00",  # verde deschis
+            fg="#00ff00", 
             bg="#2b2b2b"
         )
         self.pattern_name_label.grid(row=1, column=0, sticky="w", pady=(0, 10))
 
-        # Recipe ID
         self.recipe_id_label = tk.Label(
             pattern_info_frame,
             text=f"Recipe ID: {pattern.recipe_id}",
@@ -486,7 +434,6 @@ class TireQCViewer:
         )
         self.recipe_id_label.grid(row=2, column=0, sticky="w", pady=(0, 2))
 
-        # Product Code
         self.product_code_label = tk.Label(
             pattern_info_frame,
             text=f"Product Code: {pattern.product_code}",
@@ -496,7 +443,6 @@ class TireQCViewer:
         )
         self.product_code_label.grid(row=3, column=0, sticky="w", pady=(0, 2))
 
-        # Nume pattern (canonic)
         self.pattern_official_label = tk.Label(
             pattern_info_frame,
             text=f"Nume pattern: {pattern.name}",
@@ -506,7 +452,6 @@ class TireQCViewer:
         )
         self.pattern_official_label.grid(row=4, column=0, sticky="w", pady=(0, 2))
 
-        # ============ STATUS SECTION (sub content, în main) ============
         status_frame = tk.Frame(main, bg="#2b2b2b")
         status_frame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=10, pady=(0, 10))
         status_frame.grid_columnconfigure(0, weight=0)
@@ -547,7 +492,6 @@ class TireQCViewer:
         )
         self.defects_label.grid(row=0, column=2, sticky="w")
 
-        # Deschidem captura în funcție de SOURCE
         if SOURCE == "local":
             self.cap = cv2.VideoCapture(VIDEO_PATH)
             if not self.cap.isOpened():
@@ -558,7 +502,6 @@ class TireQCViewer:
             if not self.cap.isOpened():
                 raise RuntimeError(f"❌ Nu pot deschide RTSP: {RTSP_URL}")
             print(f"✅ Stream RTSP deschis: {RTSP_URL}")
-            # Warmup frames pentru stabilizare RTSP
             for _ in range(FRAME_WAIT):
                 self.cap.read()
         else:
@@ -576,7 +519,6 @@ class TireQCViewer:
         self.update_frame()
 
     def _report_result_to_terminal(self, result):
-        """Afișează în terminal problemele detectate (fără spam pe fiecare frame)."""
         defect_descriptions = sorted(d.description for d in result.defects)
         signature = (result.is_valid, result.status_message, tuple(defect_descriptions))
 
@@ -599,7 +541,6 @@ class TireQCViewer:
         self._last_valid_state = result.is_valid
 
     def _report_position_check_skips(self, debug_info):
-        """Raportează explicit când verificarea de poziție a fost sărită pentru culori."""
         if not isinstance(debug_info, dict):
             return
 
@@ -765,11 +706,9 @@ class TireQCViewer:
         
         print(f"✅ Pattern selectat: {pattern_name}")
 
-        # Setează noul pattern
         self.checker.set_current_pattern(pattern_name)
         pattern = self.checker.current_pattern
 
-        # Reset position history pentru noul pattern
         self.checker.last_positions = {}
         self.checker.shift_persistence = {}
         self._last_offset_report_signature = None
@@ -783,26 +722,21 @@ class TireQCViewer:
         self.pattern_var.set(pattern.name)
         self.pattern_selector["values"] = self.all_pattern_names
 
-        # Actualizează afișarea culorilor
         color_map = self._get_color_map(pattern)
         self._update_colors_display(pattern, color_map)
 
-        # Actualizează informațiile pattern-ului
         self.pattern_name_label.config(text=pattern.name)
         self.recipe_id_label.config(text=f"Recipe ID: {pattern.recipe_id}")
         self.product_code_label.config(text=f"Product Code: {pattern.product_code}")
         self.pattern_official_label.config(text=f"Nume pattern: {pattern.name}")
 
-        # Regenerează pattern image
         self.pattern_center_x = self.checker.fixed_tire_center_x
 
     def _update_colors_display(self, pattern, color_map):
         """Actualizează afișarea culorilor în panel."""
-        # Șterge widget-urile vechi
         for widget in self.colors_frame.winfo_children():
             widget.destroy()
 
-        # Creează noile widget-uri pentru culori
         for i, color in enumerate(pattern.colors):
             row = tk.Frame(self.colors_frame, bg="#2b2b2b")
             row.grid(row=i, column=0, sticky="w", pady=4)
@@ -827,7 +761,6 @@ class TireQCViewer:
                 self.root.after(50, self.update_frame)
                 return
             
-            # Preprocess frame: undistort + warp
             frame_warped = preprocess_frame(frame, self.camera_mtx, self.dist, self.homography)
             
             if frame_warped is None or frame_warped.size == 0:
@@ -835,7 +768,6 @@ class TireQCViewer:
                 self.root.after(50, self.update_frame)
                 return
             
-            # Aplică ROI în fluxul live (similar cu analyze_video).
             roi_ok = False
             y1 = y2 = x1 = x2 = 0
             frame_for_analysis = frame_warped
@@ -853,11 +785,9 @@ class TireQCViewer:
                 if roi_ok:
                     frame_for_analysis = frame_warped[y1:y2, x1:x2]
 
-            # Detectează centrul dinamic în ROI-ul activ (dacă există), altfel pe cadrul complet.
             if roi_ok:
                 detected_center_local = self.checker._find_center_by_intensity_profile(frame_for_analysis)
                 if detected_center_local is None:
-                    # Fallback corect în coordonate absolute: centrul ROI-ului proiectat.
                     detected_center = x1 + (x2 - x1) // 2
                 else:
                     detected_center = x1 + detected_center_local
@@ -866,7 +796,6 @@ class TireQCViewer:
                 if detected_center is None:
                     detected_center = WARPED_SIZE[0] // 2
 
-            # Stabilizare: 80% istoric + 20% detectat
             center_px = int(0.8 * self.checker.last_center + 0.2 * detected_center)
             self.checker.last_center = center_px
             
@@ -881,10 +810,8 @@ class TireQCViewer:
             self.pattern_label.configure(image=pattern_tk)
             self.pattern_label.image = pattern_tk
 
-            # Analizează frame-ul (ROI dacă este valid, altfel frame complet)
             result = self.checker.analyze_tire_frame(frame_for_analysis)
 
-            # Dacă am analizat pe ROI, translăm coordonatele în sistemul frame-ului complet.
             if roi_ok:
                 remapped_lines = {}
                 for color, info in result.detected_lines.items():
@@ -909,7 +836,6 @@ class TireQCViewer:
                     )
                 result.defects = remapped_defects
 
-            # Verificare poziții față de centru folosind cotele din pattern (JSON).
             if roi_ok:
                 defects_abs, debug_info_abs = self.checker._analyze_frame_absolute(
                     frame_for_analysis,
@@ -929,7 +855,6 @@ class TireQCViewer:
 
             self._report_position_check_skips(debug_info_abs)
             
-            # Rezumat status
             found_lines = {
                 self.checker._line_key(c, i): (self.checker._line_key(c, i) in result.detected_lines)
                 for i, c in enumerate(self.checker.current_pattern.colors)
@@ -945,15 +870,12 @@ class TireQCViewer:
 
             self._report_line_offsets(result, center_px)
 
-            # Raportează în terminal problemele detectate de algoritm.
             self._report_result_to_terminal(result)
 
-            # ========== OVERLAY VIZUAL (redesigned) ==========
             overlay = frame_warped.copy()
             h_warped, w_warped = overlay.shape[:2]
             cur_pattern = self.checker.current_pattern
 
-            # --- Layer semi-transparent: benzi colorate la pozițiile așteptate ---
             semi = overlay.copy()
 
             band_positions_warped = []
@@ -977,7 +899,6 @@ class TireQCViewer:
             cv2.rectangle(semi, (center_px - 6, 0), (center_px + 6, h_warped), (255, 0, 255), -1)
             overlay = cv2.addWeighted(overlay, 0.72, semi, 0.28, 0)
 
-            # --- Elemente opace pe frame-ul warped ---
             cv2.line(overlay, (center_px, 0), (center_px, h_warped), (255, 0, 255), 3)
 
             for pos_x, _, _, _ in band_positions_warped:
@@ -994,20 +915,16 @@ class TireQCViewer:
                 cv2.circle(overlay, (cx_det, cy_det), 10, (0, 0, 255), -1)
                 cv2.circle(overlay, (cx_det, cy_det), 10, (255, 255, 255), 2)
 
-            # --- Resize pentru afișaj ---
             overlay_resized = cv2.resize(overlay, (self.VIDEO_WIDTH, self.VIDEO_HEIGHT))
             sx = self.VIDEO_WIDTH / w_warped
             sy = self.VIDEO_HEIGHT / h_warped
 
-            # --- Text clar pe frame-ul RESIZED (nu pe warped) ---
             def _put_outlined(img, text, pos, scale, fg, thickness=1):
                 cv2.putText(img, str(text), pos, cv2.FONT_HERSHEY_SIMPLEX, scale, (0, 0, 0), thickness + 2, cv2.LINE_AA)
                 cv2.putText(img, str(text), pos, cv2.FONT_HERSHEY_SIMPLEX, scale, fg, thickness, cv2.LINE_AA)
 
-            # Fără banner de verdict peste video: verdictul rămâne în panoul din dreapta.
             _put_outlined(overlay_resized, f"SCALE={SCALE_FINAL:.1f}px/mm | OFS={OFFSET_FINAL}px", (15, 24), 0.38, (200, 200, 200), 1)
 
-            # Etichete pozitii asteptate
             label_y_start = 100
             for i_bp, (pos_x_w, color_name, cota_mm, idx) in enumerate(band_positions_warped):
                 lx = int(pos_x_w * sx)
@@ -1015,24 +932,20 @@ class TireQCViewer:
                 ly = label_y_start + i_bp * 20
                 _put_outlined(overlay_resized, label, (max(5, lx + 6), ly), 0.45, (0, 255, 80), 1)
 
-            # Label centru
             center_rx = int(center_px * sx)
             _put_outlined(overlay_resized, f"Centru: {center_px}px",
                           (max(5, center_rx - 50), self.VIDEO_HEIGHT - 15), 0.5, (255, 100, 255), 1)
 
-            # Label ROI
             if roi_ok:
                 rx1 = int(x1 * sx)
                 ry1 = int(y1 * sy)
                 _put_outlined(overlay_resized, "ROI", (rx1 + 4, max(18, ry1 - 6)), 0.6, (0, 255, 255), 1)
 
-            # Contor defecte
             n_defects = len(result.defects)
             if n_defects > 0:
                 _put_outlined(overlay_resized, f"Defecte: {n_defects}",
                               (self.VIDEO_WIDTH - 170, 30), 0.6, (0, 80, 255), 2)
                               
-            # Redimensionează pentru afișaj
             overlay_rgb = cv2.cvtColor(overlay_resized, cv2.COLOR_BGR2RGB)
             img = ImageTk.PhotoImage(Image.fromarray(overlay_rgb))
             self.video_label.configure(image=img)

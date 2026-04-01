@@ -7,7 +7,7 @@ import os
 SOURCE = "local"  # "local" | "rtsp"
 
 # Calea video local (folosită când SOURCE == "local")
-VIDEO_PATH = r"C:\\Users\\Antonia\\Downloads\\V20251202_105058_001.avi"
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi"
 
 # URL RTSP (folosit când SOURCE == "rtsp")
 RTSP_URL = "rtsp://user:pass@ip:port/stream"

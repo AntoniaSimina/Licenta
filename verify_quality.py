@@ -16,6 +16,8 @@ class DefectType(Enum):
     COLOR_MISSING = "culoare_lipsa"
     LINE_SHIFTED = "linie_deplasata"
     WIDTH_WRONG = "latime_gresita"
+    LINE_DEVIATED = "linie_deviata"
+    LINE_BROKEN = "linie_intrerupta"
 
 
 @dataclass
@@ -31,6 +33,8 @@ class Pattern:
 
     tolerance_width: float = 0.5
     tolerance_position_mm: float = 6.0   # ±6 mm
+    tolerance_straightness_mm: float = 2.0
+    min_line_continuity: float = 0.85
 
 
 @dataclass
@@ -87,7 +91,9 @@ class AdvancedTireQualityChecker:
             },
             expected_widths=[30, 30, 30, 30],
             expected_positions_mm=expected_positions_mm,
-            expected_positions_px=expected_positions_px
+            expected_positions_px=expected_positions_px,
+            tolerance_straightness_mm=2.5,
+            min_line_continuity=0.85
         )
 
         self.patterns["YAWG"] = yawg
@@ -137,6 +143,35 @@ class AdvancedTireQualityChecker:
                         0.6,
                         (line["x"], h // 2),
                         f"{color}: latime {line['width']}px (asteptat {expected_w})",
+                        0.9
+                    )
+                )
+
+            # ----------------------------
+            # STRAIGHTNESS CHECK
+            # ----------------------------
+            max_dev_mm = line["max_deviation_px"] / MM_TO_PX
+            if max_dev_mm > self.current_pattern.tolerance_straightness_mm:
+                defects.append(
+                    DefectReport(
+                        DefectType.LINE_DEVIATED,
+                        min(max_dev_mm / self.current_pattern.tolerance_straightness_mm, 1.0),
+                        (line["x"], h // 2),
+                        f"{color}: deviere max {max_dev_mm:.2f}mm",
+                        0.9
+                    )
+                )
+
+            # ----------------------------
+            # CONTINUITY CHECK
+            # ----------------------------
+            if line["continuity"] < self.current_pattern.min_line_continuity:
+                defects.append(
+                    DefectReport(
+                        DefectType.LINE_BROKEN,
+                        min(1.0 - line["continuity"], 1.0),
+                        (line["x"], h // 2),
+                        f"{color}: continuitate {line['continuity']*100:.1f}%",
                         0.9
                     )
                 )
@@ -197,10 +232,32 @@ class AdvancedTireQualityChecker:
         x_right = int(valid_cols[-1])
         cx = (x_left + x_right) // 2
 
+        ys, xs = np.where(mask > 0)
+        if len(xs) < 50:
+            return None
+
+        continuity_rows = np.unique(ys)
+        continuity = len(continuity_rows) / float(h)
+
+        vx, vy, x0, y0 = cv2.fitLine(
+            np.column_stack((xs, ys)).astype(np.float32),
+            cv2.DIST_L2,
+            0,
+            0.01,
+            0.01
+        )
+        dx = xs - x0
+        dy = ys - y0
+        denom = np.hypot(vx, vy)
+        distances = np.abs(vx * dy - vy * dx) / denom
+        max_deviation_px = float(np.max(distances)) if len(distances) else 0.0
+
         return {
             "x": cx,
             "width": x_right - x_left + 1,
-            "bounding_box": (x_left, 0, x_right - x_left + 1, h)
+            "bounding_box": (x_left, 0, x_right - x_left + 1, h),
+            "max_deviation_px": max_deviation_px,
+            "continuity": continuity
         }
 
 

@@ -1,7 +1,12 @@
 # Smart Tire Quality Control
 
 ## Descriere
-Smart Tire Quality Control este o aplicație desktop pentru analiza video și controlul calității anvelopelor, bazată pe procesare de imagini. Proiectul folosește un GUI în Python pentru încărcarea unui video local sau a unui stream RTSP, aplică calibrare cameră și omografie, apoi verifică poziția, lățimea și continuitatea liniilor/colorilor dintr-un pattern de producție.
+Smart Tire Quality Control este o aplicație desktop pentru analiza video și controlul calității anvelopelor, bazată pe procesare de imagini. Aplicația încarcă un video local sau un stream RTSP, aplică calibrarea camerei și omografia, apoi verifică poziția, lățimea și continuitatea liniilor/colorilor dintr-un pattern de producție.
+
+## Livrabilele proiectului
+- Adresa repository-ului: https://github.com/AntoniaSimina/Licenta.git
+- Codul sursă complet al aplicației este inclus în acest folder.
+- Fișierele de configurare și datele folosite de aplicație sunt incluse în proiect.
 
 ## Tehnologii
 - Python
@@ -10,13 +15,17 @@ Smart Tire Quality Control este o aplicație desktop pentru analiza video și co
 - NumPy
 - Pillow
 
+## Cerințe
+- Python 3.10 sau mai nou
+- bibliotecile Python necesare instalate local
+
 ## Instalare
 
 ```bash
 pip install opencv-python numpy pillow
 ```
 
-## Rulare
+## Lansarea aplicației
 
 ```bash
 python app.py

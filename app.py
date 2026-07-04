@@ -18,8 +18,8 @@ SOURCE = "local"   # "local" | "rtsp"
 # Video local
 
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153506_001.avi" #GYRL
-# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi" #WWAA
-VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
+VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_123605_001.avi" #WWAA
+# VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAR
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_133420_001.avi" #WAL
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_081539_001.avi" #ARRY
@@ -476,18 +476,6 @@ class TireQCViewer:
         )
         self.quality_label.grid(row=0, column=1, sticky="w", padx=(0, 30))
 
-        self.defects_label = tk.Label(
-            status_frame,
-            text="Defecte: Niciunul",
-            font=("Segoe UI", 10),
-            fg="white",
-            bg="#2b2b2b",
-            wraplength=280,
-            justify="left",
-            anchor="w"
-        )
-        self.defects_label.grid(row=0, column=2, sticky="w")
-
         if SOURCE == "local":
             self.cap = cv2.VideoCapture(VIDEO_PATH)
             if not self.cap.isOpened():
@@ -928,11 +916,6 @@ class TireQCViewer:
                 ry1 = int(y1 * sy)
                 _put_outlined(overlay_resized, "ROI", (rx1 + 4, max(18, ry1 - 6)), 0.6, (0, 255, 255), 1)
 
-            n_defects = len(result.defects)
-            if n_defects > 0:
-                _put_outlined(overlay_resized, f"Defecte: {n_defects}",
-                              (self.VIDEO_WIDTH - 170, 30), 0.6, (0, 80, 255), 2)
-                              
             overlay_rgb = cv2.cvtColor(overlay_resized, cv2.COLOR_BGR2RGB)
             img = ImageTk.PhotoImage(Image.fromarray(overlay_rgb))
             self.video_label.configure(image=img)
@@ -940,8 +923,6 @@ class TireQCViewer:
 
             self.status_label.config(text=f"Status: {result.status_message}", fg="green" if result.is_valid else "red")
             self.quality_label.config(text=f"Calitate: {result.quality_level}")
-            defects_text = f"Defecte: {len(result.defects)}" if result.defects else "Defecte: Niciunul"
-            self.defects_label.config(text=defects_text)
 
             self.root.after(self.delay, self.update_frame)
         except Exception as e:

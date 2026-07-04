@@ -21,20 +21,20 @@ checker.set_current_pattern("YAWG")  # TEMPORAR – doar pt color_ranges
 if SOURCE == "local":
     cap = cv2.VideoCapture(VIDEO_PATH)
     if not cap.isOpened():
-        raise RuntimeError(f"❌ Nu pot deschide video local: {VIDEO_PATH}")
+        raise RuntimeError(f"Nu pot deschide video local: {VIDEO_PATH}")
 
     ret, frame = cap.read()
     cap.release()
 
     if not ret or frame is None:
-        raise RuntimeError("❌ Nu pot citi frame din video local")
+        raise RuntimeError("Nu pot citi frame din video local")
 
 elif SOURCE == "rtsp":
     cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
     if not cap.isOpened():
-        raise RuntimeError("❌ Nu pot deschide RTSP")
+        raise RuntimeError("Nu pot deschide RTSP")
 
-    print("📡 Aștept stabilizare stream...")
+    print("Astept stabilizare stream...")
     for _ in range(FRAME_WAIT):
         cap.read()
 
@@ -42,12 +42,11 @@ elif SOURCE == "rtsp":
     cap.release()
 
     if not ret or frame is None:
-        raise RuntimeError("❌ Nu pot citi frame")
+        raise RuntimeError("Nu pot citi frame")
 
 else:
     raise ValueError("SOURCE trebuie sa fie 'local' sau 'rtsp'")
 
-# Try to obtain ROI from existing scripts: prefer calibrate_center_click, then app.py
 y1 = y2 = x1 = x2 = None
 roi_frame = None
 try:
@@ -57,7 +56,6 @@ try:
     print(f"Using ROI from calibrate_center_click: {ROI}")
 except Exception:
     try:
-        # Try importing a module-level ROI from app.py
         import app as app_module
         ROI = getattr(app_module, 'ROI', None)
         if ROI is not None:
@@ -65,7 +63,6 @@ except Exception:
             roi_frame = frame[y1:y2, x1:x2]
             print(f"Using ROI from app module-level ROI: {ROI}")
         else:
-            # Fallback: parse app.py for 'self.roi = (..)' literal
             import ast, re
             with open('c:\\Users\\Antonia\\Desktop\\Licenta_2.0\\app.py', 'r', encoding='utf-8') as f:
                 src = f.read()
@@ -81,7 +78,6 @@ except Exception:
         x1 = 0
         y1 = 0
 
-# Interactive clicks: first click = center, then clicks for each pattern color in order
 display = roi_frame.copy()
 clicks = []
 
@@ -90,22 +86,20 @@ def click(event, x, y, flags, param):
         return
     clicks.append((x, y))
     disp = display.copy()
-    # draw existing clicks
     for i, (cx, cy) in enumerate(clicks):
         color = (0, 255, 0) if i == 0 else (0, 128, 255)
         cv2.drawMarker(disp, (cx, cy), color, cv2.MARKER_CROSS, 12, 2)
-    cv2.imshow("Calibrare poziții (ROI)", disp)
+    cv2.imshow("Calibrare pozitii (ROI)", disp)
 
 
-cv2.namedWindow("Calibrare poziții (ROI)", cv2.WINDOW_AUTOSIZE)
-cv2.imshow("Calibrare poziții (ROI)", display)
-cv2.setMouseCallback("Calibrare poziții (ROI)", click)
+cv2.namedWindow("Calibrare pozitii (ROI)", cv2.WINDOW_AUTOSIZE)
+cv2.imshow("Calibrare pozitii (ROI)", display)
+cv2.setMouseCallback("Calibrare pozitii (ROI)", click)
 
 num_lines = len(checker.current_pattern.colors)
-print("👉 Click pe CENTRU benzii, apoi click pe fiecare linie în ORDINĂ pattern (aqua, yellow, white, green).")
-print(f"Total clicks așteptate: {1 + num_lines}")
+print("Click pe CENTRU benzii, apoi click pe fiecare linie in ORDINEA pattern (aqua, yellow, white, green).")
+print(f"Total clicks asteptate: {1 + num_lines}")
 
-# wait until we have center + all line clicks
 while True:
     key = cv2.waitKey(10)
     if len(clicks) >= 1 + num_lines:
@@ -116,14 +110,12 @@ while True:
 
 cv2.destroyAllWindows()
 
-# map clicks: first is center
 center_click = clicks[0]
 center_x_roi = center_click[0]
 center_x_global = x1 + center_x_roi
 
-print(f"\n✅ Centru selectat (ROI): x={center_x_roi}px  -> GLOBAL x={center_x_global}px ({center_x_global/MM_TO_PX:.1f} mm)")
+print(f"\nCentru selectat (ROI): x={center_x_roi}px  -> GLOBAL x={center_x_global}px ({center_x_global/MM_TO_PX:.1f} mm)")
 
-# process each color click
 hsv = cv2.cvtColor(roi_frame, cv2.COLOR_BGR2HSV)
 stats = checker._calculate_image_statistics(roi_frame)
 results = {}
@@ -150,11 +142,10 @@ for i, color in enumerate(checker.current_pattern.colors):
 
     print(f"{color.upper():7} | roi_x={click_x:4}px | global_x={global_x:4}px | signedΔ={signed_px:4}px | {signed_mm:6.1f} mm ({side})"
           + (f" | expected={expected_mm}mm ({expected_px}px) | err={abs_err_mm:.1f}mm" if expected_mm is not None else ""))
-    # get configured HSV ranges for this color
+
     ranges = checker.current_pattern.color_ranges.get(color)
     mask = checker._adaptive_color_detection(hsv, ranges, stats)
 
-    # save mask for inspection
     cv2.imwrite(f"debug_mask_{color}.png", mask)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -164,24 +155,21 @@ for i, color in enumerate(checker.current_pattern.colors):
     contours = [c for c in contours if cv2.contourArea(c) > MIN_AREA]
 
     if not contours:
-        print(f"{color.upper():7} ❌ NU DETECTAT (după filtrare MIN_AREA={MIN_AREA})")
+        print(f"{color.upper():7} NU DETECTAT (dupa filtrare MIN_AREA={MIN_AREA})")
         continue
 
     largest = max(contours, key=cv2.contourArea)
 
-    # centroid (moments) e mai robust decât boundingRect center
     M = cv2.moments(largest)
     if M.get("m00", 0) != 0:
-        cx = int(M["m10"] / M["m00"])  # cx is in ROI coords
+        cx = int(M["m10"] / M["m00"]) 
     else:
         bx, by, bw, bh = cv2.boundingRect(largest)
         cx = bx + bw // 2
 
-    # signed distance relative to ROI center click
     dist_px_signed = int(cx - center_x_roi)
     dist_mm_signed = dist_px_signed / MM_TO_PX
 
-    # update structured results (keep previous click-based values too)
     results.setdefault(color, {})
     results[color].update({
         "measured_cx_roi_px": int(cx),
@@ -201,11 +189,9 @@ for i, color in enumerate(checker.current_pattern.colors):
         + (f" | expected={expected_mm}mm ({expected_px}px) | err={abs_err_mm:.1f}mm" if expected_mm is not None else "")
     )
 
-# ========== OUTPUT FINAL ==========
-print("\n===== COPY-PASTE ÎN PATTERN =====")
+print("\n===== COPY-PASTE IN PATTERN =====")
 print("expected_positions_mm = {")
 for c, info in results.items():
-    # info may be a dict with measured values; fall back if structure differs
     if isinstance(info, dict):
         mm_val = info.get("measured_abs_mm") or info.get("abs_mm") or 0
     else:
@@ -213,7 +199,7 @@ for c, info in results.items():
     print(f'    "{c}": {int(round(mm_val))},')
 print("}")
 
-print("\n===== POSITII SEMNATE (mm față de centru) =====")
+print("\n===== POSITII SEMNATE (mm fata de centru) =====")
 for c, info in results.items():
     if isinstance(info, dict):
         signed = info.get("measured_signed_mm") or info.get("signed_mm") or 0.0

@@ -22,15 +22,14 @@ def grab_first_frame():
         raise ValueError("SOURCE trebuie sa fie 'local' sau 'rtsp'")
 
     if not cap.isOpened():
-        print(f"❌ Nu pot deschide sursa ({SOURCE})")
+        print(f"Nu pot deschide sursa ({SOURCE})")
         return None
 
-    # Încearcă să citești un singur frame
     ret, frame = cap.read()
     cap.release()
 
     if not ret or frame is None:
-        print("❌ Nu am putut citi primul frame")
+        print("Nu am putut citi primul frame")
         return None
 
     return frame
@@ -41,7 +40,7 @@ def main():
     if frame is None:
         return
 
-    print("➡️ Selecteaza ROI cu mouse-ul si apasa ENTER sau SPACE")
+    print("Selecteaza ROI cu mouse-ul si apasa ENTER sau SPACE")
 
     roi = cv2.selectROI(
         "Selectare banda cauciuc",

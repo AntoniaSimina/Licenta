@@ -13,7 +13,7 @@ ROI = (289, 479, 390, 723)
 # ROI este definit pe frame-ul original (înainte de warp).
 ROI_SPACE = "raw"  # "raw" | "warped"
 # SOURCE: "local" sau "rtsp"
-SOURCE = "rtsp"   # "local" | "rtsp"
+SOURCE = "local"   # "local" | "rtsp"
 
 # Video local
 
@@ -26,7 +26,6 @@ VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260212_085654_001.avi" #WYO
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260219_151249_001.avi" #LAW
 # VIDEO_PATH = r"C:\Users\Lenovo\Downloads\files\V20260129_153301_001.avi" #FINAL
 
-# RTSP stream
 RTSP_URL = "rtsp://user:pass@ip:port/stream"
 FRAME_WAIT = 30  # warmup frames pentru RTSP
 
@@ -70,7 +69,6 @@ def load_calibration():
 
 
 def preprocess_frame(frame, camera_mtx, dist, homography):
-    """Preprocessează frame-ul: undistort + perspectivă warping."""
     processed = frame
 
     if camera_mtx is not None and dist is not None:
@@ -108,7 +106,6 @@ def project_roi_raw_to_warped(roi, homography, warped_size):
 
 
 def load_pattern_names_from_json(json_path):
-    """Returneaza lista unica de pattern_name, in ordinea din JSON."""
     names = []
     seen = set()
 
@@ -132,7 +129,6 @@ def load_pattern_names_from_json(json_path):
 
 
 def get_expected_mm_by_color_index(pattern, color_name, index_in_colors):
-    """Returnează poziția în mm pentru o culoare la indexul dat din pattern.colors."""
     mm_list = getattr(pattern, "expected_positions_mm_by_index", None)
     if isinstance(mm_list, list) and index_in_colors < len(mm_list):
         return int(mm_list[index_in_colors])
@@ -225,9 +221,9 @@ class TireQCViewer:
         if available_patterns:
             default_pattern = available_patterns[0]
             self.checker.set_current_pattern(default_pattern)
-            print(f"✅ Pattern implicit setat: {default_pattern}")
+            print(f"Pattern implicit setat: {default_pattern}")
         else:
-            print("⚠️ Niciun pattern disponibil!")
+            print("Niciun pattern disponibil!")
         
         self.checker.fixed_tire_center_x = 991 
         self.checker.debug_mode = True
@@ -495,13 +491,13 @@ class TireQCViewer:
         if SOURCE == "local":
             self.cap = cv2.VideoCapture(VIDEO_PATH)
             if not self.cap.isOpened():
-                raise RuntimeError(f"❌ Nu pot deschide video local: {VIDEO_PATH}")
-            print(f"✅ Video local deschis: {VIDEO_PATH}")
+                raise RuntimeError(f"Nu pot deschide video local: {VIDEO_PATH}")
+            print(f"Video local deschis: {VIDEO_PATH}")
         elif SOURCE == "rtsp":
             self.cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
             if not self.cap.isOpened():
-                raise RuntimeError(f"❌ Nu pot deschide RTSP: {RTSP_URL}")
-            print(f"✅ Stream RTSP deschis: {RTSP_URL}")
+                raise RuntimeError(f"Nu pot deschide RTSP: {RTSP_URL}")
+            print(f"Stream RTSP deschis: {RTSP_URL}")
             for _ in range(FRAME_WAIT):
                 self.cap.read()
         else:
@@ -563,7 +559,6 @@ class TireQCViewer:
             print(f"[WARN][POS-CHECK-SKIPPED] {details}")
 
     def _report_line_offsets(self, result, center_px):
-        """Raportează offset-ul măsurat vs așteptat pentru fiecare linie din pattern."""
         if self.checker.current_pattern is None:
             return
 
@@ -610,7 +605,6 @@ class TireQCViewer:
                 )
 
     def _get_color_map(self, pattern):
-        """Generează color_map pentru un pattern."""
         color_bgr = {}
         for color_name in pattern.colors:
             ranges = pattern.color_ranges.get(color_name, [])
@@ -630,7 +624,6 @@ class TireQCViewer:
         return color_map
 
     def select_previous_pattern(self):
-        """Selectează pattern-ul anterior din listă."""
         all_patterns = self.all_pattern_names
         current_name = self.checker.current_pattern.name
         
@@ -643,7 +636,6 @@ class TireQCViewer:
             pass
 
     def select_next_pattern(self):
-        """Selectează pattern-ul următor din listă."""
         all_patterns = self.all_pattern_names
         current_name = self.checker.current_pattern.name
         
@@ -656,7 +648,6 @@ class TireQCViewer:
             pass
 
     def on_pattern_search_keyrelease(self, event=None):
-        """Filtrează lista din combobox în timp ce scrii, fără auto-select forțat."""
         if event and event.keysym in ('Return', 'Down', 'Up', 'Left', 'Right', 'Escape', 'Tab', 'Shift_L', 'Shift_R', 'Control_L', 'Control_R'):
             return
 
@@ -679,7 +670,6 @@ class TireQCViewer:
             pass
 
     def on_pattern_search_enter(self, event=None):
-        """Aplică pattern-ul scris/selectat când apeși Enter."""
         typed = self.pattern_var.get().strip()
         if not typed:
             return
@@ -693,18 +683,16 @@ class TireQCViewer:
             self.apply_pattern(filtered[0])
 
     def on_pattern_change(self, event=None):
-        """Aplică pattern-ul selectat din dropdown."""
         selected = self.pattern_var.get().strip()
         if selected in self.checker.patterns:
             self.apply_pattern(selected)
 
     def apply_pattern(self, pattern_name):
-        """Aplică un pattern și actualizează UI-ul."""
         if pattern_name not in self.checker.patterns:
-            print(f"⚠️ Pattern '{pattern_name}' nu există")
+            print(f"Pattern '{pattern_name}' nu există")
             return
         
-        print(f"✅ Pattern selectat: {pattern_name}")
+        print(f"Pattern selectat: {pattern_name}")
 
         self.checker.set_current_pattern(pattern_name)
         pattern = self.checker.current_pattern
@@ -733,7 +721,6 @@ class TireQCViewer:
         self.pattern_center_x = self.checker.fixed_tire_center_x
 
     def _update_colors_display(self, pattern, color_map):
-        """Actualizează afișarea culorilor în panel."""
         for widget in self.colors_frame.winfo_children():
             widget.destroy()
 
@@ -757,14 +744,14 @@ class TireQCViewer:
         try:
             ret, frame = self.cap.read()
             if not ret or frame is None:
-                print("⚠ Frame lipsă")
+                print("Frame lipsă")
                 self.root.after(50, self.update_frame)
                 return
             
             frame_warped = preprocess_frame(frame, self.camera_mtx, self.dist, self.homography)
             
             if frame_warped is None or frame_warped.size == 0:
-                print("⚠ Frame warping failed")
+                print("Frame warping failed")
                 self.root.after(50, self.update_frame)
                 return
             

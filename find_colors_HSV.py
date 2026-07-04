@@ -24,14 +24,14 @@ def grab_first_frame():
         raise ValueError("SOURCE trebuie sa fie 'local' sau 'rtsp'")
 
     if not cap.isOpened():
-        print(f"❌ Nu pot deschide sursa ({SOURCE})")
+        print(f"Nu pot deschide sursa ({SOURCE})")
         return None
 
     ret, frame = cap.read()
     cap.release()
 
     if not ret or frame is None:
-        print("❌ Nu am putut citi primul frame")
+        print("Nu am putut citi primul frame")
         return None
 
     return frame

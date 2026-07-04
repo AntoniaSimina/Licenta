@@ -139,7 +139,7 @@ class AdvancedTireQualityChecker:
         
         if patterns_json_file and os.path.exists(patterns_json_file):
             count = self.load_patterns_from_json(patterns_json_file)
-            print(f"✅ Încărcat {count} pattern-uri din {patterns_json_file}")
+            print(f"Încărcat {count} pattern-uri din {patterns_json_file}")
         else:
             self._load_default_patterns()
         
@@ -295,14 +295,6 @@ class AdvancedTireQualityChecker:
         self.line_shift_tolerance_ratio = 0.4
 
     def load_patterns_from_json(self, json_file: str) -> int:
-        """Încarcă pattern-urile din fișierul JSON de producție.
-        
-        Args:
-            json_file: Calea către fișierul JSON cu pattern-urile
-            
-        Returns:
-            Numărul de pattern-uri încărcate
-        """
         with open(json_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
@@ -328,7 +320,7 @@ class AdvancedTireQualityChecker:
                 if color_name:
                     colors.append(color_name)
                 else:
-                    print(f"⚠️ Cod culoare necunoscut '{code}' în pattern-ul {pattern_name}")
+                    print(f"Cod culoare necunoscut '{code}' în pattern-ul {pattern_name}")
             
             if not colors:
                 continue
@@ -338,7 +330,7 @@ class AdvancedTireQualityChecker:
                 if color in DEFAULT_COLOR_RANGES:
                     color_ranges[color] = DEFAULT_COLOR_RANGES[color]
                 else:
-                    print(f"⚠️ Nu există range HSV implicit pentru '{color}'")
+                    print(f"Nu există range HSV implicit pentru '{color}'")
                     color_ranges[color] = [([0, 0, 0], [180, 255, 255])]
             
             positions_mm_raw = entry.get("positions_mm", [])
@@ -411,7 +403,6 @@ class AdvancedTireQualityChecker:
         return count
 
     def get_pattern_names(self) -> List[str]:
-        """Returnează lista sortată a numelor de pattern-uri disponibile."""
         return sorted(self.patterns.keys())
 
     def _line_occurrence_index(self, color_name: str, color_index: int) -> int:
@@ -743,7 +734,6 @@ class AdvancedTireQualityChecker:
         return defects
     
     def _calculate_image_statistics(self, image: np.ndarray) -> Dict:
-        """Calculează statistici despre imagine pentru calibrare adaptivă"""
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         
         return {
@@ -754,7 +744,6 @@ class AdvancedTireQualityChecker:
         }
     
     def _detect_wrong_color(self, hsv: np.ndarray, expected_x: int, height: int, width: int, expected_color: str) -> Optional[Tuple[str, Tuple[int, int]]]:
-        """Detectează dacă la poziția așteptată există o linie cu culoare greșită"""
         roi_half = 50 
         
         x1 = max(0, expected_x - roi_half)

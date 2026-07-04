@@ -42,7 +42,6 @@ def _open_capture() -> cv2.VideoCapture:
     if SOURCE == "local":
         cap = cv2.VideoCapture(VIDEO_PATH)
     elif SOURCE == "rtsp":
-        # menținem aceeași abordare ca în find_colors_HSV.py
         cap = cv2.VideoCapture(RTSP_URL, cv2.CAP_FFMPEG)
     else:
         raise ValueError("SOURCE trebuie sa fie 'local' sau 'rtsp'")
@@ -50,7 +49,6 @@ def _open_capture() -> cv2.VideoCapture:
     if not cap.isOpened():
         return cap
 
-    # Best-effort: reduce buffering (nu e suportat pe toate backend-urile)
     try:
         cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
     except Exception:
@@ -60,7 +58,7 @@ def _open_capture() -> cv2.VideoCapture:
 
 
 def _grab_single_frame(cap: cv2.VideoCapture) -> np.ndarray:
-    # Warmup reads
+
     for _ in range(max(0, int(WARMUP_FRAMES))):
         cap.read()
 
@@ -121,7 +119,6 @@ def main() -> None:
         frame = _grab_single_frame(cap)
         _process_frame(checker, frame, samples_by_color)
     else:
-        # Warmup reads for RTSP stability (safe for file sources too)
         for _ in range(max(0, int(WARMUP_FRAMES))):
             cap.read()
 
@@ -142,7 +139,7 @@ def main() -> None:
 
     cap.release()
 
-    print("\n=== CALIBRARE LĂȚIMI (px) ===")
+    print("\n=== CALIBRARE LATIMI (px) ===")
     if SOURCE == "local":
         print(f"Video: {VIDEO_PATH}")
     else:
@@ -167,11 +164,10 @@ def main() -> None:
         recommended_widths.append(int(round(st["median"])))
 
     if all(v is not None for v in recommended_widths):
-        print("\nRECOMANDARE expected_widths (în ordinea pattern.colors):")
+        print("\nRECOMANDARE expected_widths (in ordinea pattern.colors):")
         print(f"colors = {checker.current_pattern.colors}")
         print(f"expected_widths = {recommended_widths}")
 
-        # Suggest a tolerance based on spread (p10..p90)
         spreads = []
         for color in checker.current_pattern.colors:
             vals = samples_by_color[color]
@@ -183,10 +179,10 @@ def main() -> None:
         suggested_tol = min(max((avg_spread / max(avg_med, 1.0)) * 0.6, 0.10), 0.40)
 
         print("\nRECOMANDARE tolerance_width (aproximativ):")
-        print(f"tolerance_width ≈ {suggested_tol:.2f}  (ajustezi după cât de strict vrei)")
+        print(f"tolerance_width ≈ {suggested_tol:.2f}  (ajustezi dupa cat de strict vrei)")
     else:
         print("\nNu pot recomanda expected_widths complet (lipsesc culori).")
-        print("Încearcă să crești MAX_SAMPLES sau să micșorezi FRAME_STRIDE.")
+        print("Incearca sa cresti MAX_SAMPLES sau sa micsorezi FRAME_STRIDE.")
 
 
 if __name__ == "__main__":

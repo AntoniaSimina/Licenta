@@ -48,10 +48,8 @@ def find_dynamic_center_x(frame_bgr):
 
 
 def main():
-    # 1. Incarca omografia
     M_homography = np.load(HOMOGRAPHY_FILE)
 
-    # 2. Fereastra + trackbars
     cv2.namedWindow(WINDOW_NAME)
     cv2.createTrackbar("Scale_Adj", WINDOW_NAME, 100, 200, nothing)  # 100 => 1.0
     cv2.createTrackbar("Offset", WINDOW_NAME, 500, 1000, nothing)    # 500 => 0
@@ -68,21 +66,17 @@ def main():
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # loop video
             continue
 
-        # Pas A: Warp (imagine indreptata)
         frame_warped = cv2.warpPerspective(frame, M_homography, WARPED_SIZE)
 
-        # Pas B: Citeste trackbars
         s_adj = cv2.getTrackbarPos("Scale_Adj", WINDOW_NAME) / 100.0
         off_adj = cv2.getTrackbarPos("Offset", WINDOW_NAME) - 500
         scale_final = 10.0 * s_adj
 
-        # Pas C: Centru dinamic pe cadrul warped + stabilizare simpla
         detected_center = find_dynamic_center_x(frame_warped)
         centru_px = int(0.8 * last_center + 0.2 * detected_center)
         last_center = centru_px
         referinta_finala = centru_px + off_adj
 
-        # Deseneaza referinta
         cv2.line(frame_warped, (centru_px, 0), (centru_px, WARPED_SIZE[1]), (0, 255, 255), 2)
         cv2.line(frame_warped, (referinta_finala, 0), (referinta_finala, WARPED_SIZE[1]), (255, 255, 0), 2)
 
@@ -105,9 +99,7 @@ def main():
             2,
         )
 
-        # Linii teoretice
         for nume, cota_mm in COTE_PRODUCTIE_MM.items():
-            # Pozitive la stanga centrului (conventia proiectului)
             pos_x = int(referinta_finala - (cota_mm * scale_final))
             pos_x = max(0, min(WARPED_SIZE[0] - 1, pos_x))
 
